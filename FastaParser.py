@@ -11,6 +11,11 @@ ex:
     > parser = FastaParser.FastaParser("fasta_file.fasta")
     > [seq.id for seq in parser]
     ['HSBGPG', 'HSGLTH1']
+
+
+Based on these pages:
+http://genetics.bwh.harvard.edu/pph/FASTA.html
+https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp
 """
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
