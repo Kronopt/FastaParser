@@ -93,7 +93,7 @@ class FastaParser:
 
         self._iteration_ended = False
         self._keep_sequences = keep_sequences
-        self.sequences = []
+        self.sequences = {}
 
     def __iter__(self):
         """
@@ -120,7 +120,6 @@ class FastaParser:
                 while not end_of_sequence:
                     sequence_line = fasta_file.readline()
                     if len(sequence_line) == 0:  # end of file, end iteration
-                        self._iteration_ended = True  # Iterated once. No more sequences will be added to self.sequences
                         end_of_sequence = True
                         end_of_file = True
                         fasta_file.close()
@@ -133,9 +132,11 @@ class FastaParser:
                 fasta_sequence = FastaSequence(seq_id, seq_description.rstrip(), seq)
 
                 if self._keep_sequences and not self._iteration_ended:
-                    self.sequences.append(fasta_sequence)
+                    self.sequences[fasta_sequence.id] = fasta_sequence
 
                 yield fasta_sequence
+            
+            self._iteration_ended = True  # Iterated once. No more sequences will be added to self.sequences
 
         return iter_fasta_file(self._fasta)
 
