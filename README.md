@@ -19,6 +19,7 @@ HSGLTH1 Human theta 1-globin gene
 ```
 
 #### Work in Progress
+* Context Manager (?)
 * Documentation
 * Examples
 * Read the whole fasta "specification" to provide more features
