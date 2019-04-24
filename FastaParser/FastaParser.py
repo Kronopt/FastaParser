@@ -4,7 +4,7 @@
 """
 PyFastaParser
 
-Parses fasta files with FastaParser class and generates
+Parses fasta files with the FastaParser class and generates
 FastaSequence objects of the parsed sequences
 
 ex:
@@ -17,11 +17,13 @@ ex:
 Based on these pages:
 http://genetics.bwh.harvard.edu/pph/FASTA.html
 https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp
+https://en.wikipedia.org/wiki/FASTA_format
+https://ncbi.github.io/cxx-toolkit/pages/ch_demo#ch_demo.id1_fetch.html_ref_fasta
 """
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
-__version__ = '1.0'
+__version__ = '0.1'
 
 
 # NUCLEOTIDE DICTIONARIES
@@ -96,6 +98,8 @@ class LetterCode:
     ----------
     letter_code : str
         Upper case letter code.
+    sequence_type : str, None
+        'nucleotide' or 'aminoacid. None if there is no information about sequence type.
     description : str
         Description or nucleotide/aminoacid name of letter code (can be an empty string).
     degenerate : bool, None
@@ -106,12 +110,12 @@ class LetterCode:
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
 
     """
-    _dictionary = {
+    letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
         'aminoacid': (aminoacid_letter_codes_good, aminoacid_letter_codes_degenerate)
     }
 
-    def __init__(self, letter_code, sequence_type=''):
+    def __init__(self, letter_code, sequence_type=None):
         """
         Initializes letter code given.
 
@@ -123,23 +127,28 @@ class LetterCode:
             'nucleotide' or 'aminoacid.
         """
         self.letter_code = letter_code.upper()
+        self.sequence_type = sequence_type
         self.description = ''
         self.degenerate = None
         self.supported = True
 
-        if sequence_type:
+        if self.sequence_type in self.letter_code_dictionary:
             # letter_codes_good
-            if self.letter_code in self._dictionary[sequence_type][0]:
-                self.description = self._dictionary[sequence_type][0][self.letter_code]
+            if self.letter_code in self.letter_code_dictionary[self.sequence_type][0]:
+                self.description = self.letter_code_dictionary[self.sequence_type][0][self.letter_code]
                 self.degenerate = False
             # letter_codes_degenerate
-            elif self.letter_code in self._dictionary[sequence_type][1]:
-                self.description = self._dictionary[sequence_type][1][self.letter_code]
+            elif self.letter_code in self.letter_code_dictionary[self.sequence_type][1]:
+                self.description = self.letter_code_dictionary[self.sequence_type][1][self.letter_code]
                 self.degenerate = True
+            # letter_code isn't defined in the FASTA specification
             else:
                 self.supported = False
-        else:
+        elif self.sequence_type == '' or self.sequence_type is None:
+            self.sequence_type = None
             self.supported = False
+        else:
+            raise ValueError('sequence_type, if defined, must be one of: %s' % ', '.join(self.letter_code_dictionary))
 
     def __repr__(self):
         return self.letter_code
@@ -258,6 +267,7 @@ class FastaParser:
 
         def iter_fasta_file(fasta_file):
             # TODO use for loop instead
+            # TODO check if sequence name is unique (ie, check if sequence name is already in dict)
             # assumes first line begins with '>'
             first_line = fasta_file.readline()[1:].split(" ", 1)
 
