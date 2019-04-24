@@ -4,7 +4,7 @@
 """
 PyFastaParser
 
-Parses fasta files with the FastaParser class and generates
+Parses FASTA files with the FastaParser class and generates
 FastaSequence objects of the parsed sequences
 
 ex:
@@ -110,7 +110,7 @@ class LetterCode:
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
 
     """
-    letter_code_dictionary = {
+    _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
         'aminoacid': (aminoacid_letter_codes_good, aminoacid_letter_codes_degenerate)
     }
@@ -126,37 +126,57 @@ class LetterCode:
         sequence_type : str, optional
             'nucleotide' or 'aminoacid.
         """
-        self.letter_code = letter_code.upper()
-        self.sequence_type = sequence_type
-        self.description = ''
-        self.degenerate = None
-        self.supported = True
+        self._letter_code = letter_code.upper()
+        self._sequence_type = sequence_type
+        self._description = ''
+        self._degenerate = None
+        self._supported = True
 
-        if self.sequence_type in self.letter_code_dictionary:
+        if self._sequence_type in self._letter_code_dictionary:
             # letter_codes_good
-            if self.letter_code in self.letter_code_dictionary[self.sequence_type][0]:
-                self.description = self.letter_code_dictionary[self.sequence_type][0][self.letter_code]
-                self.degenerate = False
+            if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
+                self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
+                self._degenerate = False
             # letter_codes_degenerate
-            elif self.letter_code in self.letter_code_dictionary[self.sequence_type][1]:
-                self.description = self.letter_code_dictionary[self.sequence_type][1][self.letter_code]
-                self.degenerate = True
-            # letter_code isn't defined in the FASTA specification
+            elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
+                self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
+                self._degenerate = True
+            # _letter_code isn't defined in the FASTA specification
             else:
-                self.supported = False
-        elif self.sequence_type == '' or self.sequence_type is None:
-            self.sequence_type = None
-            self.supported = False
+                self._supported = False
+        elif self._sequence_type == '' or self._sequence_type is None:
+            self._sequence_type = None
+            self._supported = False
         else:
-            raise ValueError('sequence_type, if defined, must be one of: %s' % ', '.join(self.letter_code_dictionary))
+            raise ValueError('sequence_type, if defined, must be one of: %s' % ', '.join(self._letter_code_dictionary))
+
+    @property
+    def letter_code(self):
+        return self._letter_code
+
+    @property
+    def sequence_type(self):
+        return self._sequence_type
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def degenerate(self):
+        return self._degenerate
+
+    @property
+    def supported(self):
+        return self._supported
 
     def __repr__(self):
-        return self.letter_code
+        return self._letter_code
 
 
 class FastaSequence:
     """
-    Represents one sequence as read from the given fasta file.
+    Represents one sequence as read from the given FASTA file.
     The class itself is an iterator of the sequence it contains.
     """
 
@@ -226,14 +246,14 @@ class FastaSequence:
 # TODO infer_type
 class FastaParser:
     """
-    Parses the given fasta file.
-    Assumes fasta file is properly formatted.
+    Parses the given FASTA file.
+    Assumes FASTA file is properly formatted.
     """
 
     def __init__(self, fasta_file, keep_sequences=False):
         """
         Initializes file object (checks if fasta_file is a path or a file object).
-        Only one sequence at a time is read from the fasta file, previous sequences are not kept in memory.
+        Only one sequence at a time is read from the FASTA file, previous sequences are not kept in memory.
         If keep_sequences=True, previous sequences are kept in memory.
 
         Parameters
@@ -259,7 +279,7 @@ class FastaParser:
 
     def __iter__(self):
         """
-        Iterates over the fasta file.
+        Iterates over the FASTA file.
         """
         # check if file was closed, and open it again for new iteration
         if self._fasta.closed:
