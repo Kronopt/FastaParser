@@ -339,10 +339,29 @@ class FastaSequence:
         _description = self._description[:50] if self.description else '\'\''
         return "<%s - ID:%s | DESCRIPTION:%s>" % (self.__class__.__name__, _id, _description)
 
+    # TODO method to return counts of each letter code in the sequence.
+    #  need to implement __eq__ on LetterCode
+    #  generate dict of:
+    #  KEY: letter_code_string (not LetterCode objects)
+    #  VALUE: counts in _build_letter_code_sequence
+    #  maybe in _build_letter_code_sequence method
+
+    # TODO method to calculate G/C content
+    #  (G+C) / (A+T+G+C) * 100
+
+    # TODO method to calculate AT/GC ratio
+    #  (A+T) / (G+C)
+
+    # TODO method to count degenerate letter codes
+
+    # TODO document non protected methods
+
 
 # TODO define the following in FastaParser:
 # TODO sequence_type
 # TODO infer_type
+
+# TODO redo
 class FastaParser:
     """
     Parses the given FASTA file.
