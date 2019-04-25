@@ -98,17 +98,23 @@ class LetterCode:
     ----------
     letter_code : str
         Upper case letter code.
-    sequence_type : str, None
+    sequence_type : str or None
         'nucleotide' or 'aminoacid. None if there is no information about sequence type.
     description : str
         Description or nucleotide/aminoacid name of letter code (can be an empty string).
-    degenerate : bool, None
+    degenerate : bool or None
         Indicates if a letter code is degenerate or not (can be None if letter code is
-        not defined in the FASTA specification)
+        not defined in the FASTA specification).
     supported : bool
         Indicates if letter code is supported or not
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
 
+    Raises
+    ------
+    TypeError
+        If letter_code is not str.
+    ValueError
+        If sequence_type is not 'nucleotide', 'aminoacid' or None.
     """
     _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
@@ -123,16 +129,20 @@ class LetterCode:
         ----------
         letter_code : str
             Letter code.
-        sequence_type : str, optional
+        sequence_type : str or None, optional
             'nucleotide' or 'aminoacid.
         """
-        self._letter_code = letter_code.upper()
+        if isinstance(letter_code, str):
+            self._letter_code = letter_code.upper()
+        else:
+            raise TypeError('letter_code must be str')
         self._sequence_type = sequence_type
         self._description = ''
         self._degenerate = None
-        self._supported = True
 
         if self._sequence_type in self._letter_code_dictionary:
+            self._supported = True
+
             # letter_codes_good
             if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
                 self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
@@ -144,8 +154,7 @@ class LetterCode:
             # _letter_code isn't defined in the FASTA specification
             else:
                 self._supported = False
-        elif self._sequence_type == '' or self._sequence_type is None:
-            self._sequence_type = None
+        elif self._sequence_type is None:
             self._supported = False
         else:
             raise ValueError('sequence_type, if defined, must be one of: %s' % ', '.join(self._letter_code_dictionary))
@@ -176,23 +185,39 @@ class LetterCode:
 
 class FastaSequence:
     """
-    Represents one sequence as read from the given FASTA file.
-    The class itself is an iterator of the sequence it contains.
+    Represents one FASTA sequence.
+    The class itself is an iterator of the sequence it represents.
+
+    Attributes
+    ----------
+    id : str
+        ID portion of the definition line (header).
+    description : str
+        Description portion of the definition line (header). Can be empty.
+    sequence : list of LetterCode
+        Sequence.
+    sequence_type : str or None
+        Indicates the type of sequence ('aminoacid' or 'nucleotide'). Can be None if not known.
+    inferred_type: bool
+        True if FastaSequence inferred the sequence type, False otherwise.
+
+    Raises
+    ------
+    TypeError
+        If definition_line, sequence, sequence_type or infer_type are of the wrong type.
     """
 
-    def __init__(self, seq_id, description, sequence, sequence_type='', infer_type=False):
+    def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
         """
-        Simply initializes the id, description and sequence.
+        Initializes FASTA sequence.
 
         Parameters
         ----------
-        seq_id : str
-            ID portion of the sequence.
-        description : str
-            Description portion of the string. Can be empty.
+        definition_line: str
+            FASTA sequence definition line (header), containing the '>' symbol at the start.
         sequence : str
-            Sequence.
-        sequence_type : str, optional
+            String of characters representing a DNA, RNA or aminoacid sequence.
+        sequence_type : str or None, optional
             Indicates the type of sequence ('aminoacid' or 'nucleotide').
             If not defined, FastaSequence can try to infer type based on the letter codes.
         infer_type : bool, optional
@@ -200,45 +225,119 @@ class FastaSequence:
             If True, FastaSequence will analyse the whole sequence, in the worst case scenario,
             and can only identify aminoacid sequences.
         """
-        self.id = seq_id
-        self.description = description
-        self.sequence = sequence
-        self.sequence_type = sequence_type
-        self._infer_type = infer_type
+        if isinstance(definition_line, str):  # '>id|more_id description ...'
+            id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
+            if len(id_and_description) == 1 and id_and_description[0] == '>':  # both id and description can be empty
+                self._id = ''
+                self._description = ''
+            else:
+                # assumes a starting '>'
+                id_and_description[0] = id_and_description[0][1:]
+                if len(id_and_description) == 1:  # description can be empty
+                    self._id = id_and_description[0]
+                    self._description = ''
+                else:
+                    self._id, self._description = id_and_description
+        else:
+            raise TypeError('definition_line must be str')
 
-        if self._infer_type:
-            self._infer_sequence_type()
+        if (isinstance(sequence_type, str) and sequence_type in LetterCode._letter_code_dictionary) \
+                or sequence_type is None:
+            self._sequence_type = sequence_type
+        else:
+            raise TypeError('sequence_type must be str or None')
 
-    def _infer_sequence_type(self):
+        if isinstance(sequence, str):
+            if isinstance(infer_type, bool):
+                if infer_type:
+                    self._sequence_type = self._infer_sequence_type(sequence)
+                else:
+                    self._inferred_type = False
+            else:
+                raise TypeError('infer_type must be bool')
+
+            self._sequence = self._build_letter_code_sequence(sequence)
+        else:
+            raise TypeError('sequence must be a str')
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def sequence(self):
+        return self._sequence
+
+    @property
+    def sequence_type(self):
+        return self._sequence_type
+
+    @property
+    def inferred_type(self):
+        return self._inferred_type
+
+    def _build_letter_code_sequence(self, string_sequence):
+        """
+        Iterate over the given sequence and build a list of LetterCode objects.
+
+        Parameters
+        ----------
+        string_sequence: str
+            String of characters representing a DNA, RNA or aminoacid sequence.
+
+        Returns
+        -------
+        list of LetterCode
+        """
+        return [LetterCode(letter_code, self._sequence_type) for letter_code in string_sequence]
+
+    def _infer_sequence_type(self, string_sequence):
         """
         Tries to infer aminoacid sequence type.
         Tests for the presence of letter codes that can only represent aminoacids
         (ie, aminoacids letter codes not in nucleotides letter codes).
         Testing for nucleotides is not 100% accurate because there are no letter codes
         which belong solely to nucleotide type sequences.
+
+        Parameters
+        ----------
+        string_sequence: str
+            String of characters representing a DNA, RNA or aminoacid sequence.
+
+        Returns
+        -------
+        str or None
+            Inferred type
         """
-        for letter_code in self.sequence:
+        for letter_code in string_sequence:
             if letter_code in aminoacids_not_in_nucleotides:
-                self.sequence_type = 'aminoacid'
-                return
-        self.sequence_type = ''
+                self._inferred_type = True
+                return 'aminoacid'
+        self._inferred_type = False
 
     def __iter__(self):
         """
         Iterates over the sequence.
         """
-        def iter_sequence(sequence, sequence_type):
-            for character in sequence:
-                yield LetterCode(character, sequence_type)
-        return iter_sequence(self.sequence, self.sequence_type)
+        def iter_sequence():
+            for letter_code in self._sequence:
+                yield letter_code
+        return iter_sequence()
 
     def __len__(self):
-        return len(self.sequence)
+        return len(self._sequence)
 
     def __repr__(self):
-        _id = self.id if self.id else '\'\''
-        description = self.description[:50] if self.description else '\'\''
-        return "<%s - ID:%s | DESCRIPTION:%s>" % (self.__class__.__name__, _id, description)
+        """
+        <FastaSequence - ID:id#123 | DESCRIPTION:sequence description trimmed to 50 characters>
+        """
+        _id = self._id if self._id else '\'\''
+        _description = self._description[:50] if self.description else '\'\''
+        return "<%s - ID:%s | DESCRIPTION:%s>" % (self.__class__.__name__, _id, _description)
 
 
 # TODO define the following in FastaParser:
