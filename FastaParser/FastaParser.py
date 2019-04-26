@@ -131,6 +131,13 @@ class LetterCode:
             Letter code.
         sequence_type : str or None, optional
             'nucleotide' or 'aminoacid.
+
+        Raises
+        ------
+        TypeError
+            If letter_code is not str.
+        ValueError
+            If sequence_type is not 'nucleotide', 'aminoacid' or None.
         """
         if isinstance(letter_code, str):
             self._letter_code = letter_code.upper()
@@ -224,6 +231,11 @@ class FastaSequence:
             Indicates if FastaSequence should try to infer aminoacid sequence type.
             If True, FastaSequence will analyse the whole sequence, in the worst case scenario,
             and can only identify aminoacid sequences.
+
+        Raises
+        ------
+        TypeError
+            If definition_line, sequence, sequence_type or infer_type are of the wrong type.
         """
         if isinstance(definition_line, str):  # '>id|more_id description ...'
             id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
@@ -333,11 +345,10 @@ class FastaSequence:
 
     def __repr__(self):
         """
-        <FastaSequence - ID:id#123 | DESCRIPTION:sequence description trimmed to 50 characters>
+        >id description
+        sequence
         """
-        _id = self._id if self._id else '\'\''
-        _description = self._description[:50] if self.description else '\'\''
-        return "<%s - ID:%s | DESCRIPTION:%s>" % (self.__class__.__name__, _id, _description)
+        return ">%s %s\n" % (self._id, self._description) + ''.join(map(str, self._sequence))
 
     # TODO method to return counts of each letter code in the sequence.
     #  need to implement __eq__ on LetterCode
@@ -354,93 +365,124 @@ class FastaSequence:
 
     # TODO method to count degenerate letter codes
 
-    # TODO document non protected methods
+    # TODO method to return a string containing a formatted FASTA sequence
+    #  with header and sequence lines (maximum of 80 characters per sequence line)
+
+    # TODO document non protected methods (if any)
 
 
-# TODO define the following in FastaParser:
-# TODO sequence_type
-# TODO infer_type
-
-# TODO redo
 class FastaParser:
     """
     Parses the given FASTA file.
-    Assumes FASTA file is properly formatted.
+
+    Attributes
+    ----------
+    fasta_file : FASTA file object
+        The FASTA file passed as parameter.
+    sequences_type : str or None
+        Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). Can be None if not known.
+    infer_type: bool
+        True if sequence type of each sequence is to be inferred, False otherwise.
+
+    Raises
+    ------
+    TypeError
+        If fasta_file_object is not a file object or is closed.
     """
 
-    def __init__(self, fasta_file, keep_sequences=False):
+    def __init__(self, fasta_file_object, sequences_type=None, infer_type=False):
         """
-        Initializes file object (checks if fasta_file is a path or a file object).
-        Only one sequence at a time is read from the FASTA file, previous sequences are not kept in memory.
-        If keep_sequences=True, previous sequences are kept in memory.
+        Initializes file object (checks if fasta_file_object is an opened file object).
+        Only one FASTA sequence is read at a time from the FASTA file, previous sequences are not kept in memory.
 
         Parameters
         ----------
-        fasta_file : str / file
-            path string or a file object
-        keep_sequences : bool
-            Whether to keep the sequences iterated over or not
-        """
-        if isinstance(fasta_file, str):  # try to open file path
-            self._fasta = open(fasta_file, 'r')
-        elif hasattr(fasta_file, "readline"):  # assume it's a file object
-            if fasta_file.closed:
-                self._fasta = open(fasta_file.name, 'r')
-            else:
-                self._fasta = fasta_file
-        else:
-            raise Exception("Not a file.")
+        fasta_file_object : file object
+            An opened file handle.
+        sequences_type : str or None, optional
+            Indicates the type of sequences to expect ('aminoacid' or 'nucleotide').
+        infer_type : bool, optional
+            Indicates if FastaParser should try to infer aminoacid sequence type for each sequence.
+            Can only identify aminoacid sequences.
 
-        self._iteration_ended = False
-        self._keep_sequences = keep_sequences
-        self.sequences = {}
+        Raises
+        ------
+        TypeError
+            If fasta_file_object is not a file object or is closed.
+        """
+        if hasattr(fasta_file_object, "readline"):  # assume it's a file object
+            if fasta_file_object.closed:
+                raise TypeError('fasta_file_object must be opened for reading')
+            else:
+                self._fasta_file = fasta_file_object
+        else:
+            raise TypeError('fasta_file_object must be a file object')
+
+        if (isinstance(sequences_type, str) and sequences_type in LetterCode._letter_code_dictionary) \
+                or sequences_type is None:
+            self._sequences_type = sequences_type
+        else:
+            raise TypeError('sequences_type must be str or None')
+
+        if isinstance(infer_type, bool):
+            self._infer_type = infer_type
+        else:
+            raise TypeError('infer_type must be bool')
+
+    @property
+    def fasta_file(self):
+        return self._fasta_file
+
+    @property
+    def sequences_type(self):
+        return self._sequences_type
+
+    @property
+    def infer_type(self):
+        return self._infer_type
 
     def __iter__(self):
         """
         Iterates over the FASTA file.
         """
-        # check if file was closed, and open it again for new iteration
-        if self._fasta.closed:
-            self._fasta = open(self._fasta.name, 'r')
+        if self._fasta_file.closed:  # check if file is closed
+            raise TypeError('fasta_file_object must be opened for reading')
 
         def iter_fasta_file(fasta_file):
-            # TODO use for loop instead
-            # TODO check if sequence name is unique (ie, check if sequence name is already in dict)
-            # assumes first line begins with '>'
-            first_line = fasta_file.readline()[1:].split(" ", 1)
+            fasta_file.seek(0)  # restart cursor position (just in case)
 
-            end_of_file = False
-            while not end_of_file:
-                if len(first_line) == 1:  # description can be empty
-                    seq_id = first_line[0].rstrip()
-                    seq_description = ''
+            definition_line = ''
+            sequence = ''
+
+            parsing_fasta_sequence = False
+            for line in fasta_file:
+                line = line.strip()
+
+                # searching for '>' character at the start of a line
+                if not parsing_fasta_sequence:
+                    if line.startswith('>'):
+                        definition_line = line
+                        parsing_fasta_sequence = True
+
+                # in the middle of parsing a FASTA sequence
                 else:
-                    seq_id, seq_description = first_line
+                    if len(line) > 0 and line[0] != '>':
+                        sequence += line
+                    elif len(line) > 0 and line[0] == '>':
+                        yield FastaSequence(definition_line, sequence, self._sequences_type, self._infer_type)
 
-                seq = ''
-                end_of_sequence = False
-                while not end_of_sequence:
-                    sequence_line = fasta_file.readline()
-                    if len(sequence_line) == 0:  # end of file, end iteration
-                        end_of_sequence = True
-                        end_of_file = True
-                        fasta_file.close()
-                    elif not sequence_line.startswith('>'):  # Line containing part of the sequence
-                        seq += sequence_line.rstrip()
-                    else:
-                        end_of_sequence = True
-                        first_line = sequence_line[1:].split(" ", 1)
+                        # restart variables
+                        definition_line = line
+                        sequence = ''
+                        parsing_fasta_sequence = True
 
-                fasta_sequence = FastaSequence(seq_id, seq_description.rstrip(), seq)
+            # end of file, therefore yield last FASTA sequence
+            if len(definition_line) > 0:
+                yield FastaSequence(definition_line, sequence, self._sequences_type, self._infer_type)
 
-                if self._keep_sequences and not self._iteration_ended:
-                    self.sequences[fasta_sequence.id] = fasta_sequence
-
-                yield fasta_sequence
-            
-            self._iteration_ended = True  # Iterated once. No more sequences will be added to self.sequences
-
-        return iter_fasta_file(self._fasta)
+        return iter_fasta_file(self._fasta_file)
 
     def __repr__(self):
-        return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta.name)
+        return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
+
+    # TODO FASTA writer
