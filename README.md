@@ -10,9 +10,10 @@ A simple python FASTA parser
 
 ```Python
 >>> import FastaParser
->>> parser = FastaParser.FastaParser("fasta_file.fasta")
->>> for seq in parser:
-...     print(seq.id, seq.description)
+>>> with open("fasta_file.fasta") as fasta_file:
+...     parser = FastaParser.FastaParser(fasta_file)
+...     for seq in parser:
+...         print(seq.id, seq.description)
 
 HSBGPG Human gene for bone gla protein (BGP)
 HSGLTH1 Human theta 1-globin gene
