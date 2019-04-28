@@ -150,7 +150,7 @@ class LetterCode:
         """
         if isinstance(letter_code, str):
             self._letter_code = letter_code.upper()
-            if self._letter_code not in letter_codes_all:
+            if self._letter_code not in letter_codes_all:  # not defined in the FASTA specification
                 warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
             raise TypeError('letter_code must be str')
@@ -497,3 +497,4 @@ class FastaParser:
         return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
 
     # TODO FASTA writer
+    # TODO Identify ID's (see linked sources)
