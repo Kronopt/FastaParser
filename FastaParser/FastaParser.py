@@ -21,6 +21,10 @@ https://en.wikipedia.org/wiki/FASTA_format
 https://ncbi.github.io/cxx-toolkit/pages/ch_demo#ch_demo.id1_fetch.html_ref_fasta
 """
 
+
+import warnings
+
+
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
 __version__ = '0.1'
@@ -82,6 +86,11 @@ aminoacid_letter_codes_degenerate = {
 }
 
 # set operations
+letter_codes_all = set(list(nucleotide_letter_codes_good) +
+                       list(nucleotide_letter_codes_degenerate) +
+                       list(aminoacid_letter_codes_good) +
+                       list(aminoacid_letter_codes_degenerate)
+                       )
 nucleotide_letter_codes_all = set(list(nucleotide_letter_codes_good) +
                                   list(nucleotide_letter_codes_degenerate))
 aminoacid_letter_codes_all = set(list(aminoacid_letter_codes_good) +
@@ -141,6 +150,8 @@ class LetterCode:
         """
         if isinstance(letter_code, str):
             self._letter_code = letter_code.upper()
+            if self._letter_code not in letter_codes_all:
+                warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
             raise TypeError('letter_code must be str')
         self._sequence_type = sequence_type
