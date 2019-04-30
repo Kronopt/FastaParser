@@ -227,7 +227,12 @@ class LetterCode:
         Returns
         -------
         LetterCode
-            Complement of the current aminoacid letter code
+            Complement of the current nucleotide letter code
+
+        Raises
+        ------
+        TypeError
+            If self.sequence_type is not 'nucleotide'.
         """
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
@@ -255,10 +260,16 @@ class FastaSequence:
     inferred_type: bool
         True if FastaSequence inferred the sequence type, False otherwise.
 
+    Methods
+    -------
+    complement()
+        Returns the complementary FastaSequence of a nucleotide sequence.
+
     Raises
     ------
     TypeError
         If definition_line, sequence, sequence_type or infer_type are of the wrong type.
+        If sequence_type is not 'nucleotide' when calling complement().
     """
 
     def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
@@ -338,6 +349,28 @@ class FastaSequence:
     @property
     def inferred_type(self):
         return self._inferred_type
+
+    def complement(self):
+        """
+        Complement of nucleotide sequence.
+
+        Returns
+        -------
+        FastaSequence
+            Complement of the current nucleotide sequence
+
+        Raises
+        ------
+        TypeError
+            If self.sequence_type is not 'nucleotide'.
+        """
+        if self._sequence_type != 'nucleotide':
+            raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
+        complement_sequence = ''.join([letter.complement().letter_code for letter in self])
+
+        return FastaSequence('>' + self._id + ' ' + self._description,
+                             complement_sequence,
+                             self._sequence_type)
 
     def _build_letter_code_sequence(self, string_sequence):
         """
