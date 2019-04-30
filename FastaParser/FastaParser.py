@@ -19,6 +19,7 @@ http://genetics.bwh.harvard.edu/pph/FASTA.html
 https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp
 https://en.wikipedia.org/wiki/FASTA_format
 https://ncbi.github.io/cxx-toolkit/pages/ch_demo#ch_demo.id1_fetch.html_ref_fasta
+http://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html
 """
 
 
@@ -52,6 +53,25 @@ nucleotide_letter_codes_degenerate = {
     'H': 'A/C/T',
     'V': 'G/C/A',
     '-': 'gap of indeterminate length'
+}
+nucleotide_letter_codes_complement = {
+    'A': 'T',
+    'C': 'G',
+    'G': 'C',
+    'T': 'A',
+    'N': 'N',
+    'U': 'A',
+    'K': 'M',
+    'S': 'S',
+    'Y': 'R',
+    'M': 'K',
+    'W': 'W',
+    'R': 'Y',
+    'B': 'V',
+    'D': 'H',
+    'H': 'D',
+    'V': 'B',
+    '-': '-'
 }
 
 # AMINOACID DICTIONARIES
@@ -119,10 +139,16 @@ class LetterCode:
         Indicates if letter code is supported or not
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
 
+    Methods
+    -------
+    complement()
+        Returns the complementary LetterCode of a nucleotide.
+
     Raises
     ------
     TypeError
         If letter_code or sequence_type are of the wrong type.
+        If sequence_type is not 'nucleotide' when calling complement().
     """
     _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
@@ -193,6 +219,19 @@ class LetterCode:
     @property
     def supported(self):
         return self._supported
+
+    def complement(self):
+        """
+        Complement of nucleotide letter code.
+
+        Returns
+        -------
+        LetterCode
+            Complement of the current aminoacid letter code
+        """
+        if self._sequence_type != 'nucleotide':
+            raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
+        return LetterCode(nucleotide_letter_codes_complement[self._letter_code], self._sequence_type)
 
     def __repr__(self):
         return self._letter_code
@@ -330,8 +369,8 @@ class FastaSequence:
 
         Returns
         -------
-        str or None
-            Inferred type
+        'aminoacid' or None
+            Inferred type 'aminoacid', None otherwise
         """
         for letter_code in string_sequence:
             if letter_code in aminoacids_not_in_nucleotides:
