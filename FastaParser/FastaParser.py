@@ -4,12 +4,12 @@
 """
 PyFastaParser
 
-Parses FASTA files with the Reader class (generates FastaSequence objects of the parsed sequences)
+Parses FASTA files with the Reader class (generates FastaSequence objects or plane strings of the parsed sequences)
 
 ex:
     > import FastaParser
-    > parser = FastaParser.Reader("fasta_file.fasta")
-    > [seq.id for seq in parser]
+    > reader = FastaParser.Reader("fasta_file.fasta")
+    > [seq.id for seq in reader]
     ['HSBGPG', 'HSGLTH1']
 
 
@@ -251,7 +251,7 @@ class FastaSequence:
     Attributes
     ----------
     id : str
-        ID portion of the definition line (header).
+        ID portion of the definition line (header). Can be empty.
     description : str
         Description portion of the definition line (header). Can be empty.
     sequence : list of LetterCode
@@ -280,7 +280,7 @@ class FastaSequence:
         Parameters
         ----------
         definition_line: str
-            FASTA sequence definition line (header), containing the '>' symbol at the start.
+            FASTA sequence definition line (header). May contain or not the '>' symbol at the start.
         sequence : str
             String of characters representing a DNA, RNA or aminoacid sequence.
         sequence_type : 'nucleotide', 'aminoacid' or None, optional
@@ -296,14 +296,16 @@ class FastaSequence:
         TypeError
             If definition_line, sequence, sequence_type or infer_type are of the wrong type.
         """
-        if isinstance(definition_line, str):  # '>id|more_id description ...'
+        if isinstance(definition_line, str):  # '>id|more_id description ...' with or without the '>' at the start
             id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
-            if len(id_and_description) == 1 and id_and_description[0] == '>':  # both id and description can be empty
+
+            # both id and description can be empty
+            if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
                 self._id = ''
                 self._description = ''
             else:
-                # assumes a starting '>'
-                id_and_description[0] = id_and_description[0][1:]
+                if id_and_description[0].startswith('>'):
+                    id_and_description[0] = id_and_description[0][1:]
                 if len(id_and_description) == 1:  # description can be empty
                     self._id = id_and_description[0]
                     self._description = ''
