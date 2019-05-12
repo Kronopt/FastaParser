@@ -371,7 +371,7 @@ class FastaSequence:
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
         complement_sequence = ''.join([letter.complement().letter_code for letter in self])
 
-        return FastaSequence('>' + self._id + ' ' + self._description,
+        return FastaSequence(self._id + ' ' + self._description,
                              complement_sequence,
                              self._sequence_type)
 
@@ -417,11 +417,22 @@ class FastaSequence:
     def __iter__(self):
         """
         Iterates over the sequence.
+        Returns a new iterator of the sequence (from the beginning) every time __iter__ is called.
         """
         def iter_sequence():
             for letter_code in self._sequence:
                 yield letter_code
-        return iter_sequence()
+        self._current_iterator = iter_sequence()
+        return self._current_iterator
+
+    def __next__(self):
+        """
+        Returns the next letter code from the current iterator (most recent iterator).
+        If no iterator still exists, calls __iter__ to create it.
+        """
+        if not hasattr(self, '_current_iterator'):
+            self.__iter__()
+        return next(self._current_iterator)
 
     def __len__(self):
         return len(self._sequence)
@@ -455,6 +466,7 @@ class FastaSequence:
 
     # TODO document non protected methods (if any)
 
+    # TODO get sequence as string
 
 class Reader:
     """
@@ -616,4 +628,3 @@ class Reader:
     def __repr__(self):
         return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
 
-    # TODO Identify ID's (see linked sources)
