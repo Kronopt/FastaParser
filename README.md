@@ -11,7 +11,7 @@ A simple python FASTA parser
 ```Python
 >>> import FastaParser
 >>> with open("fasta_file.fasta") as fasta_file:
-...     parser = FastaParser.FastaParser(fasta_file)
+...     parser = FastaParser.Reader(fasta_file)
 ...     for seq in parser:
 ...         print(seq.id, seq.description)
 

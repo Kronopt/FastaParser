@@ -4,12 +4,11 @@
 """
 PyFastaParser
 
-Parses FASTA files with the FastaParser class and generates
-FastaSequence objects of the parsed sequences
+Parses FASTA files with the Reader class (generates FastaSequence objects of the parsed sequences)
 
 ex:
     > import FastaParser
-    > parser = FastaParser.FastaParser("fasta_file.fasta")
+    > parser = FastaParser.Reader("fasta_file.fasta")
     > [seq.id for seq in parser]
     ['HSBGPG', 'HSGLTH1']
 
@@ -31,6 +30,8 @@ __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
 __version__ = '0.1'
 
+
+warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
 
 # NUCLEOTIDE DICTIONARIES
 nucleotide_letter_codes_good = {
@@ -446,15 +447,17 @@ class FastaSequence:
     # TODO method to count degenerate letter codes
 
     # TODO method to return a string containing a formatted FASTA sequence
-    #  with header and sequence lines (maximum of 80 characters per sequence line)
+    #  with header and sequence lines (maximum of 70 characters per sequence line)
+
+    # TODO Identify FASTA ID's (see linked sources)
 
     # TODO document non protected methods (if any)
 
 
-class FastaParser:
+class Reader:
     """
-    Parses the given FASTA file.
-    Parsing methods include 'quick' or 'rich':
+    Parser/Reader for the given FASTA file.
+    Parsing mechanisms include 'quick' or 'rich':
         - 'quick': Object containing just the FASTA header and sequence attributes
         - 'rich': FastaSequence (default)
 
@@ -488,7 +491,7 @@ class FastaParser:
         sequences_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). None if unknown.
         infer_type : bool, optional
-            Indicates if FastaParser should try to infer aminoacid sequence type for each sequence.
+            Indicates if Reader should try to infer aminoacid sequence type for each sequence.
             Can only identify aminoacid sequences.
         parse_method: 'rich' or 'quick', optional
             Parse method to use ('rich' or 'quick'). Defaults to 'rich'.
@@ -507,7 +510,7 @@ class FastaParser:
         self._fasta_sequence = namedtuple('Fasta', ['header', 'sequence'])
 
         if hasattr(fasta_file_object, "readline"):  # assume it's a file object
-            if fasta_file_object.closed:
+            if fasta_file_object.closed and not fasta_file_object.readable():
                 raise TypeError('fasta_file_object must be opened for reading')
             else:
                 self._fasta_file = fasta_file_object
@@ -550,6 +553,7 @@ class FastaParser:
     def __iter__(self):
         """
         Iterates over the FASTA file.
+        Returns a new iterator of the file (from the beginning) every time __iter__ is called.
         """
         if self._fasta_file.closed:  # check if file is closed
             raise TypeError('fasta_file_object must be opened for reading')
@@ -595,10 +599,19 @@ class FastaParser:
                     fasta_sequence = self._fasta_sequence(definition_line, sequence)
                 yield fasta_sequence
 
-        return iter_fasta_file(self._fasta_file)
+        self._current_iterator = iter_fasta_file(self._fasta_file)
+        return self._current_iterator
+
+    def __next__(self):
+        """
+        Returns the next FASTA sequence from the current iterator (most recent iterator).
+        If no iterator still exists, calls __iter__ to create it.
+        """
+        if not hasattr(self, '_current_iterator'):
+            self.__iter__()
+        return next(self._current_iterator)
 
     def __repr__(self):
         return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
 
-    # TODO FASTA writer
     # TODO Identify ID's (see linked sources)
