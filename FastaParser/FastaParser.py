@@ -5,6 +5,7 @@
 PyFastaParser
 
 Parses FASTA files with the Reader class (generates FastaSequence objects or plane strings of the parsed sequences)
+Writes FASTA files with the Writer class (takes FastaSequence objects or headers + sequences as strings)
 
 ex:
     > import FastaParser
@@ -12,6 +13,12 @@ ex:
     > [seq.id for seq in reader]
     ['HSBGPG', 'HSGLTH1']
 
+ex:
+    > import FastaParser
+    > writer = FastaParser.Writer("fasta_file.fasta")
+    > seqs = [('HSBGPG example sequence', 'TTCCAGGTGTGCCAATCCAGTCCATG'),
+    > ...     ('HSGLTH1 example sequence 2', 'GTACCTGACCTAACCGTGTGGACCTT')]
+    > writer.writefastas(seqs)
 
 Based on these pages:
 http://genetics.bwh.harvard.edu/pph/FASTA.html
@@ -532,14 +539,10 @@ class FastaSequence:
 
     # TODO method to count degenerate letter codes
 
-    # TODO method to return a string containing a formatted FASTA sequence
-    #  with header and sequence lines (maximum of 70 characters per sequence line)
-
     # TODO Identify FASTA ID's (see linked sources)
 
     # TODO document non protected methods (if any)
 
-    # TODO get sequence as string
 
 class Reader:
     """
@@ -701,3 +704,107 @@ class Reader:
     def __repr__(self):
         return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
 
+
+class Writer:
+    """
+    Writer for the given FASTA file.
+
+    Attributes
+    ----------
+    fasta_file : FASTA file object
+        The FASTA file passed as parameter.
+
+    Methods
+    -------
+    writefasta(FastaSequence or (header, sequence))
+        Writes a single FASTA sequence.
+        The FASTA sequence can either be a FastaSequence object or a tuple of (header, sequence) as strings (in this
+        order).
+        header can be an empty string.
+        sequence must have content.
+    writefastas(list of: FastaSequence or (header, sequence))
+        Writes multiple FASTA sequences.
+        FASTA sequences in the list should be defined as in writefasta().
+
+    Raises
+    ------
+    TypeError
+        If fasta_file_object is of the wrong type.
+        If fasta_file_object is not a file object or is closed.
+    """
+
+    def __init__(self, fasta_file_object):
+        """
+        Initializes file object (checks if fasta_file_object is a file object opened for writing).
+
+        Parameters
+        ----------
+        fasta_file_object : file object
+            An opened file handle.
+
+        Raises
+        ------
+        TypeError
+            If fasta_file_object is of the wrong type.
+            If fasta_file_object is not a file object or is closed.
+        """
+        if hasattr(fasta_file_object, "writelines"):  # assume it's a file object
+            if fasta_file_object.closed and not fasta_file_object.writable():
+                raise TypeError('fasta_file_object must be opened for writing')
+            else:
+                self._fasta_file = fasta_file_object
+        else:
+            raise TypeError('fasta_file_object must be a file object')
+
+    @property
+    def fasta_file(self):
+        return self._fasta_file
+
+    def writefasta(self, fasta_sequence):
+        """
+        Writes a single FASTA sequence to the provided file.
+
+        Parameters
+        ----------
+        fasta_sequence : FastaSequence or (header : str, sequence : str)
+            A FASTA sequence is built from the data contained in the provided FastaSequence object or the tuple of
+            header + sequence.
+            header may contain or not the starting '>'. header can be an empty string.
+            sequence must be a non empty string.
+        """
+        # either use the FastaSequence object directly
+        if isinstance(fasta_sequence, FastaSequence):
+            pass
+
+        # or create one with the provided header and sequence
+        elif isinstance(fasta_sequence, (tuple, list)) and len(fasta_sequence) == 2 \
+                and isinstance(fasta_sequence[0], str) and isinstance(fasta_sequence[1], str):
+            header = fasta_sequence[0]
+            sequence = ''.join(fasta_sequence[1].split('\n'))  # remove '\n' from sequence
+            fasta_sequence = FastaSequence(header, sequence)
+
+        else:
+            raise TypeError('fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)')
+
+        # write fasta to file
+        # TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def writefastas(self, fasta_sequences):  # TODO
+        """
+        list of
+        header + sequence as strings
+        OR
+        FastaSequence
+        """
