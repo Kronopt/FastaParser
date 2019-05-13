@@ -550,8 +550,6 @@ class FastaSequence:
 
     # TODO Identify FASTA ID's (see linked sources)
 
-    # TODO document non protected methods (if any)
-
 
 class Reader:
     """
@@ -789,31 +787,31 @@ class Writer:
         elif isinstance(fasta_sequence, (tuple, list)) and len(fasta_sequence) == 2 \
                 and isinstance(fasta_sequence[0], str) and isinstance(fasta_sequence[1], str):
             header = fasta_sequence[0]
-            sequence = ''.join(fasta_sequence[1].split('\n'))  # remove '\n' from sequence
+            sequence = ''.join(fasta_sequence[1].split('\n'))  # remove '\n's from sequence
             fasta_sequence = FastaSequence(header, sequence)
 
         else:
             raise TypeError('fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)')
 
         # write fasta to file
-        # TODO
+        self._fasta_file.write(fasta_sequence.formatted_fasta() + '\n')
 
-
-
-
-
-
-
-
-
-
-
-
-
-    def writefastas(self, fasta_sequences):  # TODO
+    def writefastas(self, fasta_sequences):
         """
-        list of
-        header + sequence as strings
-        OR
-        FastaSequence
+        Writes multiple FASTA sequences to the provided file.
+        Simply calls writefasta() for each object in fasta_sequences.
+
+        Parameters
+        ----------
+        fasta_sequences : list of FastaSequence or list of (header : str, sequence : str)
+            FASTA sequences are built from the data contained in the provided FastaSequence objects or the tuples of
+            header + sequence.
+            headers may contain or not the starting '>'. headers can be empty strings.
+            sequences must be non empty strings.
         """
+        if isinstance(fasta_sequences, (tuple, list)):
+            for fasta in fasta_sequences:
+                self.writefasta(fasta)
+        else:
+            raise TypeError('fasta_sequences must be a list of FastaSequence '
+                            'objects or a list of tuples (header : str, sequence : str)')
