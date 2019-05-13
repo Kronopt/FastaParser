@@ -281,8 +281,10 @@ class FastaSequence:
         ----------
         definition_line: str
             FASTA sequence definition line (header). May contain or not the '>' symbol at the start.
+            Can be an empty string.
         sequence : str
             String of characters representing a DNA, RNA or aminoacid sequence.
+            Must be provided and cannot be empty.
         sequence_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequence ('aminoacid' or 'nucleotide').
             If not defined, FastaSequence can try to infer type based on the letter codes.
@@ -320,7 +322,7 @@ class FastaSequence:
         else:
             raise TypeError('sequence_type must be one of: %s or None' % LetterCode._letter_code_dictionary)
 
-        if isinstance(sequence, str):
+        if isinstance(sequence, str) and len(sequence) > 0:
             if isinstance(infer_type, bool):
                 if infer_type:
                     self._sequence_type = self._infer_sequence_type(sequence)
@@ -331,7 +333,7 @@ class FastaSequence:
 
             self._sequence = self._build_letter_code_sequence(sequence)
         else:
-            raise TypeError('sequence must be a str')
+            raise TypeError('sequence must be a non empty str')
 
     @property
     def id(self):
@@ -374,6 +376,77 @@ class FastaSequence:
         return FastaSequence(self._id + ' ' + self._description,
                              complement_sequence,
                              self._sequence_type)
+
+    def formatted_definition_line(self):
+        """
+        Formatted FASTA definition line (header).
+
+        Returns
+        -------
+        str
+            FASTA definition line properly formatted
+        """
+        return '>' + self._id + ' ' + self._description
+
+    def formatted_sequence(self, max_characters_per_line=70):
+        """
+        Formatted FASTA sequence (only the sequence, without the definition line).
+        Lines are separated by '\n'.
+
+        Parameters
+        ----------
+        max_characters_per_line : int
+            Maximum number of characters per line.
+            This value should not go above 80, as per the FASTA specification.
+            A very low value is also not recommended.
+
+        Returns
+        -------
+        str
+            FASTA sequence properly formatted
+
+        Raises
+        ------
+        TypeError
+            If max_characters_per_line is not an int.
+        """
+        if isinstance(max_characters_per_line, int):
+            max_characters_per_line = 1 if max_characters_per_line == 0 else max_characters_per_line  # if 0
+
+            current_character_count = 0
+            final_sequence = ''
+            while current_character_count < len(self._sequence):
+                temp_sequence = self._sequence[current_character_count: current_character_count
+                                               + max_characters_per_line]
+                final_sequence += ''.join(map(str, temp_sequence)) + '\n'
+                current_character_count += max_characters_per_line
+            return final_sequence[:-1]  # remove last '\n'
+
+        else:
+            raise TypeError('max_characters_per_line must be an int')
+
+    def formatted_fasta(self):
+        """
+        Formatted FASTA (definition line and sequence).
+
+        Returns
+        -------
+        str
+            FASTA properly formatted
+        """
+        return self.formatted_definition_line() + '\n' + self.formatted_sequence()
+
+    def sequence_as_string(self):
+        """
+        Returns the sequence as string.
+        Converts the list of LetterCode objects to a single string.
+
+        Returns
+        -------
+        str
+            Sequence as string
+        """
+        return ''.join(map(str, self._sequence))
 
     def _build_letter_code_sequence(self, string_sequence):
         """
