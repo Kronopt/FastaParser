@@ -272,12 +272,21 @@ class FastaSequence:
     -------
     complement()
         Returns the complementary FastaSequence of a nucleotide sequence.
+    formatted_definition_line()
+        Returns a formatted FASTA definition line (header).
+    formatted_sequence(max_characters_per_line=70)
+        Returns a formatted FASTA sequence (only the sequence, without the definition line).
+    formatted_fasta()
+        Returns a formatted FASTA (definition line and sequence).
+    sequence_as_string()
+        Returns the sequence as string.
 
     Raises
     ------
     TypeError
         If definition_line, sequence, sequence_type or infer_type are of the wrong type.
         If sequence_type is not 'nucleotide' when calling complement().
+        If max_characters_per_line is not an int when calling formatted_sequence().
     """
 
     def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
