@@ -149,7 +149,7 @@ class LetterCode:
 
     Methods
     -------
-    from_lettercode()
+    from_lettercode(lettercode)
         Alternate __init__ method. Initializes instance with a LetterCode object as only parameter.
     complement()
         Returns the complementary LetterCode of a nucleotide.
@@ -157,8 +157,9 @@ class LetterCode:
     Raises
     ------
     TypeError
-        If letter_code or sequence_type are of the wrong type.
-        If sequence_type is not 'nucleotide' when calling complement().
+        If letter_code or sequence_type are of the wrong type when calling __init__.
+        If self.sequence_type is not 'nucleotide' when calling complement().
+        If lettercode is of the wrong type when calling from_lettercode().
     """
     _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
@@ -310,6 +311,8 @@ class FastaSequence:
 
     Methods
     -------
+    from_fastasequence(fastasequence)
+        Alternate __init__ method. Initializes instance with a FastaSequence object as only parameter.
     complement()
         Returns the complementary FastaSequence of a nucleotide sequence.
     formatted_definition_line()
@@ -324,9 +327,10 @@ class FastaSequence:
     Raises
     ------
     TypeError
-        If definition_line, sequence, sequence_type or infer_type are of the wrong type.
+        If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
         If sequence_type is not 'nucleotide' when calling complement().
         If max_characters_per_line is not an int when calling formatted_sequence().
+        If fastasequence is of the wrong type when calling from_fastasequence().
     """
 
     def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
@@ -390,6 +394,33 @@ class FastaSequence:
             self._sequence = self._build_letter_code_sequence(sequence)
         else:
             raise TypeError('sequence must be a non empty str')
+
+    @classmethod
+    def from_fastasequence(cls, fastasequence):
+        """
+        Initializes with the given FastaSequence object.
+
+        Parameters
+        ----------
+        fastasequence : FastaSequence
+            FastaSequence object.
+
+        Returns
+        -------
+        FastaSequence
+            Copy of fastasequence FastaSequence object
+
+        Raises
+        ------
+        TypeError
+            If fastasequence is of the wrong type.
+        """
+        if isinstance(fastasequence, FastaSequence):
+            return cls(fastasequence.formatted_definition_line(),
+                       fastasequence.sequence_as_string(),
+                       fastasequence.sequence_type)
+        else:
+            raise TypeError('fastasequence must be a FastaSequence')
 
     @property
     def id(self):
