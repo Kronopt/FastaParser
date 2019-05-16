@@ -149,6 +149,8 @@ class LetterCode:
 
     Methods
     -------
+    from_lettercode()
+        Alternate __init__ method. Initializes instance with a LetterCode object as only parameter.
     complement()
         Returns the complementary LetterCode of a nucleotide.
 
@@ -169,7 +171,7 @@ class LetterCode:
 
         Parameters
         ----------
-        letter_code : LetterCode or str
+        letter_code : str
             Letter code.
         sequence_type : 'nucleotide', 'aminoacid' or None, optional
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
@@ -179,42 +181,59 @@ class LetterCode:
         TypeError
             If letter_code or sequence_type are of the wrong type.
         """
-        if isinstance(letter_code, LetterCode):
-            self._letter_code = letter_code.letter_code
-            self._sequence_type = letter_code.sequence_type
-            self._description = letter_code.description
-            self._degenerate = letter_code.degenerate
-            self._supported = letter_code.supported
+        if isinstance(letter_code, str) and len(letter_code) == 1:
+            self._letter_code = letter_code.upper()
+            if self._letter_code not in letter_codes_all:  # not defined in the FASTA specification
+                warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
-            if isinstance(letter_code, str) and len(letter_code) == 1:
-                self._letter_code = letter_code.upper()
-                if self._letter_code not in letter_codes_all:  # not defined in the FASTA specification
-                    warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
+            raise TypeError('letter_code must be str of length 1')
+        
+        self._sequence_type = sequence_type
+        self._description = ''
+        self._degenerate = None
+
+        if self._sequence_type in self._letter_code_dictionary:
+            self._supported = True
+
+            # letter_codes_good
+            if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
+                self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
+                self._degenerate = False
+            # letter_codes_degenerate
+            elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
+                self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
+                self._degenerate = True
+            # _letter_code isn't defined in the FASTA specification
             else:
-                raise TypeError('letter_code must be str of length 1')
-            self._sequence_type = sequence_type
-            self._description = ''
-            self._degenerate = None
-
-            if self._sequence_type in self._letter_code_dictionary:
-                self._supported = True
-
-                # letter_codes_good
-                if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
-                    self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
-                    self._degenerate = False
-                # letter_codes_degenerate
-                elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
-                    self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
-                    self._degenerate = True
-                # _letter_code isn't defined in the FASTA specification
-                else:
-                    self._supported = False
-            elif self._sequence_type is None:
                 self._supported = False
-            else:
-                raise TypeError('sequence_type, if defined, must be one of: %s' % ', '.join(
-                    self._letter_code_dictionary))
+        elif self._sequence_type is None:
+            self._supported = False
+        else:
+            raise TypeError('sequence_type, if defined, must be one of: %s' % ', '.join(self._letter_code_dictionary))
+
+    @classmethod
+    def from_lettercode(cls, letter_code):
+        """
+        Initializes with the given LetterCode object.
+
+        Parameters
+        ----------
+        letter_code : LetterCode
+            LetterCode object.
+
+        Returns
+        -------
+        LetterCode
+
+        Raises
+        ------
+        TypeError
+            If letter_code ia of the wrong type.
+        """
+        if isinstance(letter_code, LetterCode):
+            return cls(letter_code.letter_code, letter_code.sequence_type)
+        else:
+            raise TypeError('letter_code must be a LetterCode')
 
     @property
     def letter_code(self):
