@@ -6,7 +6,6 @@ A simple python FASTA parser
 
 #### How to run
 * Download this repo
-* Install dependencies
 
 ```Python
 >>> import FastaParser

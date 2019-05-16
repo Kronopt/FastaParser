@@ -179,12 +179,12 @@ class LetterCode:
         TypeError
             If letter_code or sequence_type are of the wrong type.
         """
-        if isinstance(letter_code, str):
+        if isinstance(letter_code, str) and len(letter_code) == 1:
             self._letter_code = letter_code.upper()
             if self._letter_code not in letter_codes_all:  # not defined in the FASTA specification
                 warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
-            raise TypeError('letter_code must be str')
+            raise TypeError('letter_code must be str of length 1')
         self._sequence_type = sequence_type
         self._description = ''
         self._degenerate = None
@@ -245,6 +245,18 @@ class LetterCode:
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
         return LetterCode(nucleotide_letter_codes_complement[self._letter_code], self._sequence_type)
+
+    def __eq__(self, other):
+        """
+        Two LetterCode objects are equal if they represent the same letter code.
+        A LetterCode is equal to a string if that string is the same as its letter code.
+        """
+        if isinstance(other, LetterCode):
+            return self._letter_code == other.letter_code
+        elif isinstance(other, str):
+            return self._letter_code == other.upper()
+        else:
+            return False
 
     def __repr__(self):
         return self._letter_code
