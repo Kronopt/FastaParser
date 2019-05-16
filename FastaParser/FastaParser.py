@@ -187,7 +187,7 @@ class LetterCode:
                 warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
             raise TypeError('letter_code must be str of length 1')
-        
+
         self._sequence_type = sequence_type
         self._description = ''
         self._degenerate = None
@@ -212,28 +212,29 @@ class LetterCode:
             raise TypeError('sequence_type, if defined, must be one of: %s' % ', '.join(self._letter_code_dictionary))
 
     @classmethod
-    def from_lettercode(cls, letter_code):
+    def from_lettercode(cls, lettercode):
         """
         Initializes with the given LetterCode object.
 
         Parameters
         ----------
-        letter_code : LetterCode
+        lettercode : LetterCode
             LetterCode object.
 
         Returns
         -------
         LetterCode
+            Copy of lettercode LetterCode object
 
         Raises
         ------
         TypeError
-            If letter_code ia of the wrong type.
+            If lettercode is of the wrong type.
         """
-        if isinstance(letter_code, LetterCode):
-            return cls(letter_code.letter_code, letter_code.sequence_type)
+        if isinstance(lettercode, LetterCode):
+            return cls(lettercode.letter_code, lettercode.sequence_type)
         else:
-            raise TypeError('letter_code must be a LetterCode')
+            raise TypeError('lettercode must be a LetterCode')
 
     @property
     def letter_code(self):
