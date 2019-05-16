@@ -535,6 +535,12 @@ class FastaSequence:
             self.__iter__()
         return next(self._current_iterator)
 
+    def __getitem__(self, item):
+        if isinstance(item, (int, slice)):
+            return self._sequence[item]
+        else:
+            raise TypeError('Indices must be integers or slices, not tuple')
+
     def __len__(self):
         return len(self._sequence)
 
@@ -561,6 +567,10 @@ class FastaSequence:
     # TODO method to count degenerate letter codes
 
     # TODO Identify FASTA ID's (see linked sources)
+
+    # TODO A new FastaSequence object must be able to be initialized with another FastaSequence object
+    # TODO __get__item should return a new FastaSequence object with the sequence being the sliced result
+    # TODO a slice that returns an empty sequence should return an empty FastaSequence (make sure that is possible)
 
 
 class Reader:
