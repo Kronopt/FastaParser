@@ -158,8 +158,8 @@ class LetterCode:
     ------
     TypeError
         If letter_code or sequence_type are of the wrong type when calling __init__.
-        If self.sequence_type is not 'nucleotide' when calling complement().
         If lettercode is of the wrong type when calling from_lettercode().
+        If self.sequence_type is not 'nucleotide' when calling complement().
     """
     _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
@@ -271,6 +271,7 @@ class LetterCode:
         TypeError
             If self.sequence_type is not 'nucleotide'.
         """
+        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
         return LetterCode(nucleotide_letter_codes_complement[self._letter_code], self._sequence_type)
@@ -315,6 +316,8 @@ class FastaSequence:
         Alternate __init__ method. Initializes instance with a FastaSequence object as only parameter.
     complement()
         Returns the complementary FastaSequence of a nucleotide sequence.
+    gc_content(as_percentage)
+        Returns the GC content of a nucleotide sequence.
     formatted_definition_line()
         Returns a formatted FASTA definition line (header).
     formatted_sequence(max_characters_per_line=70)
@@ -328,9 +331,11 @@ class FastaSequence:
     ------
     TypeError
         If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
-        If sequence_type is not 'nucleotide' when calling complement().
-        If max_characters_per_line is not an int when calling formatted_sequence().
         If fastasequence is of the wrong type when calling from_fastasequence().
+        If sequence_type is not 'nucleotide' when calling complement().
+        If sequence_type is not 'nucleotide' when calling gc_content().
+        If max_characters_per_line is not an int when calling formatted_sequence().
+        If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
     """
 
     def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
@@ -456,6 +461,12 @@ class FastaSequence:
         TypeError
             If self.sequence_type is not 'nucleotide'.
         """
+        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
+        # TODO if sequence_type is 'nucleotide', do the operation as normal.
+        # TODO otherwise, check the value of sequence_type for None or 'aminoacid':
+        # TODO 'aminoacid, raise exception
+        # TODO None, try infer 'aminoacid' and raise exception if it is.
+        # TODO None, try to do complement. If a LetterCode cannot be complemented, raise error
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
         complement_sequence = ''.join([letter.complement().letter_code for letter in self])
@@ -463,6 +474,35 @@ class FastaSequence:
         return FastaSequence(self._id + ' ' + self._description,
                              complement_sequence,
                              self._sequence_type)
+
+    def gc_content(self, as_percentage=False):
+        """
+        Calculates the GC content of nucleotide sequence.
+
+        Parameters
+        ----------
+        as_percentage : bool
+            Indicates whether the computed value should be returned as a percentage instead of the default ratio.
+
+        Returns
+        -------
+        float
+            gc content of sequence
+
+        Raises
+        ------
+        TypeError
+            If self.sequence_type is not 'nucleotide'.
+        """
+        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
+        if self._sequence_type != 'nucleotide':
+            raise TypeError('GC content calculation only works if sequence_type is \'nucleotide\'')
+        gc = 0
+        for letter_code in self._sequence:
+            if letter_code.letter_code in ('G', 'C', 'S'):
+                gc += 1
+        gc_content = gc / (len(self._sequence))
+        return gc_content * 100 if as_percentage else gc_content
 
     def formatted_definition_line(self):
         """
@@ -595,8 +635,27 @@ class FastaSequence:
         return next(self._current_iterator)
 
     def __getitem__(self, item):
+        """
+        Slicing /indexing returns a new FastaSequence copy of self with the sliced sequence of LetterCode objects.
+        The description line is updated to reflect the slices made to the original sequence.
+        Slices can't return an empty sequence.
+
+        Parameters
+        ----------
+        item : int or slice
+
+        Returns
+        -------
+        FastaSequence
+            Copy of self with the sliced sequence of LetterCode objects
+        """
         if isinstance(item, (int, slice)):
-            return self._sequence[item]
+            new_sequence = self.sequence_as_string()[item]
+            if len(new_sequence) == 0:
+                raise TypeError('Slice resulted in an empty sequence. FastaSequence must have a non-empty sequence')
+
+            new_definition_line = self.formatted_definition_line() + ' [SLICE OF ORIGINAL: %s]' % item
+            return FastaSequence(new_definition_line, new_sequence, self.sequence_type)
         else:
             raise TypeError('Indices must be integers or slices, not tuple')
 
@@ -617,19 +676,12 @@ class FastaSequence:
     #  VALUE: counts in _build_letter_code_sequence
     #  maybe in _build_letter_code_sequence method
 
-    # TODO method to calculate G/C content
-    #  (G+C) / (A+T+G+C) * 100
-
     # TODO method to calculate AT/GC ratio
     #  (A+T) / (G+C)
 
     # TODO method to count degenerate letter codes
 
     # TODO Identify FASTA ID's (see linked sources)
-
-    # TODO A new FastaSequence object must be able to be initialized with another FastaSequence object
-    # TODO __get__item should return a new FastaSequence object with the sequence being the sliced result
-    # TODO a slice that returns an empty sequence should return an empty FastaSequence (make sure that is possible)
 
 
 class Reader:
