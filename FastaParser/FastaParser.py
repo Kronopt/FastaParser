@@ -400,6 +400,8 @@ class FastaSequence:
         else:
             raise TypeError('sequence must be a non empty str')
 
+        self._gc_content = None
+
     @classmethod
     def from_fastasequence(cls, fastasequence):
         """
@@ -478,6 +480,7 @@ class FastaSequence:
     def gc_content(self, as_percentage=False):
         """
         Calculates the GC content of nucleotide sequence.
+        GC content is calculated the first time the method is called. Later calls will retrieve the same value.
 
         Parameters
         ----------
@@ -494,15 +497,16 @@ class FastaSequence:
         TypeError
             If self.sequence_type is not 'nucleotide'.
         """
-        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
-        if self._sequence_type != 'nucleotide':
-            raise TypeError('GC content calculation only works if sequence_type is \'nucleotide\'')
-        gc = 0
-        for letter_code in self._sequence:
-            if letter_code.letter_code in ('G', 'C', 'S'):
-                gc += 1
-        gc_content = gc / (len(self._sequence))
-        return gc_content * 100 if as_percentage else gc_content
+        if not self._gc_content:  # if gc_content was not called before
+            # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
+            if self._sequence_type != 'nucleotide':
+                raise TypeError('GC content calculation only works if sequence_type is \'nucleotide\'')
+            gc = 0
+            for letter_code in self._sequence:
+                if letter_code.letter_code in ('G', 'C', 'S'):
+                    gc += 1
+            self._gc_content = gc / (len(self._sequence))
+        return self._gc_content * 100 if as_percentage else self._gc_content
 
     def formatted_definition_line(self):
         """
