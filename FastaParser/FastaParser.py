@@ -159,7 +159,9 @@ class LetterCode:
     TypeError
         If letter_code or sequence_type are of the wrong type when calling __init__.
         If lettercode is of the wrong type when calling from_lettercode().
+        If sequence_type_value is of the wrong type when setting sequence_type.
         If self.sequence_type is not 'nucleotide' when calling complement().
+        If sequence_type is of the wrong type when calling _update_sequence_type().
     """
     _letter_code_dictionary = {
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
@@ -189,28 +191,7 @@ class LetterCode:
         else:
             raise TypeError('letter_code must be str of length 1')
 
-        self._sequence_type = sequence_type
-        self._description = ''
-        self._degenerate = None
-
-        if self._sequence_type in self._letter_code_dictionary:
-            self._supported = True
-
-            # letter_codes_good
-            if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
-                self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
-                self._degenerate = False
-            # letter_codes_degenerate
-            elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
-                self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
-                self._degenerate = True
-            # _letter_code isn't defined in the FASTA specification
-            else:
-                self._supported = False
-        elif self._sequence_type is None:
-            self._supported = False
-        else:
-            raise TypeError('sequence_type, if defined, must be one of: %s' % ', '.join(self._letter_code_dictionary))
+        self._update_sequence_type(sequence_type)
 
     @classmethod
     def from_lettercode(cls, lettercode):
@@ -245,6 +226,23 @@ class LetterCode:
     def sequence_type(self):
         return self._sequence_type
 
+    @sequence_type.setter
+    def sequence_type(self, sequence_type_value):
+        """
+        Sets sequence_type and updates all other relevant properties as needed.
+
+        Parameters
+        ----------
+        sequence_type_value : 'nucleotide', 'aminoacid' or None
+            'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+
+        Raises
+        ------
+        TypeError
+            If sequence_type_value is of the wrong type.
+        """
+        self._update_sequence_type(sequence_type_value)
+
     @property
     def description(self):
         return self._description
@@ -275,6 +273,45 @@ class LetterCode:
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
         return LetterCode(nucleotide_letter_codes_complement[self._letter_code], self._sequence_type)
+
+    def _update_sequence_type(self, sequence_type):
+        """
+        Updates sequence_type and all other relevant properties as needed.
+
+        Parameters
+        ----------
+        sequence_type : 'nucleotide', 'aminoacid' or None
+            'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+
+        Raises
+        ------
+        TypeError
+            If sequence_type is of the wrong type.
+        """
+        if sequence_type in self._letter_code_dictionary:
+            self._sequence_type = sequence_type
+            self._supported = True
+
+            # letter_codes_good
+            if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
+                self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
+                self._degenerate = False
+            # letter_codes_degenerate
+            elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
+                self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
+                self._degenerate = True
+            # _letter_code isn't defined in the FASTA specification
+            else:
+                self._supported = False
+                self._description = ''
+                self._degenerate = None
+        elif sequence_type is None:
+            self._sequence_type = sequence_type
+            self._supported = False
+            self._description = ''
+            self._degenerate = None
+        else:
+            raise TypeError('sequence_type must be one of: %s or None' % ', '.join(self._letter_code_dictionary))
 
     def __eq__(self, other):
         """
