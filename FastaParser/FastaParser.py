@@ -9,15 +9,17 @@ Writes FASTA files with the Writer class (takes FastaSequence objects or headers
 
 ex:
     > import FastaParser
-    > reader = FastaParser.Reader("fasta_file.fasta")
-    > [seq.id for seq in reader]
+    > with open('fasta_file.fasta') as fasta_file:
+    >   reader = FastaParser.Reader(fasta_file)
+    >   [seq.id for seq in reader]
     ['HSBGPG', 'HSGLTH1']
 
 ex:
     > import FastaParser
-    > writer = FastaParser.Writer("fasta_file.fasta")
-    > seqs = [('HSBGPG example sequence', 'TTCCAGGTGTGCCAATCCAGTCCATG'),
-    > ...     ('HSGLTH1 example sequence 2', 'GTACCTGACCTAACCGTGTGGACCTT')]
+    > with open('fasta_file.fasta', 'w') as fasta_file:
+    >   writer = FastaParser.Writer(fasta_file)
+    >   seqs = [('HSBGPG example sequence', 'TTCCAGGTGTGCCAATCCAGTCCATG'),
+    >   ...     ('HSGLTH1 example sequence 2', 'GTACCTGACCTAACCGTGTGGACCTT')]
     > writer.writefastas(seqs)
 
 Based on these pages:
@@ -355,6 +357,8 @@ class FastaSequence:
         Returns the complementary FastaSequence of a nucleotide sequence.
     gc_content(as_percentage)
         Returns the GC content of a nucleotide sequence.
+    at_gc_ratio()
+        Returns the AT/GC ratio of a nucleotide sequence.
     formatted_definition_line()
         Returns a formatted FASTA definition line (header).
     formatted_sequence(max_characters_per_line=70)
@@ -371,6 +375,7 @@ class FastaSequence:
         If fastasequence is of the wrong type when calling from_fastasequence().
         If sequence_type is not 'nucleotide' when calling complement().
         If sequence_type is not 'nucleotide' when calling gc_content().
+        If sequence_type is not 'nucleotide' when calling at_gc_ratio().
         If max_characters_per_line is not an int when calling formatted_sequence().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
     """
@@ -438,6 +443,7 @@ class FastaSequence:
             raise TypeError('sequence must be a non empty str')
 
         self._gc_content = None
+        self._at_gc_ratio = None
 
     @classmethod
     def from_fastasequence(cls, fastasequence):
@@ -481,6 +487,9 @@ class FastaSequence:
     @property
     def sequence_type(self):
         return self._sequence_type
+
+    # TODO sequence_type.setter as in LetterCode
+    # TODO also define an _update_sequence_type()
 
     @property
     def inferred_type(self):
@@ -527,7 +536,7 @@ class FastaSequence:
         Returns
         -------
         float
-            gc content of sequence
+            GC content of sequence
 
         Raises
         ------
@@ -544,6 +553,36 @@ class FastaSequence:
                     gc += 1
             self._gc_content = gc / (len(self._sequence))
         return self._gc_content * 100 if as_percentage else self._gc_content
+
+    def at_gc_ratio(self):
+        """
+        Calculates the AT/GC ratio of nucleotide sequence.
+        Ignores degenerate letter codes besides W (A or T) and S (G or C).
+        AT/GC ratio is calculated the first time the method is called. Later calls will retrieve the same value.
+
+        Returns
+        -------
+        float
+            AT/GC ratio of sequence
+
+        Raises
+        ------
+        TypeError
+            If self.sequence_type is not 'nucleotide'.
+        """
+        if not self._at_gc_ratio:  # if at_gc_ratio was not called before
+            # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
+            if self._sequence_type != 'nucleotide':
+                raise TypeError('AT/GC ratio calculation only works if sequence_type is \'nucleotide\'')
+            at = 0
+            gc = 0
+            for letter_code in self._sequence:
+                if letter_code.letter_code in ('A', 'T', 'W'):
+                    at += 1
+                elif letter_code.letter_code in ('G', 'C', 'S'):
+                    gc += 1
+            self._at_gc_ratio = at/gc if gc != 0 else 0
+        return self._at_gc_ratio
 
     def formatted_definition_line(self):
         """
@@ -717,12 +756,11 @@ class FastaSequence:
     #  VALUE: counts in _build_letter_code_sequence
     #  maybe in _build_letter_code_sequence method
 
-    # TODO method to calculate AT/GC ratio
-    #  (A+T) / (G+C)
-
     # TODO method to count degenerate letter codes
 
     # TODO Identify FASTA ID's (see linked sources)
+
+    # TODO package variables like FastaParser.NUCLEOTIDE and FastaParser.AMINOACID (maybe others)
 
 
 class Reader:
