@@ -1,5 +1,5 @@
 # PyFastaParser
-A simple python FASTA parser
+A simple python FASTA parser (WORK IN PROGRESS)
 
 #### Install Dependencies
 * Python 3.7 (probably 2.7-3.7)
@@ -19,6 +19,7 @@ HSGLTH1 Human theta 1-globin gene
 ```
 
 #### Work in Progress
+* Asyncio for Reader/Writer
 * Context Manager (?)
 * Documentation
 * Examples
