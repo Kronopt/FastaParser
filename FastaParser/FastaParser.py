@@ -373,10 +373,12 @@ class FastaSequence:
     TypeError
         If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
         If fastasequence is of the wrong type when calling from_fastasequence().
+        If sequence_type_value is of the wrong type when setting sequence_type.
         If sequence_type is not 'nucleotide' when calling complement().
         If sequence_type is not 'nucleotide' when calling gc_content().
         If sequence_type is not 'nucleotide' when calling at_gc_ratio().
         If max_characters_per_line is not an int when calling formatted_sequence().
+        If sequence_type is of the wrong type when calling _update_sequence_type().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
     """
 
@@ -423,11 +425,7 @@ class FastaSequence:
         else:
             raise TypeError('definition_line must be str')
 
-        if (isinstance(sequence_type, str) and sequence_type in LetterCode._letter_code_dictionary) \
-                or sequence_type is None:
-            self._sequence_type = sequence_type
-        else:
-            raise TypeError('sequence_type must be one of: %s or None' % LetterCode._letter_code_dictionary)
+        self._update_sequence_type(sequence_type)
 
         if isinstance(sequence, str) and len(sequence) > 0:
             if isinstance(infer_type, bool):
@@ -488,8 +486,22 @@ class FastaSequence:
     def sequence_type(self):
         return self._sequence_type
 
-    # TODO sequence_type.setter as in LetterCode
-    # TODO also define an _update_sequence_type()
+    @sequence_type.setter
+    def sequence_type(self, sequence_type_value):
+        """
+        Sets sequence_type and updates all other relevant properties as needed.
+
+        Parameters
+        ----------
+        sequence_type_value : 'nucleotide', 'aminoacid' or None
+            'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+
+        Raises
+        ------
+        TypeError
+            If sequence_type_value is of the wrong type.
+        """
+        self._update_sequence_type(sequence_type_value)
 
     @property
     def inferred_type(self):
@@ -655,6 +667,27 @@ class FastaSequence:
         """
         return ''.join(map(str, self._sequence))
 
+    def _update_sequence_type(self, sequence_type):
+        """
+        Updates sequence_type and all other relevant properties as needed.
+
+        Parameters
+        ----------
+        sequence_type : 'nucleotide', 'aminoacid' or None
+            'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+
+        Raises
+        ------
+        TypeError
+            If sequence_type is of the wrong type.
+        """
+        if (isinstance(sequence_type, str) and sequence_type in LetterCode._letter_code_dictionary) \
+                or sequence_type is None:
+            self._sequence_type = sequence_type
+            self._inferred_type = False
+        else:
+            raise TypeError('sequence_type must be one of: %s or None' % LetterCode._letter_code_dictionary)
+
     def _build_letter_code_sequence(self, string_sequence):
         """
         Iterate over the given sequence and build a list of LetterCode objects.
@@ -685,14 +718,15 @@ class FastaSequence:
 
         Returns
         -------
-        'aminoacid' or None
-            Inferred type 'aminoacid', None otherwise
+        'aminoacid' or existing value (can be None)
+            Inferred type 'aminoacid', existing value otherwise
         """
         for letter_code in string_sequence:
             if letter_code in aminoacids_not_in_nucleotides:
                 self._inferred_type = True
                 return 'aminoacid'
         self._inferred_type = False
+        return self._sequence_type  # returns the already set value
 
     def __iter__(self):
         """
