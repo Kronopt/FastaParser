@@ -43,7 +43,7 @@ __version__ = '0.1'
 warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
 
 # NUCLEOTIDE DICTIONARIES
-nucleotide_letter_codes_good = {
+NUCLEOTIDE_LETTER_CODES_GOOD = {
     'A': 'adenosine',
     'C': 'cytidine',
     'G': 'guanine',
@@ -51,7 +51,7 @@ nucleotide_letter_codes_good = {
     'N': 'any (A/G/C/T)',
     'U': 'uridine'
 }
-nucleotide_letter_codes_degenerate = {
+NUCLEOTIDE_LETTER_CODES_DEGENERATE = {
     'K': 'keto (G/T)',
     'S': 'strong (G/C)',
     'Y': 'pyrimidine (T/C)',
@@ -64,7 +64,7 @@ nucleotide_letter_codes_degenerate = {
     'V': 'G/C/A',
     '-': 'gap of indeterminate length'
 }
-nucleotide_letter_codes_complement = {
+NUCLEOTIDE_LETTER_CODES_COMPLEMENT = {
     'A': 'T',
     'C': 'G',
     'G': 'C',
@@ -85,7 +85,7 @@ nucleotide_letter_codes_complement = {
 }
 
 # AMINOACID DICTIONARIES
-aminoacid_letter_codes_good = {
+AMINOACID_LETTER_CODES_GOOD = {
     'A': 'alanine',
     'B': 'aspartate/asparagine',
     'C': 'cystine',
@@ -112,21 +112,27 @@ aminoacid_letter_codes_good = {
     'X': 'any',
     '*': 'translation stop'
 }
-aminoacid_letter_codes_degenerate = {
+AMINOACID_LETTER_CODES_DEGENERATE = {
     '-': 'gap of indeterminate length'
 }
 
+# BOTH
+LETTER_CODES = {
+    'nucleotide': (NUCLEOTIDE_LETTER_CODES_GOOD, NUCLEOTIDE_LETTER_CODES_DEGENERATE),
+    'aminoacid': (AMINOACID_LETTER_CODES_GOOD, AMINOACID_LETTER_CODES_DEGENERATE)
+}
+
 # set operations
-letter_codes_all = set(list(nucleotide_letter_codes_good) +
-                       list(nucleotide_letter_codes_degenerate) +
-                       list(aminoacid_letter_codes_good) +
-                       list(aminoacid_letter_codes_degenerate)
+LETTER_CODES_ALL = set(list(NUCLEOTIDE_LETTER_CODES_GOOD) +
+                       list(NUCLEOTIDE_LETTER_CODES_DEGENERATE) +
+                       list(AMINOACID_LETTER_CODES_GOOD) +
+                       list(AMINOACID_LETTER_CODES_DEGENERATE)
                        )
-nucleotide_letter_codes_all = set(list(nucleotide_letter_codes_good) +
-                                  list(nucleotide_letter_codes_degenerate))
-aminoacid_letter_codes_all = set(list(aminoacid_letter_codes_good) +
-                                 list(aminoacid_letter_codes_degenerate))
-aminoacids_not_in_nucleotides = aminoacid_letter_codes_all - nucleotide_letter_codes_all
+NUCLEOTIDE_LETTER_CODES_ALL = set(list(NUCLEOTIDE_LETTER_CODES_GOOD) +
+                                  list(NUCLEOTIDE_LETTER_CODES_DEGENERATE))
+AMINOACID_LETTER_CODES_ALL = set(list(AMINOACID_LETTER_CODES_GOOD) +
+                                 list(AMINOACID_LETTER_CODES_DEGENERATE))
+AMINOACIDS_NOT_IN_NUCLEOTIDES = AMINOACID_LETTER_CODES_ALL - NUCLEOTIDE_LETTER_CODES_ALL
 # nucleotides_not_in_aminoacids would be empty
 
 
@@ -165,10 +171,6 @@ class LetterCode:
         If self.sequence_type is not 'nucleotide' when calling complement().
         If sequence_type is of the wrong type when calling _update_sequence_type().
     """
-    _letter_code_dictionary = {
-        'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
-        'aminoacid': (aminoacid_letter_codes_good, aminoacid_letter_codes_degenerate)
-    }
 
     def __init__(self, letter_code, sequence_type=None):
         """
@@ -188,7 +190,7 @@ class LetterCode:
         """
         if isinstance(letter_code, str) and len(letter_code) == 1:
             self._letter_code = letter_code.upper()
-            if self._letter_code not in letter_codes_all:  # not defined in the FASTA specification
+            if self._letter_code not in LETTER_CODES_ALL:  # not defined in the FASTA specification
                 warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
             raise TypeError('letter_code must be str of length 1')
@@ -274,7 +276,7 @@ class LetterCode:
         # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
         if self._sequence_type != 'nucleotide':
             raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
-        return LetterCode(nucleotide_letter_codes_complement[self._letter_code], self._sequence_type)
+        return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT[self._letter_code], self._sequence_type)
 
     def _update_sequence_type(self, sequence_type):
         """
@@ -290,17 +292,17 @@ class LetterCode:
         TypeError
             If sequence_type is of the wrong type.
         """
-        if sequence_type in self._letter_code_dictionary:
+        if sequence_type in LETTER_CODES:
             self._sequence_type = sequence_type
             self._supported = True
 
             # letter_codes_good
-            if self._letter_code in self._letter_code_dictionary[self._sequence_type][0]:
-                self._description = self._letter_code_dictionary[self._sequence_type][0][self._letter_code]
+            if self._letter_code in LETTER_CODES[self._sequence_type][0]:
+                self._description = LETTER_CODES[self._sequence_type][0][self._letter_code]
                 self._degenerate = False
             # letter_codes_degenerate
-            elif self._letter_code in self._letter_code_dictionary[self._sequence_type][1]:
-                self._description = self._letter_code_dictionary[self._sequence_type][1][self._letter_code]
+            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:
+                self._description = LETTER_CODES[self._sequence_type][1][self._letter_code]
                 self._degenerate = True
             # _letter_code isn't defined in the FASTA specification
             else:
@@ -313,7 +315,7 @@ class LetterCode:
             self._description = ''
             self._degenerate = None
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % ', '.join(self._letter_code_dictionary))
+            raise TypeError('sequence_type must be one of: %s or None' % ', '.join(LETTER_CODES))
 
     def __eq__(self, other):
         """
@@ -681,12 +683,11 @@ class FastaSequence:
         TypeError
             If sequence_type is of the wrong type.
         """
-        if (isinstance(sequence_type, str) and sequence_type in LetterCode._letter_code_dictionary) \
-                or sequence_type is None:
+        if (isinstance(sequence_type, str) and sequence_type in LETTER_CODES) or sequence_type is None:
             self._sequence_type = sequence_type
             self._inferred_type = False
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % LetterCode._letter_code_dictionary)
+            raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
 
     def _build_letter_code_sequence(self, string_sequence):
         """
@@ -722,7 +723,7 @@ class FastaSequence:
             Inferred type 'aminoacid', existing value otherwise
         """
         for letter_code in string_sequence:
-            if letter_code in aminoacids_not_in_nucleotides:
+            if letter_code in AMINOACIDS_NOT_IN_NUCLEOTIDES:
                 self._inferred_type = True
                 return 'aminoacid'
         self._inferred_type = False
@@ -860,11 +861,10 @@ class Reader:
         else:
             raise TypeError('fasta_file_object must be a file object')
 
-        if (isinstance(sequences_type, str) and sequences_type in LetterCode._letter_code_dictionary) \
-                or sequences_type is None:
+        if (isinstance(sequences_type, str) and sequences_type in LETTER_CODES) or sequences_type is None:
             self._sequences_type = sequences_type
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % LetterCode._letter_code_dictionary)
+            raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
 
         if isinstance(infer_type, bool):
             self._infer_type = infer_type
