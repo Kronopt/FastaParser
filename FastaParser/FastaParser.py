@@ -388,9 +388,9 @@ class FastaSequence:
         If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
         If fastasequence is of the wrong type when calling from_fastasequence().
         If sequence_type_value is of the wrong type when setting sequence_type.
-        If sequence_type is not 'nucleotide' when calling complement().
         If sequence_type is not 'nucleotide' when calling gc_content().
         If sequence_type is not 'nucleotide' when calling at_gc_ratio().
+        If sequence_type is 'aminoacid' when calling complement().
         If max_characters_per_line is not an int when calling formatted_sequence().
         If sequence_type is of the wrong type when calling _update_sequence_type().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
@@ -521,29 +521,41 @@ class FastaSequence:
     def inferred_type(self):
         return self._inferred_type
 
-    def complement(self):
+    def complement(self, reverse=False):
         """
-        Complement of nucleotide sequence.
+        Complementary sequence (ideally, of a nucleotide sequence).
+
+        Non-nucleotide LetterCodes don't have a complement and, therefore, stay the same.
+        In order not to impose the setting of sequence_type as 'nucleotide', this method will work for any sequence and
+        LetterCode (as long as sequence_type is not 'aminoacid'), which has the side effect of returning nonsensical
+        results when LetterCodes are not nucleotides.
+        Ex: For aminoacid letter codes that overlap with nucleotide letter codes, the output will be the complement of
+        the nucleotide represented by the same letter code, which makes no sense.
+
+        Parameters
+        ----------
+        reverse : bool
+            If sequence should be reversed.
 
         Returns
         -------
         FastaSequence
-            Complement of the current nucleotide sequence
+            Complement of the current nucleotide FastaSequence. Non-nucleotide LetterCodes will stay the same.
 
         Raises
         ------
         TypeError
-            If self.sequence_type is not 'nucleotide'.
+            If self.sequence_type is 'aminoacid'.
         """
-        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
-        # TODO if sequence_type is 'nucleotide', do the operation as normal.
-        # TODO otherwise, check the value of sequence_type for None or 'aminoacid':
-        # TODO 'aminoacid, raise exception
-        # TODO None, try infer 'aminoacid' and raise exception if it is.
-        # TODO None, try to do complement. If a LetterCode cannot be complemented, raise error
-        if self._sequence_type != 'nucleotide':
-            raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
-        complement_sequence = ''.join([letter.complement().letter_code for letter in self])
+        if self._sequence_type == 'aminoacid':
+            raise TypeError('Complement is not possible for aminoacid sequences (sequence_type == \'aminoacid\')')
+        if self._sequence_type is None:
+            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                          'Therefore, the complementary sequence might not make sense.')
+        if reverse:
+            complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
+        else:
+            complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence[::-1]])
 
         return FastaSequence(self._id + ' ' + self._description,
                              complement_sequence,
