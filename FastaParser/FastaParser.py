@@ -369,6 +369,8 @@ class FastaSequence:
         Returns a formatted FASTA (definition line and sequence).
     sequence_as_string()
         Returns the sequence as string.
+    reverse()
+        Iterator over the sequence of LetterCodes in reverse order.
 
     Raises
     ------
@@ -668,6 +670,17 @@ class FastaSequence:
             Sequence as string
         """
         return ''.join(map(str, self._sequence))
+
+    def reverse(self):
+        """
+        Iterates over the sequence in reverse order.
+        Returns a new iterator of the sequence (from the end) every time reverse is called.
+        """
+        def iter_sequence():
+            for letter_code in self._sequence[::-1]:
+                yield letter_code
+        self._current_iterator = iter_sequence()
+        return self._current_iterator
 
     def _update_sequence_type(self, sequence_type):
         """
