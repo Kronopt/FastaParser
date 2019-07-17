@@ -388,9 +388,9 @@ class FastaSequence:
         If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
         If fastasequence is of the wrong type when calling from_fastasequence().
         If sequence_type_value is of the wrong type when setting sequence_type.
-        If sequence_type is not 'nucleotide' when calling gc_content().
-        If sequence_type is not 'nucleotide' when calling at_gc_ratio().
         If sequence_type is 'aminoacid' when calling complement().
+        If sequence_type is 'aminoacid' when calling gc_content().
+        If sequence_type is 'aminoacid' when calling at_gc_ratio().
         If max_characters_per_line is not an int when calling formatted_sequence().
         If sequence_type is of the wrong type when calling _update_sequence_type().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
@@ -565,6 +565,8 @@ class FastaSequence:
         """
         Calculates the GC content of nucleotide sequence.
         GC content is calculated the first time the method is called. Later calls will retrieve the same value.
+        If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the GC content
+        might be nonsensical.
 
         Parameters
         ----------
@@ -579,12 +581,15 @@ class FastaSequence:
         Raises
         ------
         TypeError
-            If self.sequence_type is not 'nucleotide'.
+            If self.sequence_type is 'aminoacid'.
         """
         if not self._gc_content:  # if gc_content was not called before
-            # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
-            if self._sequence_type != 'nucleotide':
-                raise TypeError('GC content calculation only works if sequence_type is \'nucleotide\'')
+            if self._sequence_type == 'aminoacid':
+                raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
+                                '(sequence_type == \'aminoacid\')')
+            if self._sequence_type is None:
+                warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                              'Therefore, the calculated GC content might not make sense.')
             gc = 0
             for letter_code in self._sequence:
                 if letter_code.letter_code in ('G', 'C', 'S'):
@@ -597,6 +602,8 @@ class FastaSequence:
         Calculates the AT/GC ratio of nucleotide sequence.
         Ignores degenerate letter codes besides W (A or T) and S (G or C).
         AT/GC ratio is calculated the first time the method is called. Later calls will retrieve the same value.
+        If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the AT/GC ratio
+        might be nonsensical.
 
         Returns
         -------
@@ -606,12 +613,15 @@ class FastaSequence:
         Raises
         ------
         TypeError
-            If self.sequence_type is not 'nucleotide'.
+            If self.sequence_type is 'aminoacid'.
         """
         if not self._at_gc_ratio:  # if at_gc_ratio was not called before
-            # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
-            if self._sequence_type != 'nucleotide':
-                raise TypeError('AT/GC ratio calculation only works if sequence_type is \'nucleotide\'')
+            if self._sequence_type == 'aminoacid':
+                raise TypeError('AT/GC ratio is not meant to be calculated for aminoacid sequences '
+                                '(sequence_type == \'aminoacid\')')
+            if self._sequence_type is None:
+                warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                              'Therefore, the calculated AT/GC ratio might not make sense.')
             at = 0
             gc = 0
             for letter_code in self._sequence:
