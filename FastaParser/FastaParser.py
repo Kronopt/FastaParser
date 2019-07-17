@@ -160,7 +160,7 @@ class LetterCode:
     from_lettercode(lettercode)
         Alternate __init__ method. Initializes instance with a LetterCode object as only parameter.
     complement()
-        Returns the complementary LetterCode of a nucleotide.
+        Returns the complementary LetterCode (ideally, of a nucleotide).
 
     Raises
     ------
@@ -168,7 +168,7 @@ class LetterCode:
         If letter_code or sequence_type are of the wrong type when calling __init__.
         If lettercode is of the wrong type when calling from_lettercode().
         If sequence_type_value is of the wrong type when setting sequence_type.
-        If self.sequence_type is not 'nucleotide' when calling complement().
+        If sequence_type is 'aminoacid' when calling complement().
         If sequence_type is of the wrong type when calling _update_sequence_type().
     """
 
@@ -261,22 +261,32 @@ class LetterCode:
 
     def complement(self):
         """
-        Complement of nucleotide letter code.
+        Complementary letter code (ideally, of a nucleotide).
+
+        If letter_code is not a nucleotide letter code, the complementary will be letter_code.
+        In order not to impose the setting of sequence_type as 'nucleotide', this method will work for any letter code
+        (as long as sequence_type is not 'aminoacid'), which has the side effect of returning nonsensical results when
+        letter_code is not a nucleotide.
+        Ex: For aminoacid letter codes that overlap with nucleotide letter codes, the output will be the complement of
+        the nucleotide represented by the same letter code, which makes no sense.
 
         Returns
         -------
         LetterCode
-            Complement of the current nucleotide letter code
+            Complement of the current LetterCode. Same LetterCode is returned if letter code is not a nucleotide.
 
         Raises
         ------
         TypeError
-            If self.sequence_type is not 'nucleotide'.
+            If sequence_type is 'aminoacid'.
         """
-        # TODO too strict. Should allow usage even if sequence_type is not nucleotide.
-        if self._sequence_type != 'nucleotide':
-            raise TypeError('Complement only works if sequence_type is \'nucleotide\'')
-        return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT[self._letter_code], self._sequence_type)
+        if self._sequence_type == 'aminoacid':
+            raise TypeError('Complement is not possible for aminoacids (sequence_type == \'aminoacid\')')
+        if self._sequence_type is None:
+            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                          'Therefore, the complementary letter code might not make sense.')
+        return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(self._letter_code, self._letter_code),
+                          self._sequence_type)
 
     def _update_sequence_type(self, sequence_type):
         """
