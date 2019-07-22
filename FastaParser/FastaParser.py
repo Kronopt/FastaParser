@@ -371,6 +371,8 @@ class FastaSequence:
         Returns the GC content of a nucleotide sequence.
     at_gc_ratio()
         Returns the AT/GC ratio of a nucleotide sequence.
+    count_letter_codes()
+        Returns the counts of each letter code if specified or all of them if not.
     formatted_definition_line()
         Returns a formatted FASTA definition line (header).
     formatted_sequence(max_characters_per_line=70)
@@ -402,7 +404,7 @@ class FastaSequence:
 
         Parameters
         ----------
-        definition_line: str
+        definition_line : str
             FASTA sequence definition line (header). May contain or not the '>' symbol at the start.
             Can be an empty string.
         sequence : str
@@ -450,7 +452,7 @@ class FastaSequence:
             else:
                 raise TypeError('infer_type must be bool')
 
-            self._sequence = self._build_letter_code_sequence(sequence)
+            self._sequence, self._counts = self._build_letter_code_sequence_and_counts(sequence)
         else:
             raise TypeError('sequence must be a non empty str')
 
@@ -534,7 +536,7 @@ class FastaSequence:
 
         Parameters
         ----------
-        reverse : bool
+        reverse : bool, optional
             If sequence should be reversed.
 
         Returns
@@ -570,7 +572,7 @@ class FastaSequence:
 
         Parameters
         ----------
-        as_percentage : bool
+        as_percentage : bool, optional
             Indicates whether the computed value should be returned as a percentage instead of the default ratio.
 
         Returns
@@ -631,6 +633,28 @@ class FastaSequence:
                     gc += 1
             self._at_gc_ratio = at/gc if gc != 0 else 0
         return self._at_gc_ratio
+
+    def count_letter_codes(self, letter_codes=None):
+        """
+        Returns letter code counts.
+        By default counts all existing letter codes in the sequence, but specific letter codes can be specified.
+
+        Parameters
+        ----------
+        letter_codes : list or tuple or None, optional
+            list/tuple of all letter codes to count.
+
+        Returns
+        -------
+        namedtuple
+            Counts for every letter code in letter_codes or all if letter_codes is not specified
+        """
+        # specified (non-empty list/tuple) letter codes or all letter codes
+        letter_codes = letter_codes if letter_codes is not None and letter_codes else self._counts.keys()
+
+        counts_namedtuple = namedtuple('LetterCodeCounts', letter_codes)
+        letter_codes_counts = [self._counts.get(letter_code, 0) for letter_code in letter_codes]
+        return counts_namedtuple(*letter_codes_counts)
 
     def formatted_definition_line(self):
         """
@@ -734,9 +758,9 @@ class FastaSequence:
         else:
             raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
 
-    def _build_letter_code_sequence(self, string_sequence):
+    def _build_letter_code_sequence_and_counts(self, string_sequence):
         """
-        Iterate over the given sequence and build a list of LetterCode objects.
+        Iterate over the sequence and build a list of LetterCode objects while counting the number of letter codes.
 
         Parameters
         ----------
@@ -745,9 +769,15 @@ class FastaSequence:
 
         Returns
         -------
-        list of LetterCode
+        (list of LetterCode, dict of letter code counts)
         """
-        return [LetterCode(letter_code, self._sequence_type) for letter_code in string_sequence]
+        letter_code_list = []
+        letter_code_count_dict = {}
+        for letter_code in string_sequence:
+            letter_code_list.append(LetterCode(letter_code, self._sequence_type))
+            letter_code_count_dict[letter_code] = letter_code_count_dict.setdefault(letter_code, 0) + 1
+
+        return letter_code_list, letter_code_count_dict
 
     def _infer_sequence_type(self, string_sequence):
         """
@@ -829,18 +859,9 @@ class FastaSequence:
         """
         return ">%s %s\n" % (self._id, self._description) + ''.join(map(str, self._sequence))
 
-    # TODO method to return counts of each letter code in the sequence.
-    #  need to implement __eq__ on LetterCode
-    #  generate dict of:
-    #  KEY: letter_code_string (not LetterCode objects)
-    #  VALUE: counts in _build_letter_code_sequence
-    #  maybe in _build_letter_code_sequence method
-
     # TODO method to count degenerate letter codes
 
     # TODO Identify FASTA ID's (see linked sources)
-
-    # TODO package variables like FastaParser.NUCLEOTIDE and FastaParser.AMINOACID (maybe others)
 
 
 class Reader:
