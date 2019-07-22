@@ -391,8 +391,11 @@ class FastaSequence:
         If fastasequence is of the wrong type when calling from_fastasequence().
         If sequence_type_value is of the wrong type when setting sequence_type.
         If sequence_type is 'aminoacid' when calling complement().
+        If reverse is not bool when calling complement().
         If sequence_type is 'aminoacid' when calling gc_content().
+        If as_percentage is not bool when calling gc_content().
         If sequence_type is 'aminoacid' when calling at_gc_ratio().
+        If letter_codes is not list, tuple or None when calling count_letter_codes().
         If max_characters_per_line is not an int when calling formatted_sequence().
         If sequence_type is of the wrong type when calling _update_sequence_type().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
@@ -548,20 +551,24 @@ class FastaSequence:
         ------
         TypeError
             If self.sequence_type is 'aminoacid'.
+            If reverse is not bool.
         """
-        if self._sequence_type == 'aminoacid':
-            raise TypeError('Complement is not possible for aminoacid sequences (sequence_type == \'aminoacid\')')
-        if self._sequence_type is None:
-            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
-                          'Therefore, the complementary sequence might not make sense.')
-        if reverse:
-            complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
-        else:
-            complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence[::-1]])
+        if isinstance(reverse, bool):
+            if self._sequence_type == 'aminoacid':
+                raise TypeError('Complement is not possible for aminoacid sequences (sequence_type == \'aminoacid\')')
+            if self._sequence_type is None:
+                warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                              'Therefore, the complementary sequence might not make sense.')
+            if reverse:
+                complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
+            else:
+                complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence[::-1]])
 
-        return FastaSequence(self._id + ' ' + self._description,
-                             complement_sequence,
-                             self._sequence_type)
+            return FastaSequence(self._id + ' ' + self._description,
+                                 complement_sequence,
+                                 self._sequence_type)
+        else:
+            raise TypeError('reverse must be a bool')
 
     def gc_content(self, as_percentage=False):
         """
@@ -584,20 +591,24 @@ class FastaSequence:
         ------
         TypeError
             If self.sequence_type is 'aminoacid'.
+            If as_percentage is not bool.
         """
-        if not self._gc_content:  # if gc_content was not called before
-            if self._sequence_type == 'aminoacid':
-                raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
-                                '(sequence_type == \'aminoacid\')')
-            if self._sequence_type is None:
-                warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
-                              'Therefore, the calculated GC content might not make sense.')
-            gc = 0
-            for letter_code in self._sequence:
-                if letter_code.letter_code in ('G', 'C', 'S'):
-                    gc += 1
-            self._gc_content = gc / (len(self._sequence))
-        return self._gc_content * 100 if as_percentage else self._gc_content
+        if isinstance(as_percentage, bool):
+            if not self._gc_content:  # if gc_content was not called before
+                if self._sequence_type == 'aminoacid':
+                    raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
+                                    '(sequence_type == \'aminoacid\')')
+                if self._sequence_type is None:
+                    warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                                  'Therefore, the calculated GC content might not make sense.')
+                gc = 0
+                for letter_code in self._sequence:
+                    if letter_code.letter_code in ('G', 'C', 'S'):
+                        gc += 1
+                self._gc_content = gc / (len(self._sequence))
+            return self._gc_content * 100 if as_percentage else self._gc_content
+        else:
+            raise TypeError('as_percentage must be a bool')
 
     def at_gc_ratio(self):
         """
@@ -648,13 +659,21 @@ class FastaSequence:
         -------
         namedtuple
             Counts for every letter code in letter_codes or all if letter_codes is not specified
-        """
-        # specified (non-empty list/tuple) letter codes or all letter codes
-        letter_codes = letter_codes if letter_codes is not None and letter_codes else self._counts.keys()
 
-        counts_namedtuple = namedtuple('LetterCodeCounts', letter_codes)
-        letter_codes_counts = [self._counts.get(letter_code, 0) for letter_code in letter_codes]
-        return counts_namedtuple(*letter_codes_counts)
+        Raises
+        ------
+        TypeError
+            If letter_codes is not list, tuple or None.
+        """
+        if isinstance(letter_codes, (list, tuple)) or letter_codes is None:
+            # specified (non-empty list/tuple) letter codes or all letter codes
+            letter_codes = letter_codes if letter_codes is not None and letter_codes else self._counts.keys()
+
+            counts_namedtuple = namedtuple('LetterCodeCounts', letter_codes)
+            letter_codes_counts = [self._counts.get(letter_code, 0) for letter_code in letter_codes]
+            return counts_namedtuple(*letter_codes_counts)
+        else:
+            raise TypeError('letter_codes must be a list/tuple or None')
 
     def formatted_definition_line(self):
         """
