@@ -774,6 +774,8 @@ class FastaSequence:
         if (isinstance(sequence_type, str) and sequence_type in LETTER_CODES) or sequence_type is None:
             self._sequence_type = sequence_type
             self._inferred_type = False
+            for letter_code_object in self._sequence:  # update LetterCode objects
+                letter_code_object.sequence_type = self._sequence_type
         else:
             raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
 
