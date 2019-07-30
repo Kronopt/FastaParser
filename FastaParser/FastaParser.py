@@ -397,7 +397,7 @@ class FastaSequence:
         If sequence_type is 'aminoacid' when calling at_gc_ratio().
         If letter_codes is not list, tuple or None when calling count_letter_codes().
         If max_characters_per_line is not an int when calling formatted_sequence().
-        If sequence_type is of the wrong type when calling _update_sequence_type().
+        If sequence_type or update_letter_code_objects are of the wrong type when calling _update_sequence_type().
         If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
     """
 
@@ -444,7 +444,7 @@ class FastaSequence:
         else:
             raise TypeError('definition_line must be str')
 
-        self._update_sequence_type(sequence_type)
+        self._update_sequence_type(sequence_type, False)
 
         if isinstance(sequence, str) and len(sequence) > 0:
             if isinstance(infer_type, bool):
@@ -757,7 +757,7 @@ class FastaSequence:
         self._current_iterator = iter_sequence()
         return self._current_iterator
 
-    def _update_sequence_type(self, sequence_type):
+    def _update_sequence_type(self, sequence_type, update_letter_code_objects=True):
         """
         Updates sequence_type and all other relevant properties as needed.
 
@@ -765,19 +765,25 @@ class FastaSequence:
         ----------
         sequence_type : 'nucleotide', 'aminoacid' or None
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+        update_letter_code_objects : bool
+            Should LetterCode objects be updated or not
 
         Raises
         ------
         TypeError
-            If sequence_type is of the wrong type.
+            If sequence_type or update_letter_code_objects are of the wrong type.
         """
         if (isinstance(sequence_type, str) and sequence_type in LETTER_CODES) or sequence_type is None:
             self._sequence_type = sequence_type
             self._inferred_type = False
-            for letter_code_object in self._sequence:  # update LetterCode objects
-                letter_code_object.sequence_type = self._sequence_type
         else:
             raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
+        if isinstance(update_letter_code_objects, bool):
+            if update_letter_code_objects:
+                for letter_code_object in self._sequence:  # update LetterCode objects
+                    letter_code_object.sequence_type = self._sequence_type
+        else:
+            raise TypeError('update_letter_code_objects must be a bool')
 
     def _build_letter_code_sequence_and_counts(self, string_sequence):
         """
