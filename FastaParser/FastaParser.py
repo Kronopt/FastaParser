@@ -365,14 +365,16 @@ class FastaSequence:
     -------
     from_fastasequence(fastasequence)
         Alternate __init__ method. Initializes instance with a FastaSequence object as only parameter.
-    complement()
+    complement(reverse)
         Returns the complementary FastaSequence of a nucleotide sequence.
     gc_content(as_percentage)
         Returns the GC content of a nucleotide sequence.
     at_gc_ratio()
         Returns the AT/GC ratio of a nucleotide sequence.
-    count_letter_codes()
-        Returns the counts of each letter code if specified or all of them if not.
+    count_letter_codes(letter_codes)
+        Returns the counts of each letter code if specified or all of the letter codes in the sequence if not.
+    count_letter_codes_degenerate()
+        Returns the counts of each degenerate letter code in the sequence.
     formatted_definition_line()
         Returns a formatted FASTA definition line (header).
     formatted_sequence(max_characters_per_line=70)
@@ -387,18 +389,17 @@ class FastaSequence:
     Raises
     ------
     TypeError
-        If definition_line, sequence, sequence_type or infer_type are of the wrong type when calling __init__.
-        If fastasequence is of the wrong type when calling from_fastasequence().
-        If sequence_type_value is of the wrong type when setting sequence_type.
-        If sequence_type is 'aminoacid' when calling complement().
-        If reverse is not bool when calling complement().
-        If sequence_type is 'aminoacid' when calling gc_content().
-        If as_percentage is not bool when calling gc_content().
-        If sequence_type is 'aminoacid' when calling at_gc_ratio().
-        If letter_codes is not list, tuple or None when calling count_letter_codes().
-        If max_characters_per_line is not an int when calling formatted_sequence().
-        If sequence_type or update_letter_code_objects are of the wrong type when calling _update_sequence_type().
-        If item is not an int/slice or the sliced sequence is empty when calling __getitem__.
+        When calling __init__, if definition_line, sequence, sequence_type or infer_type are of the wrong type.
+        When calling from_fastasequence(), if fastasequence is of the wrong type.
+        When setting sequence_type, if sequence_type_value is of the wrong type.
+        When calling complement(), if sequence_type is 'aminoacid' or reverse is not bool.
+        When calling gc_content(), if sequence_type is 'aminoacid' or as_percentage is not bool.
+        When calling at_gc_ratio(), if sequence_type is 'aminoacid'.
+        When calling count_letter_codes(), if letter_codes is not list, tuple or None.
+        When calling count_letter_codes_degenerate(), if self._sequence_type is not explicitly defined.
+        When calling formatted_sequence(), if max_characters_per_line is not an int.
+        When calling _update_sequence_type(), if sequence_type or update_letter_code_objects are of the wrong type.
+        When calling __getitem__, if item is not an int/slice or the sliced sequence is empty.
     """
 
     def __init__(self, definition_line, sequence, sequence_type=None, infer_type=False):
@@ -455,6 +456,8 @@ class FastaSequence:
             else:
                 raise TypeError('infer_type must be bool')
 
+            # _sequence = [LetterCode, ...]
+            # _counts = {letter: count, ...}
             self._sequence, self._counts = self._build_letter_code_sequence_and_counts(sequence)
         else:
             raise TypeError('sequence must be a non empty str')
@@ -648,7 +651,8 @@ class FastaSequence:
     def count_letter_codes(self, letter_codes=None):
         """
         Returns letter code counts.
-        By default counts all existing letter codes in the sequence, but specific letter codes can be specified.
+        By default shows counts for all existing letter codes in the sequence,
+        but specific letter codes can be specified.
 
         Parameters
         ----------
@@ -657,8 +661,9 @@ class FastaSequence:
 
         Returns
         -------
-        namedtuple
-            Counts for every letter code in letter_codes or all if letter_codes is not specified
+        dict
+            Counts for every letter code in letter_codes or all letter codes in the sequence
+            if letter_codes is not specified
 
         Raises
         ------
@@ -666,14 +671,34 @@ class FastaSequence:
             If letter_codes is not list, tuple or None.
         """
         if isinstance(letter_codes, (list, tuple)) or letter_codes is None:
-            # specified (non-empty list/tuple) letter codes or all letter codes
-            letter_codes = letter_codes if letter_codes is not None and letter_codes else self._counts.keys()
-
-            counts_namedtuple = namedtuple('LetterCodeCounts', letter_codes)
-            letter_codes_counts = [self._counts.get(letter_code, 0) for letter_code in letter_codes]
-            return counts_namedtuple(*letter_codes_counts)
+            if letter_codes is None or not letter_codes:
+                return self._counts
+            else:
+                return {letter: self._counts.get(letter, 0) for letter in letter_codes}
         else:
             raise TypeError('letter_codes must be a list/tuple or None')
+
+    def count_letter_codes_degenerate(self):
+        """
+        Returns degenerate letter code counts.
+        sequence_type must be explicitly defined for this method to work.
+
+        Returns
+        -------
+        dict
+            Counts for every degenerate letter code in the sequence
+
+        Raises
+        ------
+        TypeError
+            If self._sequence_type is not explicitly defined.
+        """
+        if self._sequence_type in LETTER_CODES:
+            return {letter: counts for letter, counts in self._counts.items()
+                    if letter in LETTER_CODES[self._sequence_type][1]}
+        else:
+            raise TypeError('To count degenerate letter codes the sequence_type must be '
+                            'explicitly \'%s\'' % ('\' or \''.join(LETTER_CODES),))
 
     def formatted_definition_line(self):
         """
@@ -885,8 +910,6 @@ class FastaSequence:
         sequence
         """
         return ">%s %s\n" % (self._id, self._description) + ''.join(map(str, self._sequence))
-
-    # TODO method to count degenerate letter codes
 
     # TODO Identify FASTA ID's (see linked sources)
 
