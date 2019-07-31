@@ -26,3 +26,5 @@ HSGLTH1 Human theta 1-globin gene
 * Read the whole fasta "specification" to provide more features
 * Tests
 * PyPi package
+* Conda package
+* Docker package (?)
