@@ -463,8 +463,8 @@ class FastaSequence:
             if isinstance(infer_type, bool):
                 if infer_type:
                     self._sequence_type = self._infer_sequence_type(sequence)
-                else:
-                    self._inferred_type = False
+                    # if infer_type is False there is no need to set _inferred_type as False
+                    # as it is already set as such in _update_sequence_type
             else:
                 raise TypeError('infer_type must be bool')
 
@@ -498,8 +498,8 @@ class FastaSequence:
             If fastasequence is of the wrong type.
         """
         if isinstance(fastasequence, FastaSequence):
-            return cls(fastasequence.formatted_definition_line(),
-                       fastasequence.sequence_as_string(),
+            return cls(fastasequence.sequence_as_string(),
+                       fastasequence.formatted_definition_line(),
                        fastasequence.sequence_type)
         else:
             raise TypeError('fastasequence must be a FastaSequence')
@@ -576,12 +576,12 @@ class FastaSequence:
                 warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                               'Therefore, the complementary sequence might not make sense.')
             if reverse:
-                complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
+                complement_sequence = ''.join([letter.complement().letter_code for letter in reversed(self._sequence)])
             else:
-                complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence[::-1]])
+                complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
 
-            return FastaSequence(self._id + ' ' + self._description,
-                                 complement_sequence,
+            return FastaSequence(complement_sequence,
+                                 self._id + ' ' + self._description,
                                  self._sequence_type)
         else:
             raise TypeError('reverse must be a bool')
@@ -659,9 +659,11 @@ class FastaSequence:
             for letter_code in self._sequence:
                 if letter_code.letter_code in ('A', 'T', 'W'):  # W means either A or T
                     at += 1
-                elif letter_code.letter_code in ('G', 'C', 'S'):
+                elif self._gc_content is None and letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                     gc += 1
-            self._at_gc_ratio = at/gc if gc != 0 else 0
+            if self._gc_content is None:
+                self._gc_content = gc
+            self._at_gc_ratio = at/self._gc_content if self._gc_content != 0 else 0
         return self._at_gc_ratio
 
     def count_letter_codes(self, letter_codes=None):
@@ -686,13 +688,10 @@ class FastaSequence:
         TypeError
             If letter_codes is not an iterable or None.
         """
-        if isinstance(letter_codes, (list, tuple)) or letter_codes is None:
-            if letter_codes is None or not letter_codes:
-                return self._counts
-            else:
-                return {letter: self._counts.get(letter, 0) for letter in letter_codes}
+        if letter_codes is None or not letter_codes:
+            return self._counts
         else:
-            raise TypeError('letter_codes must be a list/tuple or None')
+            return {letter: self._counts.get(letter, 0) for letter in iter(letter_codes)}
 
     def count_letter_codes_degenerate(self):
         """
@@ -750,7 +749,7 @@ class FastaSequence:
             If max_characters_per_line is not an int.
         """
         if isinstance(max_characters_per_line, int):
-            max_characters_per_line = 1 if max_characters_per_line == 0 else max_characters_per_line  # if 0
+            max_characters_per_line = 1 if max_characters_per_line <= 0 else max_characters_per_line
 
             current_character_count = 0
             final_sequence = ''
@@ -843,6 +842,7 @@ class FastaSequence:
         letter_code_list = []
         letter_code_count_dict = {}
         for letter_code in string_sequence:
+            letter_code = letter_code.upper()
             letter_code_list.append(LetterCode(letter_code, self._sequence_type))
             letter_code_count_dict[letter_code] = letter_code_count_dict.setdefault(letter_code, 0) + 1
 
@@ -870,7 +870,7 @@ class FastaSequence:
             if letter_code in AMINOACIDS_NOT_IN_NUCLEOTIDES:
                 self._inferred_type = True
                 return 'aminoacid'
-        self._inferred_type = False
+        # self._inferred_type = False  # _inferred_type is already False when this function is called in __init__
         return self._sequence_type  # returns the already set value
 
     def __iter__(self):
