@@ -255,7 +255,16 @@ class LetterCode:
 
     @property
     def description(self):
-        return self._description
+        if self._sequence_type in LETTER_CODES:
+            if self._letter_code in LETTER_CODES[self._sequence_type][0]:
+                description = LETTER_CODES[self._sequence_type][0][self._letter_code]
+            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:
+                description = LETTER_CODES[self._sequence_type][1][self._letter_code]
+            else:
+                description = ''
+        else:
+            description = ''
+        return description
 
     @property
     def degenerate(self):
@@ -311,25 +320,19 @@ class LetterCode:
         """
         if sequence_type in LETTER_CODES:
             self._sequence_type = sequence_type
-            self._supported = True
 
-            # letter_codes_good
-            if self._letter_code in LETTER_CODES[self._sequence_type][0]:
-                self._description = LETTER_CODES[self._sequence_type][0][self._letter_code]
+            if self._letter_code in LETTER_CODES[self._sequence_type][0]:  # letter_codes_good
                 self._degenerate = False
-            # letter_codes_degenerate
-            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:
-                self._description = LETTER_CODES[self._sequence_type][1][self._letter_code]
+                self._supported = True
+            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:  # letter_codes_degenerate
                 self._degenerate = True
-            # _letter_code isn't defined in the FASTA specification
-            else:
-                self._supported = False
-                self._description = ''
+                self._supported = True
+            else:  # _letter_code isn't defined in the FASTA specification
                 self._degenerate = None
+                self._supported = False
         elif sequence_type is None:
             self._sequence_type = sequence_type
             self._supported = False
-            self._description = ''
             self._degenerate = None
         else:
             raise TypeError('sequence_type must be one of: %s or None' % ', '.join(LETTER_CODES))
