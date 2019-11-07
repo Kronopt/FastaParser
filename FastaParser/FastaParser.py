@@ -794,11 +794,7 @@ class FastaSequence:
         iterator
             Iterator over the reversed sequence
         """
-        def iter_sequence():
-            for letter_code in self._sequence[::-1]:
-                yield letter_code
-        self._current_iterator = iter_sequence()
-        return self._current_iterator
+        return self.__reversed__()
 
     def _update_sequence_type(self, sequence_type, update_letter_code_objects=True):
         """
@@ -883,6 +879,17 @@ class FastaSequence:
             for letter_code in self._sequence:
                 yield letter_code
         self._current_iterator = iter_sequence()
+        return self._current_iterator
+
+    def __reversed__(self):
+        """
+        Iterates over the sequence in reverse.
+        Returns a new iterator of the reversed sequence (from the end) every time __reversed__ is called.
+        """
+        def iter_sequence_reversed():
+            for letter_code in reversed(self._sequence):
+                yield letter_code
+        self._current_iterator = iter_sequence_reversed()
         return self._current_iterator
 
     def __next__(self):
