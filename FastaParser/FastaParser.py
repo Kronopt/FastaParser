@@ -347,6 +347,9 @@ class LetterCode:
             return False
 
     def __repr__(self):
+        return 'LetterCode(%s)' % self._letter_code
+
+    def __str__(self):
         return self._letter_code
 
 
