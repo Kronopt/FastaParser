@@ -40,6 +40,7 @@ __credits__ = ['Pedro HC David']
 __version__ = '0.1'
 
 
+# TODO use logging library to log warnings
 warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
 
 # NUCLEOTIDE DICTIONARIES
@@ -123,15 +124,20 @@ LETTER_CODES = {
 }
 
 # set operations
-LETTER_CODES_ALL = set(list(NUCLEOTIDE_LETTER_CODES_GOOD) +
-                       list(NUCLEOTIDE_LETTER_CODES_DEGENERATE) +
-                       list(AMINOACID_LETTER_CODES_GOOD) +
-                       list(AMINOACID_LETTER_CODES_DEGENERATE)
-                       )
-NUCLEOTIDE_LETTER_CODES_ALL = set(list(NUCLEOTIDE_LETTER_CODES_GOOD) +
-                                  list(NUCLEOTIDE_LETTER_CODES_DEGENERATE))
-AMINOACID_LETTER_CODES_ALL = set(list(AMINOACID_LETTER_CODES_GOOD) +
-                                 list(AMINOACID_LETTER_CODES_DEGENERATE))
+LETTER_CODES_ALL = set(
+    list(NUCLEOTIDE_LETTER_CODES_GOOD) +
+    list(NUCLEOTIDE_LETTER_CODES_DEGENERATE) +
+    list(AMINOACID_LETTER_CODES_GOOD) +
+    list(AMINOACID_LETTER_CODES_DEGENERATE)
+)
+NUCLEOTIDE_LETTER_CODES_ALL = set(
+    list(NUCLEOTIDE_LETTER_CODES_GOOD) +
+    list(NUCLEOTIDE_LETTER_CODES_DEGENERATE)
+)
+AMINOACID_LETTER_CODES_ALL = set(
+    list(AMINOACID_LETTER_CODES_GOOD) +
+    list(AMINOACID_LETTER_CODES_DEGENERATE)
+)
 AMINOACIDS_NOT_IN_NUCLEOTIDES = AMINOACID_LETTER_CODES_ALL - NUCLEOTIDE_LETTER_CODES_ALL
 # nucleotides_not_in_aminoacids would be empty
 
@@ -165,11 +171,10 @@ class LetterCode:
     Raises
     ------
     TypeError
-        If letter_code or sequence_type are of the wrong type when calling __init__.
-        If lettercode is of the wrong type when calling from_lettercode().
-        If sequence_type_value is of the wrong type when setting sequence_type.
-        If sequence_type is 'aminoacid' when calling complement().
-        If sequence_type is of the wrong type when calling _update_sequence_type().
+        When calling __init__, if letter_code or sequence_type are of the wrong type.
+        When calling from_lettercode(), if lettercode is of the wrong type.
+        When setting sequence_type, if sequence_type_value is of the wrong type.
+        When calling complement(), if sequence_type is 'aminoacid'.
     """
 
     def __init__(self, letter_code, sequence_type=None):
@@ -191,9 +196,10 @@ class LetterCode:
         if isinstance(letter_code, str) and len(letter_code) == 1:
             self._letter_code = letter_code.upper()
             if self._letter_code not in LETTER_CODES_ALL:  # not defined in the FASTA specification
+                # TODO use logging library
                 warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
         else:
-            raise TypeError('letter_code must be str of length 1')
+            raise TypeError('letter_code must be a single character str')
 
         self._update_sequence_type(sequence_type)
 
@@ -273,16 +279,17 @@ class LetterCode:
         Returns
         -------
         LetterCode
-            Complement of the current LetterCode. Same LetterCode is returned if letter code is not a nucleotide.
+            Complement of current LetterCode. Same LetterCode is returned if letter code is not a valid nucleotide.
 
         Raises
         ------
         TypeError
-            If sequence_type is 'aminoacid'.
+            If self.sequence_type is 'aminoacid'.
         """
         if self._sequence_type == 'aminoacid':
             raise TypeError('Complement is not possible for aminoacids (sequence_type == \'aminoacid\')')
         if self._sequence_type is None:
+            # TODO use logging library
             warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                           'Therefore, the complementary letter code might not make sense.')
         return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(self._letter_code, self._letter_code),
@@ -365,13 +372,13 @@ class FastaSequence:
     -------
     from_fastasequence(fastasequence)
         Alternate __init__ method. Initializes instance with a FastaSequence object as only parameter.
-    complement(reverse)
+    complement(reverse=False)
         Returns the complementary FastaSequence of a nucleotide sequence.
-    gc_content(as_percentage)
+    gc_content(as_percentage=False)
         Returns the GC content of a nucleotide sequence.
     at_gc_ratio()
         Returns the AT/GC ratio of a nucleotide sequence.
-    count_letter_codes(letter_codes)
+    count_letter_codes(letter_codes=None)
         Returns the counts of each letter code if specified or all of the letter codes in the sequence if not.
     count_letter_codes_degenerate()
         Returns the counts of each degenerate letter code in the sequence.
@@ -389,16 +396,15 @@ class FastaSequence:
     Raises
     ------
     TypeError
-        When calling __init__, if definition_line, sequence, sequence_type or infer_type are of the wrong type.
+        When calling __init__, if sequence, definition_line, sequence_type or infer_type are of the wrong type.
         When calling from_fastasequence(), if fastasequence is of the wrong type.
         When setting sequence_type, if sequence_type_value is of the wrong type.
         When calling complement(), if sequence_type is 'aminoacid' or reverse is not bool.
         When calling gc_content(), if sequence_type is 'aminoacid' or as_percentage is not bool.
         When calling at_gc_ratio(), if sequence_type is 'aminoacid'.
-        When calling count_letter_codes(), if letter_codes is not list, tuple or None.
+        When calling count_letter_codes(), if letter_codes is not an iterable or None.
         When calling count_letter_codes_degenerate(), if self._sequence_type is not explicitly defined.
         When calling formatted_sequence(), if max_characters_per_line is not an int.
-        When calling _update_sequence_type(), if sequence_type or update_letter_code_objects are of the wrong type.
         When calling __getitem__, if item is not an int/slice or the sliced sequence is empty.
     """
 
@@ -425,7 +431,7 @@ class FastaSequence:
         Raises
         ------
         TypeError
-            If definition_line, sequence, sequence_type or infer_type are of the wrong type.
+            If sequence, definition_line, sequence_type or infer_type are of the wrong type.
         """
         if isinstance(definition_line, str):  # '>id|more_id description ...' with or without the '>' at the start
             id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
@@ -437,7 +443,7 @@ class FastaSequence:
             else:
                 if id_and_description[0].startswith('>'):
                     id_and_description[0] = id_and_description[0][1:]
-                if len(id_and_description) == 1:  # description can be empty
+                if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
                     self._id = id_and_description[0]
                     self._description = ''
                 else:
@@ -445,7 +451,7 @@ class FastaSequence:
         else:
             raise TypeError('definition_line must be str')
 
-        self._update_sequence_type(sequence_type, False)
+        self._update_sequence_type(sequence_type, update_letter_code_objects=False)
 
         if isinstance(sequence, str) and len(sequence) > 0:
             if isinstance(infer_type, bool):
@@ -560,6 +566,7 @@ class FastaSequence:
             if self._sequence_type == 'aminoacid':
                 raise TypeError('Complement is not possible for aminoacid sequences (sequence_type == \'aminoacid\')')
             if self._sequence_type is None:
+                # TODO use logging library
                 warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                               'Therefore, the complementary sequence might not make sense.')
             if reverse:
@@ -575,8 +582,10 @@ class FastaSequence:
 
     def gc_content(self, as_percentage=False):
         """
-        Calculates the GC content of nucleotide sequence.
+        Calculates the GC content of nucleotide sequence (as a ratio, by default).
+        Ignores degenerate letter codes besides S (G or C).
         GC content is calculated the first time the method is called. Later calls will retrieve the same value.
+        GC content can also be calculates in at_gc_ratio.
         If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the GC content
         might be nonsensical.
 
@@ -606,7 +615,7 @@ class FastaSequence:
                                   'Therefore, the calculated GC content might not make sense.')
                 gc = 0
                 for letter_code in self._sequence:
-                    if letter_code.letter_code in ('G', 'C', 'S'):
+                    if letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                         gc += 1
                 self._gc_content = gc / (len(self._sequence))
             return self._gc_content * 100 if as_percentage else self._gc_content
@@ -618,6 +627,7 @@ class FastaSequence:
         Calculates the AT/GC ratio of nucleotide sequence.
         Ignores degenerate letter codes besides W (A or T) and S (G or C).
         AT/GC ratio is calculated the first time the method is called. Later calls will retrieve the same value.
+        Also uses previously calculated _gc_content or calculates and saves it if it hasn't been calculated yet.
         If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the AT/GC ratio
         might be nonsensical.
 
@@ -641,7 +651,7 @@ class FastaSequence:
             at = 0
             gc = 0
             for letter_code in self._sequence:
-                if letter_code.letter_code in ('A', 'T', 'W'):
+                if letter_code.letter_code in ('A', 'T', 'W'):  # W means either A or T
                     at += 1
                 elif letter_code.letter_code in ('G', 'C', 'S'):
                     gc += 1
@@ -656,8 +666,8 @@ class FastaSequence:
 
         Parameters
         ----------
-        letter_codes : list or tuple or None, optional
-            list/tuple of all letter codes to count.
+        letter_codes : iterable or None, optional
+            Iterable of all letter codes to count.
 
         Returns
         -------
@@ -668,7 +678,7 @@ class FastaSequence:
         Raises
         ------
         TypeError
-            If letter_codes is not list, tuple or None.
+            If letter_codes is not an iterable or None.
         """
         if isinstance(letter_codes, (list, tuple)) or letter_codes is None:
             if letter_codes is None or not letter_codes:
@@ -775,6 +785,11 @@ class FastaSequence:
         """
         Iterates over the sequence in reverse order.
         Returns a new iterator of the sequence (from the end) every time reverse is called.
+
+        Returns
+        -------
+        iterator
+            Iterator over the reversed sequence
         """
         def iter_sequence():
             for letter_code in self._sequence[::-1]:
@@ -791,7 +806,7 @@ class FastaSequence:
         sequence_type : 'nucleotide', 'aminoacid' or None
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
         update_letter_code_objects : bool
-            Should LetterCode objects be updated or not
+            Should LetterCode objects be updated with sequence_type or not
 
         Raises
         ------
@@ -836,7 +851,7 @@ class FastaSequence:
         Tries to infer aminoacid sequence type.
         Tests for the presence of letter codes that can only represent aminoacids
         (ie, aminoacids letter codes not in nucleotides letter codes).
-        Testing for nucleotides is not 100% accurate because there are no letter codes
+        The reverse (testing for nucleotides) is not 100% accurate because there are no letter codes
         which belong solely to nucleotide type sequences.
 
         Parameters
