@@ -1234,3 +1234,6 @@ class Writer:
         else:
             raise TypeError('fasta_sequences must be a list of FastaSequence '
                             'objects or a list of tuples (header : str, sequence : str)')
+
+    def __repr__(self):
+        return 'FastaParser.Writer(%s)' % self._fasta_file.name
