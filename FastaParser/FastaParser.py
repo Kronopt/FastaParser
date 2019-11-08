@@ -930,17 +930,20 @@ class FastaSequence:
             new_definition_line = self.formatted_definition_line() + ' [SLICE OF ORIGINAL: %s]' % item
             return FastaSequence(new_definition_line, new_sequence, self.sequence_type)
         else:
-            raise TypeError('Indices must be integers or slices, not tuple')
+            raise TypeError('Indices must be integers or slices')
 
     def __len__(self):
         return len(self._sequence)
 
     def __repr__(self):
+        return 'FastaSequence(%s)' % self.sequence_as_string()
+
+    def __str__(self):
         """
         >id description
         sequence
         """
-        return ">%s %s\n" % (self._id, self._description) + self.sequence_as_string()
+        return ">%s %s\n%s" % (self._id, self._description, self.sequence_as_string())
 
 
 class Reader:
@@ -961,8 +964,6 @@ class Reader:
         The FASTA file passed as parameter.
     sequences_type : 'nucleotide', 'aminoacid' or None
         Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). Can be None if not known.
-    infer_type: bool
-        True if sequence type of each sequence is to be inferred, False otherwise.
     parse_method: 'rich' or 'quick'
         Parse method used ('rich' or 'quick').
 
@@ -1035,63 +1036,86 @@ class Reader:
         return self._sequences_type
 
     @property
-    def infer_type(self):
-        return self._infer_type
-
-    @property
     def parse_method(self):
         return self._parse_method
+
+    def _generate_fasta_sequence_object(self, sequence, definition_line):
+        """
+        Generates either a FastaSequence or a namedtuple('Fasta', ['header', 'sequence']) object,
+        based on the value of self._parse_method
+
+        Parameters
+        ----------
+        sequence : str
+            Sequence as string.
+        definition_line : str
+            Definition line (id + description) including '>' at the beginning.
+
+        Returns
+        -------
+        FastaSequence or namedtuple('Fasta', ['header', 'sequence'])
+        """
+        if self._parse_method == 'rich':
+            fasta_sequence = FastaSequence(sequence, definition_line, self._sequences_type, self._infer_type)
+        else:  # 'quick'
+            fasta_sequence = self._fasta_sequence(definition_line, sequence)
+        return fasta_sequence
+
+    def _iter_fasta_file(self, fasta_file):
+        """
+        Iterator of FASTA files (called by __iter__).
+
+        Parameters
+        ----------
+        fasta_file : file object
+            An opened file handle.
+        """
+        fasta_file.seek(0)  # restart cursor position (just in case)
+
+        definition_line = ''
+        sequence = ''
+
+        parsing_fasta_sequence = False
+        for line in fasta_file:
+            line = line.strip()
+
+            # searching for '>' character at the start of a line
+            # following lines contain the sequence, so parsing_fasta_sequence becomes True
+            if not parsing_fasta_sequence:
+                if line.startswith('>'):
+                    definition_line = line
+                    parsing_fasta_sequence = True
+
+            # in the middle of parsing a FASTA sequence
+            else:
+                # builds sequence string until a '>' is found.
+                # also ignores empty lines, which is not specified in the FASTA specification,
+                # but is forgiven to badly constructed FASTA files
+                if len(line) > 0 and line[0] != '>':
+                    sequence += line
+                elif len(line) > 0 and line[0] == '>':
+                    fasta_sequence = self._generate_fasta_sequence_object(sequence, definition_line)
+                    yield fasta_sequence
+
+                    # restart variables
+                    definition_line = line
+                    sequence = ''
+                    parsing_fasta_sequence = True
+
+        # end of file, therefore yield last FASTA sequence
+        if len(sequence) > 0:  # a FASTA sequence was actually parsed and were not just blank lines
+            fasta_sequence = self._generate_fasta_sequence_object(sequence, definition_line)
+            yield fasta_sequence
 
     def __iter__(self):
         """
         Iterates over the FASTA file.
         Returns a new iterator of the file (from the beginning) every time __iter__ is called.
         """
-        if self._fasta_file.closed:  # check if file is closed
+        if self._fasta_file.closed and not self._fasta_file.readable():  # check if file is closed
             raise TypeError('fasta_file_object must be opened for reading')
 
-        def iter_fasta_file(fasta_file):
-            fasta_file.seek(0)  # restart cursor position (just in case)
-
-            definition_line = ''
-            sequence = ''
-
-            parsing_fasta_sequence = False
-            for line in fasta_file:
-                line = line.strip()
-
-                # searching for '>' character at the start of a line
-                if not parsing_fasta_sequence:
-                    if line.startswith('>'):
-                        definition_line = line
-                        parsing_fasta_sequence = True
-
-                # in the middle of parsing a FASTA sequence
-                else:
-                    if len(line) > 0 and line[0] != '>':
-                        sequence += line
-                    elif len(line) > 0 and line[0] == '>':
-                        if self._parse_method == 'rich':
-                            fasta_sequence = FastaSequence(sequence, definition_line, self._sequences_type,
-                                                           self._infer_type)
-                        else:  # 'quick'
-                            fasta_sequence = self._fasta_sequence(definition_line, sequence)
-                        yield fasta_sequence
-
-                        # restart variables
-                        definition_line = line
-                        sequence = ''
-                        parsing_fasta_sequence = True
-
-            # end of file, therefore yield last FASTA sequence
-            if len(sequence) > 0:  # a FASTA sequence was actually parsed and were not just blank lines
-                if self._parse_method == 'rich':
-                    fasta_sequence = FastaSequence(sequence, definition_line, self._sequences_type, self._infer_type)
-                else:  # 'quick'
-                    fasta_sequence = self._fasta_sequence(definition_line, sequence)
-                yield fasta_sequence
-
-        self._current_iterator = iter_fasta_file(self._fasta_file)
+        self._current_iterator = self._iter_fasta_file(self._fasta_file)
         return self._current_iterator
 
     def __next__(self):
