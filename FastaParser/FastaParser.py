@@ -356,6 +356,9 @@ class LetterCode:
         return self._letter_code
 
 
+# TODO Identify FASTA ID's (see linked sources)
+# TODO FASTAID class (?) to then return in the id property
+# TODO FASTQ parser
 class FastaSequence:
     """
     Represents one FASTA sequence.
@@ -906,7 +909,7 @@ class FastaSequence:
 
     def __getitem__(self, item):
         """
-        Slicing /indexing returns a new FastaSequence copy of self with the sliced sequence of LetterCode objects.
+        Slicing/indexing returns a new FastaSequence copy of self with the sliced sequence of LetterCode objects.
         The description line is updated to reflect the slices made to the original sequence.
         Slices can't return an empty sequence.
 
@@ -939,21 +942,22 @@ class FastaSequence:
         """
         return ">%s %s\n" % (self._id, self._description) + self.sequence_as_string()
 
-    # TODO Identify FASTA ID's (see linked sources)
-    # TODO FASTAID class (?) to then return in the id property
-    # TODO FASTQ parser
-
 
 class Reader:
     """
     Parser/Reader for the given FASTA file.
-    Parsing mechanisms include 'quick' or 'rich':
-        - 'quick': Object containing just the FASTA header and sequence attributes
-        - 'rich': FastaSequence (default)
+    Iterates over the FASTA file using one of two parsing mechanisms:
+        'quick':
+            Generates objects containing just the FASTA header and sequence attributes
+            for each sequence in the FASTA file.
+            Parses the FASTA file faster but lacks some features.
+        'rich':
+            Returns FastaSequence objects (default).
+            Slower, but feature rich.
 
     Attributes
     ----------
-    fasta_file : FASTA file object
+    fasta_file : file object
         The FASTA file passed as parameter.
     sequences_type : 'nucleotide', 'aminoacid' or None
         Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). Can be None if not known.
@@ -965,14 +969,14 @@ class Reader:
     Raises
     ------
     TypeError
-        If fasta_file_object, sequences_type, infer_type or parse_method are of the wrong type.
-        If fasta_file_object is not a file object or is closed.
+        When calling __init__, if fasta_file_object, sequences_type, infer_type or parse_method are of the wrong type.
+        When calling __init__, if fasta_file_object is not a file object or is closed.
     """
+    _PARSE_METHODS = ('rich', 'quick')
 
     def __init__(self, fasta_file_object, sequences_type=None, infer_type=False, parse_method='rich'):
         """
         Initializes file object (checks if fasta_file_object is an opened file object).
-        Only one FASTA sequence is read at a time from the FASTA file, previous sequences are not kept in memory.
 
         Parameters
         ----------
@@ -987,8 +991,8 @@ class Reader:
             Parse method to use ('rich' or 'quick'). Defaults to 'rich'.
             'quick' parsing method just parses the header and the sequence into individual properties,
             so it's much faster and less memory intensive. If selected, sequences_type and
-            infer_type parameters are ignored
-            'rich' implements more functionality, but is a bit slower.
+            infer_type parameters are ignored.
+            'rich' implements more functionality (FastaSequence and LetterCode), but is slower.
 
         Raises
         ------
@@ -1017,11 +1021,10 @@ class Reader:
         else:
             raise TypeError('infer_type must be bool')
 
-        parse_methods = ('rich', 'quick')
-        if isinstance(parse_method, str) and parse_method in parse_methods:
+        if isinstance(parse_method, str) and parse_method in self._PARSE_METHODS:
             self._parse_method = parse_method
         else:
-            raise TypeError('parse_method must be one of: %s' % ', '.join(parse_methods))
+            raise TypeError('parse_method must be one of: %s' % ', '.join(self._PARSE_METHODS))
 
     @property
     def fasta_file(self):
@@ -1101,7 +1104,7 @@ class Reader:
         return next(self._current_iterator)
 
     def __repr__(self):
-        return "<%s - FASTAFILE:%s>" % (self.__class__.__name__, self._fasta_file.name)
+        return 'FastaParser.Reader(%s)' % self._fasta_file.name
 
 
 class Writer:
