@@ -1137,7 +1137,7 @@ class Writer:
 
     Attributes
     ----------
-    fasta_file : FASTA file object
+    fasta_file : file object
         The FASTA file passed as parameter.
 
     Methods
@@ -1155,8 +1155,8 @@ class Writer:
     Raises
     ------
     TypeError
-        If fasta_file_object is of the wrong type.
-        If fasta_file_object is not a file object or is closed.
+        When calling __init__, if fasta_file_object is of the wrong type.
+        When calling __init__, if fasta_file_object is not a file object or is closed.
     """
 
     def __init__(self, fasta_file_object):
@@ -1166,7 +1166,7 @@ class Writer:
         Parameters
         ----------
         fasta_file_object : file object
-            An opened file handle.
+            An opened file handle ready for writing.
 
         Raises
         ------
