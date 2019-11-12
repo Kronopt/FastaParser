@@ -1,8 +1,8 @@
-#!python3
+#!python
 # coding: utf-8
 
 """
-PyFastaParser
+FastaParser
 
 Parses FASTA files with the Reader class (generates FastaSequence objects or plane strings of the parsed sequences)
 Writes FASTA files with the Writer class (takes FastaSequence objects or headers + sequences as strings)

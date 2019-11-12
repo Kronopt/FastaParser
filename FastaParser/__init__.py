@@ -1,4 +1,4 @@
-#!python3
+#!python
 # coding: utf-8
 
-from .FastaParser import FastaSequence, Reader, Writer
+from .FastaParser import *
