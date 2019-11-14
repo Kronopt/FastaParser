@@ -255,15 +255,12 @@ class LetterCode:
 
     @property
     def description(self):
+        description = ''
         if self._sequence_type in LETTER_CODES:
-            if self._letter_code in LETTER_CODES[self._sequence_type][0]:
+            if self._letter_code in LETTER_CODES[self._sequence_type][0]:  # good
                 description = LETTER_CODES[self._sequence_type][0][self._letter_code]
-            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:
+            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:  # degenerate
                 description = LETTER_CODES[self._sequence_type][1][self._letter_code]
-            else:
-                description = ''
-        else:
-            description = ''
         return description
 
     @property
