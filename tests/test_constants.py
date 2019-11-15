@@ -14,6 +14,7 @@ import FastaParser
 # Fixtures
 ##########
 
+
 @pytest.fixture(scope='module')
 def nucleotide_letter_codes_good():
     return {

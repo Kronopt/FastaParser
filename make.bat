@@ -10,7 +10,7 @@ echo clean-tests        removes temp test files and folders
 goto:eof
 
 :test
-python -m pytest -v
+python -m pytest
 goto:eof
 
 :clean-tests

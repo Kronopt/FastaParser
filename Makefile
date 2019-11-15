@@ -5,7 +5,7 @@ help:
     @echo "clean-tests        removes temp test files and folders"
 
 test:
-	python -m pytest -v
+	python -m pytest
 
 clean-tests:
     rm -rf .pytest_cache/
