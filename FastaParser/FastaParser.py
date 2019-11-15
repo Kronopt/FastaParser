@@ -156,7 +156,7 @@ class LetterCode:
         Description or nucleotide/aminoacid name of letter code (can be an empty string).
     degenerate : bool or None
         Indicates if a letter code is degenerate or not (can be None if letter code is
-        not defined in the FASTA specification).
+        not defined in the FASTA specification or sequence_type is unknown).
     supported : bool
         Indicates if letter code is supported or not
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
@@ -197,7 +197,7 @@ class LetterCode:
             self._letter_code = letter_code.upper()
             if self._letter_code not in LETTER_CODES_ALL:  # not defined in the FASTA specification
                 # TODO use logging library
-                warnings.warn('\'%s\' is not a valid letter code' % self._letter_code)
+                warnings.warn('%r is not a valid letter code' % self._letter_code)
         else:
             raise TypeError('letter_code must be a single character str')
 
@@ -347,7 +347,7 @@ class LetterCode:
             return False
 
     def __repr__(self):
-        return 'LetterCode(%s)' % self._letter_code
+        return 'LetterCode(%r)' % self._letter_code
 
     def __str__(self):
         return self._letter_code
@@ -933,7 +933,7 @@ class FastaSequence:
         return len(self._sequence)
 
     def __repr__(self):
-        return 'FastaSequence(%s)' % self.sequence_as_string()
+        return 'FastaSequence(%r)' % self.sequence_as_string()
 
     def __str__(self):
         """
