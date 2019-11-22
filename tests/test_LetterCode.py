@@ -15,49 +15,49 @@ from FastaParser import LetterCode
 ##########
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def nucleotide_good():
     return LetterCode('A', 'nucleotide')
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def nucleotide_degenerate():
     return LetterCode('K', 'nucleotide')
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def aminoacid_good():
     return LetterCode('H', 'aminoacid')
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def aminoacid_degenerate():
     return LetterCode('-', 'aminoacid')
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def sequence_type_none():
     return LetterCode('A')
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def unknown_characters():
     return 'O', '»', '%', 'º', '?', 'غ', '\n'
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def letter_codes_unknown(unknown_characters):
     letter_codes = [LetterCode(character) for character in unknown_characters]
     return zip(letter_codes, unknown_characters)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def letter_codes_unknown_nucleotide(unknown_characters):
     letter_codes = [LetterCode(character, 'nucleotide') for character in unknown_characters]
     return zip(letter_codes, unknown_characters)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def letter_codes_unknown_aminoacid(unknown_characters):
     letter_codes = [LetterCode(character, 'aminoacid') for character in unknown_characters]
     return zip(letter_codes, unknown_characters)
@@ -76,12 +76,14 @@ class Test__Init__:
         assert nucleotide_good.description == 'adenosine'
         assert nucleotide_good.degenerate is False
         assert nucleotide_good.supported is True
+        assert nucleotide_good.in_fasta_spec is True
         # aminoacid
         assert aminoacid_good.letter_code == 'H'
         assert aminoacid_good.sequence_type == 'aminoacid'
         assert aminoacid_good.description == 'histidine'
         assert aminoacid_good.degenerate is False
         assert aminoacid_good.supported is True
+        assert aminoacid_good.in_fasta_spec is True
 
     def test_letter_code_degenerate(self, nucleotide_degenerate, aminoacid_degenerate):
         # nucleotide
@@ -90,12 +92,14 @@ class Test__Init__:
         assert nucleotide_degenerate.description == 'keto (G/T)'
         assert nucleotide_degenerate.degenerate is True
         assert nucleotide_degenerate.supported is True
+        assert nucleotide_degenerate.in_fasta_spec is True
         # aminoacid
         assert aminoacid_degenerate.letter_code == '-'
         assert aminoacid_degenerate.sequence_type == 'aminoacid'
         assert aminoacid_degenerate.description == 'gap of indeterminate length'
         assert aminoacid_degenerate.degenerate is True
         assert aminoacid_degenerate.supported is True
+        assert aminoacid_degenerate.in_fasta_spec is True
 
     def test_letter_code_unknown_characters(self, letter_codes_unknown):
         for letter_code, character in letter_codes_unknown:
@@ -104,6 +108,7 @@ class Test__Init__:
             assert letter_code.description == ''
             assert letter_code.degenerate is None
             assert letter_code.supported is False
+            assert letter_code.in_fasta_spec is False
 
     def test_letter_code_not_str(self):
         with pytest.raises(TypeError):
@@ -126,6 +131,7 @@ class Test__Init__:
         assert letter_code.description == 'adenosine'
         assert letter_code.degenerate is False
         assert letter_code.supported is True
+        assert letter_code.in_fasta_spec is True
 
     def test_sequence_type_nucleotide(self, letter_codes_unknown_nucleotide):
         # good and degenerate already tested in test_letter_code_good and test_letter_code_degenerate
@@ -135,6 +141,7 @@ class Test__Init__:
             assert letter_code.description == ''
             assert letter_code.degenerate is None
             assert letter_code.supported is False
+            assert letter_code.in_fasta_spec is False
 
     def test_sequence_type_aminoacid(self, letter_codes_unknown_aminoacid):
         # good and degenerate already tested in test_letter_code_good and test_letter_code_degenerate
@@ -144,6 +151,7 @@ class Test__Init__:
             assert letter_code.description == ''
             assert letter_code.degenerate is None
             assert letter_code.supported is False
+            assert letter_code.in_fasta_spec is False
 
     def test_sequence_type_none(self, sequence_type_none):
         assert sequence_type_none.letter_code == 'A'
@@ -151,6 +159,7 @@ class Test__Init__:
         assert sequence_type_none.description == ''
         assert sequence_type_none.degenerate is None
         assert sequence_type_none.supported is False
+        assert sequence_type_none.in_fasta_spec is True
 
     def test_sequence_type_incorrect(self):
         with pytest.raises(TypeError):
@@ -175,6 +184,7 @@ class Test_from_lettercode:
         assert new.description == nucleotide_good.description
         assert new.degenerate == nucleotide_good.degenerate
         assert new.supported == nucleotide_good.supported
+        assert new.in_fasta_spec == nucleotide_good.in_fasta_spec
 
     def test_lettercode_wrong_type(self):
         with pytest.raises(TypeError):
@@ -195,6 +205,7 @@ class Test_sequence_type_property:
         assert aminoacid_good.description == 'A/C/T'
         assert aminoacid_good.degenerate is True
         assert aminoacid_good.supported is True
+        assert aminoacid_good.in_fasta_spec is True
 
     def test_set_aminoacid(self, nucleotide_good):
         nucleotide_good.sequence_type = 'aminoacid'
@@ -203,6 +214,7 @@ class Test_sequence_type_property:
         assert nucleotide_good.description == 'alanine'
         assert nucleotide_good.degenerate is False
         assert nucleotide_good.supported is True
+        assert nucleotide_good.in_fasta_spec is True
 
     def test_set_none(self, aminoacid_good):
         aminoacid_good.sequence_type = None
@@ -211,6 +223,7 @@ class Test_sequence_type_property:
         assert aminoacid_good.description == ''
         assert aminoacid_good.degenerate is None
         assert aminoacid_good.supported is False
+        assert aminoacid_good.in_fasta_spec is True
 
     def test_set_wrong_str(self, aminoacid_good):
         with pytest.raises(TypeError):
@@ -237,30 +250,37 @@ class Test_complement:
         assert complement.description == 'thymidine'
         assert complement.degenerate is False
         assert complement.supported is True
+        assert complement.in_fasta_spec is True
 
     def test_sequence_type_none(self, sequence_type_none):
-        complement = sequence_type_none.complement()
+        with pytest.warns(UserWarning):
+            complement = sequence_type_none.complement()
         assert complement.letter_code == 'T'
         assert complement.sequence_type is None
         assert complement.description == ''
         assert complement.degenerate is None
         assert complement.supported is False
+        assert complement.in_fasta_spec is True
         # aminoacid letter code that is not also a nucleotide
-        aminoacid = LetterCode('X').complement()
+        with pytest.warns(UserWarning):
+            aminoacid = LetterCode('X').complement()
         assert aminoacid.letter_code == 'X'
         assert aminoacid.sequence_type is None
         assert aminoacid.description == ''
         assert aminoacid.degenerate is None
         assert aminoacid.supported is False
+        assert aminoacid.in_fasta_spec is True
 
     def test_letter_code_unknown(self, letter_codes_unknown):
         for letter_code, character in letter_codes_unknown:
-            complement = letter_code.complement()
+            with pytest.warns(UserWarning):
+                complement = letter_code.complement()
             assert complement.letter_code == character
             assert complement.sequence_type is None
             assert complement.description == ''
             assert complement.degenerate is None
             assert complement.supported is False
+            assert complement.in_fasta_spec is False
 
 
 class Test__eq__:
@@ -293,3 +313,4 @@ class Test__str__:
 # class Test_description_property
 # class Test_degenerate_property
 # class Test_supported_property
+# class Test_in_fasta_spec_property

@@ -40,7 +40,6 @@ __credits__ = ['Pedro HC David']
 __version__ = '0.1'
 
 
-# TODO use logging library to log warnings
 warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
 
 # NUCLEOTIDE DICTIONARIES
@@ -160,6 +159,8 @@ class LetterCode:
     supported : bool
         Indicates if letter code is supported or not
         (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
+    in_fasta_spec : bool
+        Indicates if Letter code is defined in the FASTA specification.
 
     Methods
     -------
@@ -195,9 +196,7 @@ class LetterCode:
         """
         if isinstance(letter_code, str) and len(letter_code) == 1:
             self._letter_code = letter_code.upper()
-            if self._letter_code not in LETTER_CODES_ALL:  # not defined in the FASTA specification
-                # TODO use logging library
-                warnings.warn('%r is not a valid letter code' % self._letter_code)
+            self._in_fasta_spec = self._letter_code in LETTER_CODES_ALL
         else:
             raise TypeError('letter_code must be a single character str')
 
@@ -271,6 +270,10 @@ class LetterCode:
     def supported(self):
         return self._supported
 
+    @property
+    def in_fasta_spec(self):
+        return self._in_fasta_spec
+
     def complement(self):
         """
         Complementary letter code (ideally, of a nucleotide).
@@ -295,7 +298,6 @@ class LetterCode:
         if self._sequence_type == 'aminoacid':
             raise TypeError('Complement is not possible for aminoacids (sequence_type == \'aminoacid\')')
         if self._sequence_type is None:
-            # TODO use logging library
             warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                           'Therefore, the complementary letter code might not make sense.')
         return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(self._letter_code, self._letter_code),
@@ -356,6 +358,7 @@ class LetterCode:
 # TODO Identify FASTA ID's (see linked sources)
 # TODO FASTAID class (?) to then return in the id property
 # TODO FASTQ parser
+# TODO per fasta sequence, show warning if there are characters not in the FASTA specification
 class FastaSequence:
     """
     Represents one FASTA sequence.
