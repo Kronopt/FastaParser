@@ -405,7 +405,7 @@ class FastaSequence:
     Raises
     ------
     TypeError
-        When calling __init__, if sequence, definition_line, sequence_type or infer_type are of the wrong type.
+        When calling __init__, if sequence, id_, description, sequence_type or infer_type are of the wrong type.
         When calling from_fastasequence(), if fastasequence is of the wrong type.
         When setting sequence_type, if sequence_type_value is of the wrong type.
         When calling complement(), if sequence_type is 'aminoacid' or reverse is not bool.
@@ -417,7 +417,7 @@ class FastaSequence:
         When calling __getitem__, if item is not an int/slice or the sliced sequence is empty.
     """
 
-    def __init__(self, sequence, definition_line='', sequence_type=None, infer_type=False):
+    def __init__(self, sequence, id_='', description='', sequence_type=None, infer_type=False):
         """
         Initializes FASTA sequence.
 
@@ -426,8 +426,11 @@ class FastaSequence:
         sequence : str
             String of characters representing a DNA, RNA or aminoacid sequence.
             Must be provided and cannot be empty.
-        definition_line : str, optional
-            FASTA sequence definition line (header). May contain or not the '>' symbol at the start.
+        id_ : str, optional
+            ID portion of the definition line (header).
+            Can be an empty string.
+        description : str, optional
+            Description portion of the definition line (header).
             Can be an empty string.
         sequence_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequence ('aminoacid' or 'nucleotide').
@@ -440,25 +443,17 @@ class FastaSequence:
         Raises
         ------
         TypeError
-            If sequence, definition_line, sequence_type or infer_type are of the wrong type.
+            If sequence, id_, description, sequence_type or infer_type are of the wrong type.
         """
-        if isinstance(definition_line, str):  # '>id|more_id description ...' with or without the '>' at the start
-            id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
-
-            # both id and description can be empty
-            if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
-                self._id = ''
-                self._description = ''
-            else:
-                if id_and_description[0].startswith('>'):
-                    id_and_description[0] = id_and_description[0][1:]
-                if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
-                    self._id = id_and_description[0]
-                    self._description = ''
-                else:
-                    self._id, self._description = id_and_description
+        if isinstance(id_, str):
+            self._id = id_
         else:
-            raise TypeError('definition_line must be str')
+            raise TypeError('id_ must be str')
+
+        if isinstance(description, str):
+            self._description = description
+        else:
+            raise TypeError('description must be str')
 
         self._update_sequence_type(sequence_type, update_letter_code_objects=False)
 
@@ -502,7 +497,8 @@ class FastaSequence:
         """
         if isinstance(fastasequence, FastaSequence):
             return cls(fastasequence.sequence_as_string(),
-                       fastasequence.formatted_definition_line(),
+                       fastasequence.id,
+                       fastasequence.description,
                        fastasequence.sequence_type)
         else:
             raise TypeError('fastasequence must be a FastaSequence')
@@ -575,7 +571,6 @@ class FastaSequence:
             if self._sequence_type == 'aminoacid':
                 raise TypeError('Complement is not possible for aminoacid sequences (sequence_type == \'aminoacid\')')
             if self._sequence_type is None:
-                # TODO use logging library
                 warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                               'Therefore, the complementary sequence might not make sense.')
             if reverse:
@@ -583,9 +578,7 @@ class FastaSequence:
             else:
                 complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
 
-            return FastaSequence(complement_sequence,
-                                 self._id + ' ' + self._description,
-                                 self._sequence_type)
+            return FastaSequence(complement_sequence, self._id, self._description, self._sequence_type)
         else:
             raise TypeError('reverse must be a bool')
 
@@ -927,8 +920,8 @@ class FastaSequence:
             if len(new_sequence) == 0:
                 raise TypeError('Slice resulted in an empty sequence. FastaSequence must have a non-empty sequence')
 
-            new_definition_line = self.formatted_definition_line() + ' [SLICE OF ORIGINAL: %s]' % item
-            return FastaSequence(new_definition_line, new_sequence, self.sequence_type)
+            new_description = '%s [SLICE OF ORIGINAL: %s]' % (self.description, item)
+            return FastaSequence(new_sequence, self.id, new_description, self.sequence_type)
         else:
             raise TypeError('Indices must be integers or slices')
 
@@ -946,7 +939,68 @@ class FastaSequence:
         return ">%s %s\n%s" % (self._id, self._description, self.sequence_as_string())
 
 
-class Reader:
+###################
+# READER AND WRITER
+###################
+
+
+class ParseDefinitionLine:
+    """
+    Implements a parser of FASTA definition lines (to be used by the Reader and Writer classes)
+
+    Methods
+    -------
+    _parse_definition_line(definition_line)
+        Parses FASTA definition lines
+
+    Raises
+    ------
+    TypeError
+        When calling _parse_definition_line, if definition_line is of the wrong type.
+    """
+
+    def _parse_definition_line(self, definition_line):
+        """
+        Parses a FASTA definition line and returns an id and a description.
+
+        Parameters
+        ----------
+        definiton_line : str
+            FASTA sequence definition line (header). May contain or not the '>' symbol at the start.
+            Can be an empty string.
+
+        Returns
+        -------
+        tuple
+            ID and description. Can both be empty strings.
+
+        Raises
+        ------
+        TypeError
+            If definition_line is of the wrong type.
+        """
+        if isinstance(definition_line, str):  # '>id|more_id description ...' with or without the '>' at the start
+            id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
+
+            # both id and description can be empty
+            if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
+                _id = ''
+                _description = ''
+            else:
+                if id_and_description[0].startswith('>'):
+                    id_and_description[0] = id_and_description[0][1:]
+                if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
+                    _id = id_and_description[0]
+                    _description = ''
+                else:
+                    _id, _description = id_and_description
+        else:
+            raise TypeError('definition_line must be str')
+
+        return _id, _description
+
+
+class Reader(ParseDefinitionLine):
     """
     Parser/Reader for the given FASTA file.
     Iterates over the FASTA file using one of two parsing mechanisms:
@@ -1056,7 +1110,8 @@ class Reader:
         FastaSequence or namedtuple('Fasta', ['header', 'sequence'])
         """
         if self._parse_method == 'rich':
-            fasta_sequence = FastaSequence(sequence, definition_line, self._sequences_type, self._infer_type)
+            id_, description = self._parse_definition_line(definition_line)
+            fasta_sequence = FastaSequence(sequence, id_, description, self._sequences_type, self._infer_type)
         else:  # 'quick'
             fasta_sequence = self._fasta_sequence(definition_line, sequence)
         return fasta_sequence
@@ -1131,7 +1186,7 @@ class Reader:
         return 'FastaParser.Reader(%s)' % self._fasta_file.name
 
 
-class Writer:
+class Writer(ParseDefinitionLine):
     """
     Writer for the given FASTA file.
 
@@ -1203,11 +1258,13 @@ class Writer:
             pass
 
         # or create one with the provided header and sequence
-        elif isinstance(fasta_sequence, (tuple, list)) and len(fasta_sequence) == 2 \
-                and isinstance(fasta_sequence[0], str) and isinstance(fasta_sequence[1], str):
-            header = fasta_sequence[0]
+        elif (isinstance(fasta_sequence, (tuple, list))
+              and len(fasta_sequence) == 2
+              and isinstance(fasta_sequence[0], str)
+              and isinstance(fasta_sequence[1], str)):
+            id_, description = self._parse_definition_line(fasta_sequence[0])
             sequence = ''.join(fasta_sequence[1].split('\n'))  # remove '\n's from sequence
-            fasta_sequence = FastaSequence(sequence, header)
+            fasta_sequence = FastaSequence(sequence, id_, description)
 
         else:
             raise TypeError('fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)')
