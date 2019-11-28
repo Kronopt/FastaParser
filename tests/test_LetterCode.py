@@ -41,11 +41,6 @@ def sequence_type_none():
 
 
 @pytest.fixture()
-def unknown_characters():
-    return 'O', '»', '%', 'º', '?', 'غ', '\n'
-
-
-@pytest.fixture()
 def letter_codes_unknown(unknown_characters):
     letter_codes = [LetterCode(character) for character in unknown_characters]
     return zip(letter_codes, unknown_characters)
@@ -113,6 +108,8 @@ class Test__Init__:
     def test_letter_code_not_str(self):
         with pytest.raises(TypeError):
             LetterCode(1)
+        with pytest.raises(TypeError):
+            LetterCode([])
         with pytest.raises(TypeError):
             LetterCode(LetterCode('A'))
 
@@ -194,10 +191,6 @@ class Test_from_lettercode:
 
 
 class Test_sequence_type_property:
-    # def test_get_nucleotide  # tested in Test__Init__
-    # def test_get_aminoacid
-    # def test_get_none
-
     def test_set_nucleotide(self, aminoacid_good):
         aminoacid_good.sequence_type = 'nucleotide'
         assert aminoacid_good.letter_code == 'H'
@@ -206,6 +199,8 @@ class Test_sequence_type_property:
         assert aminoacid_good.degenerate is True
         assert aminoacid_good.supported is True
         assert aminoacid_good.in_fasta_spec is True
+
+    # def test_get_nucleotide (already tested in Test__Init__)
 
     def test_set_aminoacid(self, nucleotide_good):
         nucleotide_good.sequence_type = 'aminoacid'
@@ -216,6 +211,8 @@ class Test_sequence_type_property:
         assert nucleotide_good.supported is True
         assert nucleotide_good.in_fasta_spec is True
 
+    # def test_get_aminoacid (already tested in Test__Init__)
+
     def test_set_none(self, aminoacid_good):
         aminoacid_good.sequence_type = None
         assert aminoacid_good.letter_code == 'H'
@@ -224,6 +221,8 @@ class Test_sequence_type_property:
         assert aminoacid_good.degenerate is None
         assert aminoacid_good.supported is False
         assert aminoacid_good.in_fasta_spec is True
+
+    # def test_get_none (already tested in Test__Init__)
 
     def test_set_wrong_str(self, aminoacid_good):
         with pytest.raises(TypeError):
@@ -309,8 +308,9 @@ class Test__str__:
         assert str(nucleotide_good) == 'A'
 
 
-# class Test_letter_code_property  # tested in Test__Init__
-# class Test_description_property
-# class Test_degenerate_property
-# class Test_supported_property
-# class Test_in_fasta_spec_property
+# tested in Test__Init__:
+#   class Test_letter_code_property
+#   class Test_description_property
+#   class Test_degenerate_property
+#   class Test_supported_property
+#   class Test_in_fasta_spec_property
