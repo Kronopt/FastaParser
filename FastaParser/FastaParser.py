@@ -854,6 +854,7 @@ class FastaSequence:
         (ie, aminoacids letter codes not in nucleotides letter codes).
         The reverse (testing for nucleotides) is not 100% accurate because there are no letter codes
         which belong solely to nucleotide type sequences.
+        Assumes no unknown letter codes.
 
         Parameters
         ----------
