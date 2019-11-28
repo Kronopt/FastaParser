@@ -428,7 +428,7 @@ class FastaSequence:
             Must be provided and cannot be empty.
         id_ : str, optional
             ID portion of the definition line (header).
-            Can be an empty string.
+            '>' will be removed, if any. Spaces will be converted to '_'. Can be an empty string.
         description : str, optional
             Description portion of the definition line (header).
             Can be an empty string.
@@ -446,6 +446,9 @@ class FastaSequence:
             If sequence, id_, description, sequence_type or infer_type are of the wrong type.
         """
         if isinstance(id_, str):
+            id_ = id_.strip().replace(' ', '_')  # id should not have spaces
+            if id_.startswith('>'):  # remove '>' if any
+                id_ = id_[1:]
             self._id = id_
         else:
             raise TypeError('id_ must be str')
@@ -984,11 +987,9 @@ class ParseDefinitionLine:
 
             # both id and description can be empty
             if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
-                _id = ''
+                _id = '>'
                 _description = ''
             else:
-                if id_and_description[0].startswith('>'):
-                    id_and_description[0] = id_and_description[0][1:]
                 if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
                     _id = id_and_description[0]
                     _description = ''
