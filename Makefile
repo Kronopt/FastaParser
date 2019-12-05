@@ -1,4 +1,4 @@
-.PHONY test
+.PHONY: help test clean-tests
 
 help:
     @echo "test               runs tests"
