@@ -578,10 +578,15 @@ class FastaSequence:
                               'Therefore, the complementary sequence might not make sense.')
             if reverse:
                 complement_sequence = ''.join([letter.complement().letter_code for letter in reversed(self._sequence)])
+                reversed_text = 'REVERSE '
             else:
                 complement_sequence = ''.join([letter.complement().letter_code for letter in self._sequence])
+                reversed_text = ''
 
-            return FastaSequence(complement_sequence, self._id, self._description, self._sequence_type)
+            space = ' ' if len(self._description) > 0 else ''
+            complement_description = '%s[%sCOMPLEMENT]' % (space, reversed_text)
+            return FastaSequence(complement_sequence, self._id, self._description + complement_description,
+                                 self._sequence_type)
         else:
             raise TypeError('reverse must be a bool')
 
