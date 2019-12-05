@@ -230,11 +230,15 @@ class Test_sequence_type_property:
         with pytest.raises(TypeError):
             aminoacid_good.sequence_type = ''
 
+    # def test_get_wrong_str (already tested in Test__Init__)
+
     def test_set_wrong_type(self, aminoacid_good):
         with pytest.raises(TypeError):
             aminoacid_good.sequence_type = 1
         with pytest.raises(TypeError):
             aminoacid_good.sequence_type = []
+
+    # def test_get_wrong_type (already tested in Test__Init__)
 
 
 class Test_complement:
