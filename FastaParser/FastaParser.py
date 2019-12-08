@@ -595,7 +595,7 @@ class FastaSequence:
         Calculates the GC content of nucleotide sequence (as a ratio, by default).
         Ignores degenerate letter codes besides S (G or C).
         GC content is calculated the first time the method is called. Later calls will retrieve the same value.
-        GC content can also be calculates in at_gc_ratio.
+        GC content can also be calculated in at_gc_ratio.
         If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the GC content
         might be nonsensical.
 
@@ -627,7 +627,7 @@ class FastaSequence:
                 for letter_code in self._sequence:
                     if letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                         gc += 1
-                self._gc_content = gc / (len(self._sequence))
+                self._gc_content = gc / len(self._sequence)
             return self._gc_content * 100 if as_percentage else self._gc_content
         else:
             raise TypeError('as_percentage must be a bool')
@@ -666,8 +666,9 @@ class FastaSequence:
                 elif self._gc_content is None and letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                     gc += 1
             if self._gc_content is None:
-                self._gc_content = gc
-            self._at_gc_ratio = at/self._gc_content if self._gc_content != 0 else 0
+                self._gc_content = gc / len(self._sequence)
+            gc_count = self._gc_content * len(self._sequence)  # calculates real gc count
+            self._at_gc_ratio = at / gc_count if gc_count != 0 else 0
         return self._at_gc_ratio
 
     def count_letter_codes(self, letter_codes=None):
