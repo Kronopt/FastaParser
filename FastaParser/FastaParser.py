@@ -793,7 +793,7 @@ class FastaSequence:
 
     def reverse(self):
         """
-        Iterates over the sequence in reverse order.
+        Iterates over the sequence in reverse order (same as calling reversed() on a FastaSequence object).
         Returns a new iterator of the sequence (from the end) every time reverse is called.
 
         Returns
@@ -934,6 +934,21 @@ class FastaSequence:
             return FastaSequence(new_sequence, self.id, new_description, self.sequence_type)
         else:
             raise TypeError('Indices must be integers or slices')
+
+    def __eq__(self, other):
+        """
+        Two FastaSequence objects are equal if they represent the same sequence.
+        A FastaSequence is equal to a string if it represents the same string sequence.
+        A FastaSequence is equal to a list if it represents the same LetterCode sequence.
+        """
+        if isinstance(other, FastaSequence):
+            return self._sequence == other.sequence
+        elif isinstance(other, str):
+            return self.sequence_as_string() == other
+        elif isinstance(other, list):
+            return self._sequence == other
+        else:
+            return False
 
     def __len__(self):
         return len(self._sequence)
