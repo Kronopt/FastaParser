@@ -161,6 +161,15 @@ class Test__init__:
         assert fasta_sequence.sequence_type is None
         assert fasta_sequence.inferred_type is False
 
+    def test_id_with_spaces_and_newlines(self, actg_letter_code_list):
+        id_ = '   correct id|some other id\n more id\r'
+        fasta_sequence = FastaSequence('ACTG', id_=id_)
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == 'correct_id|some_other_id_more_id'
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
     def test_id_not_str(self):
         with pytest.raises(TypeError):
             fasta_sequence = FastaSequence('ACTG', id_=1)
@@ -175,6 +184,15 @@ class Test__init__:
         assert fasta_sequence.sequence == actg_letter_code_list
         assert fasta_sequence.id == ''
         assert fasta_sequence.description == description
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+    def test_description_with_newlines(self, actg_letter_code_list):
+        description = '   some correct description \nwith numbers \r1234567890#'
+        fasta_sequence = FastaSequence('ACTG', description=description)
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == 'some correct description with numbers 1234567890#'
         assert fasta_sequence.sequence_type is None
         assert fasta_sequence.inferred_type is False
 
@@ -305,14 +323,6 @@ class Test_from_fastasequence:
             FastaSequence.from_fastasequence('ACTG')
         with pytest.raises(TypeError):
             FastaSequence.from_fastasequence(1)
-
-
-class Test_id_property:
-    def test_replace_spaces_with_underscores(self):
-        # TODO
-        pass
-
-    # other id tests already done in Test__Init__
 
 
 class Test_sequence_type_property:
@@ -694,15 +704,89 @@ class Test_count_letter_codes_degenerate:
             fasta_sequence.count_letter_codes_degenerate()
 
 
+class Test_formatted_definition_line:
+    def test_id_and_description(self):
+        id_ = 'id123|id456'
+        description = 'this is a description'
+        # with '>'
+        fasta_sequence = FastaSequence('A', id_='>' + id_, description=description)
+        assert fasta_sequence.id == id_
+        assert fasta_sequence.description == description
+        assert fasta_sequence.formatted_definition_line() == '>%s %s' % (id_, description)
+        # without '>'
+        fasta_sequence = FastaSequence('A', id_=id_, description=description)
+        assert fasta_sequence.id == id_
+        assert fasta_sequence.description == description
+        assert fasta_sequence.formatted_definition_line() == '>%s %s' % (id_, description)
+
+    def test_empty_id(self):
+        description = 'this is a description'
+        fasta_sequence = FastaSequence('A', description=description)
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == description
+        assert fasta_sequence.formatted_definition_line() == '> ' + description
+
+    def test_empty_description(self):
+        id_ = 'id123|id456'
+        fasta_sequence = FastaSequence('A', id_=id_)
+        assert fasta_sequence.id == id_
+        assert fasta_sequence.formatted_definition_line() == '>' + id_
+
+    def test_empty_id_and_description(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence.formatted_definition_line() == '>'
+
+    def test_only_one_line(self):
+        id_ = 'id123 \nab \rcd'
+        description = 'description with \n new lines \r123'
+        fasta_sequence = FastaSequence('A', id_=id_, description=description)
+        assert fasta_sequence.id == 'id123_ab_cd'
+        assert fasta_sequence.description == 'description with new lines 123'
+        assert fasta_sequence.formatted_definition_line() == '>id123_ab_cd description with new lines 123'
+
+
+class Test_formatted_sequence:
+    def test_good(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence.formatted_sequence() == 'ACGTNU'
+        fasta_sequence_71A = FastaSequence('A'*71)
+        assert fasta_sequence_71A.formatted_sequence() == 'A'*70 + '\nA'
+
+    def test_max_characters_per_line_custom_ranges(self):
+        fasta_sequence = FastaSequence('A'*10)
+        assert fasta_sequence.formatted_sequence(10) == 'A'*10 == fasta_sequence.sequence_as_string()
+        assert fasta_sequence.formatted_sequence(11) == 'A'*10 == fasta_sequence.sequence_as_string()
+        assert fasta_sequence.formatted_sequence(4) == '%s\n%s\nAA' % ('A'*4, 'A'*4)
+        assert fasta_sequence.formatted_sequence(5) == '%s\n%s' % ('A'*5, 'A'*5)
+
+    def test_max_characters_per_line_zero_or_less(self, nucleotide_good):
+        correct_format = 'A\nC\nG\nT\nN\nU'
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence.formatted_sequence(0) == correct_format
+        assert fasta_sequence.formatted_sequence(-1) == correct_format
+
+    def test_max_characters_per_line_9999999(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence.formatted_sequence(9999999) == 'ACGTNU'
+
+    def test_max_characters_per_line_not_int(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.formatted_sequence('')
+        with pytest.raises(TypeError):
+            fasta_sequence.formatted_sequence([])
+        with pytest.raises(TypeError):
+            fasta_sequence.formatted_sequence(LetterCode)
+
+
 # tested in Test__Init__:
+#   class Test_id_property
 #   class Test_description_property
 #   class Test_sequence_property
 #   class Test_inferred_type
 
 
 # TODO
-# class Test_formatted_definition_line
-# class Test_formatted_sequence
 # class Test_formatted_fasta
 # class Test_sequence_as_string
 # class Test_reverse
