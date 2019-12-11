@@ -475,8 +475,8 @@ class FastaSequence:
         else:
             raise TypeError('sequence must be a non empty str')
 
-        self._gc_content = None
-        self._at_gc_ratio = None
+        self._gc = None
+        self._at = None
 
     @classmethod
     def from_fastasequence(cls, fastasequence):
@@ -616,7 +616,7 @@ class FastaSequence:
             If as_percentage is not bool.
         """
         if isinstance(as_percentage, bool):
-            if not self._gc_content:  # if gc_content was not called before
+            if not self._gc:  # if gc_content was not called before
                 if self._sequence_type == 'aminoacid':
                     raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
                                     '(sequence_type == \'aminoacid\')')
@@ -627,8 +627,9 @@ class FastaSequence:
                 for letter_code in self._sequence:
                     if letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                         gc += 1
-                self._gc_content = gc / len(self._sequence)
-            return self._gc_content * 100 if as_percentage else self._gc_content
+                self._gc = gc
+            gc_content = self._gc / len(self._sequence)
+            return gc_content * 100 if as_percentage else gc_content
         else:
             raise TypeError('as_percentage must be a bool')
 
@@ -637,7 +638,7 @@ class FastaSequence:
         Calculates the AT/GC ratio of nucleotide sequence.
         Ignores degenerate letter codes besides W (A or T) and S (G or C).
         AT/GC ratio is calculated the first time the method is called. Later calls will retrieve the same value.
-        Also uses previously calculated _gc_content or calculates and saves it if it hasn't been calculated yet.
+        Also uses previously calculated _gc or calculates and saves it if it hasn't been calculated yet.
         If sequence_type is not 'nucleotide' (or the sequence is not inherently a nucleotide sequence) the AT/GC ratio
         might be nonsensical.
 
@@ -651,7 +652,7 @@ class FastaSequence:
         TypeError
             If self.sequence_type is 'aminoacid'.
         """
-        if not self._at_gc_ratio:  # if at_gc_ratio was not called before
+        if not self._at:  # if at_gc_ratio was not called before
             if self._sequence_type == 'aminoacid':
                 raise TypeError('AT/GC ratio is not meant to be calculated for aminoacid sequences '
                                 '(sequence_type == \'aminoacid\')')
@@ -663,13 +664,12 @@ class FastaSequence:
             for letter_code in self._sequence:
                 if letter_code.letter_code in ('A', 'T', 'W'):  # W means either A or T
                     at += 1
-                elif self._gc_content is None and letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
+                elif self._gc is None and letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                     gc += 1
-            if self._gc_content is None:
-                self._gc_content = gc / len(self._sequence)
-            gc_count = self._gc_content * len(self._sequence)  # calculates real gc count
-            self._at_gc_ratio = at / gc_count if gc_count != 0 else 0
-        return self._at_gc_ratio
+            if self._gc is None:
+                self._gc = gc
+            self._at = at
+        return self._at / self._gc if self._gc != 0 else 0
 
     def count_letter_codes(self, letter_codes=None):
         """
