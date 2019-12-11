@@ -355,6 +355,7 @@ class LetterCode:
         return self._letter_code
 
 
+# TODO way to disable warnings (?)
 # TODO Identify FASTA ID's (see linked sources)
 # TODO FASTAID class (?) to then return in the id property
 # TODO FASTQ parser
@@ -615,14 +616,14 @@ class FastaSequence:
             If self.sequence_type is 'aminoacid'.
             If as_percentage is not bool.
         """
+        if self._sequence_type == 'aminoacid':
+            raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
+                            '(sequence_type == \'aminoacid\')')
+        elif self._sequence_type is None:
+            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                          'Therefore, the calculated GC content might not make sense.')
         if isinstance(as_percentage, bool):
             if not self._gc:  # if gc_content was not called before
-                if self._sequence_type == 'aminoacid':
-                    raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
-                                    '(sequence_type == \'aminoacid\')')
-                if self._sequence_type is None:
-                    warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
-                                  'Therefore, the calculated GC content might not make sense.')
                 gc = 0
                 for letter_code in self._sequence:
                     if letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
@@ -652,23 +653,24 @@ class FastaSequence:
         TypeError
             If self.sequence_type is 'aminoacid'.
         """
-        if not self._at:  # if at_gc_ratio was not called before
-            if self._sequence_type == 'aminoacid':
-                raise TypeError('AT/GC ratio is not meant to be calculated for aminoacid sequences '
-                                '(sequence_type == \'aminoacid\')')
-            if self._sequence_type is None:
-                warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
-                              'Therefore, the calculated AT/GC ratio might not make sense.')
+        if self._sequence_type == 'aminoacid':
+            raise TypeError('AT/GC ratio is not meant to be calculated for aminoacid sequences '
+                            '(sequence_type == \'aminoacid\')')
+        if self._sequence_type is None:
+            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+                          'Therefore, the calculated AT/GC ratio might not make sense.')
+        if not self._at or not self._gc:  # if at_gc_ratio was not called before
             at = 0
             gc = 0
             for letter_code in self._sequence:
-                if letter_code.letter_code in ('A', 'T', 'W'):  # W means either A or T
+                if self._at is None and letter_code.letter_code in ('A', 'T', 'W'):  # W means either A or T
                     at += 1
                 elif self._gc is None and letter_code.letter_code in ('G', 'C', 'S'):  # S means either G or C
                     gc += 1
             if self._gc is None:
                 self._gc = gc
-            self._at = at
+            if self._at is None:
+                self._at = at
         return self._at / self._gc if self._gc != 0 else 0
 
     def count_letter_codes(self, letter_codes=None):
