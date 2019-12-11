@@ -429,10 +429,10 @@ class FastaSequence:
             Must be provided and cannot be empty.
         id_ : str, optional
             ID portion of the definition line (header).
-            '>' will be removed, if any. Spaces will be converted to '_'. Can be an empty string.
+            '>' and newlines will be removed, if any. Spaces will be converted to '_'. Can be an empty string.
         description : str, optional
             Description portion of the definition line (header).
-            Can be an empty string.
+            Newlines will be removed, if any. Can be an empty string.
         sequence_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequence ('aminoacid' or 'nucleotide').
             If not defined, FastaSequence can try to infer type based on the letter codes.
@@ -447,7 +447,7 @@ class FastaSequence:
             If sequence, id_, description, sequence_type or infer_type are of the wrong type.
         """
         if isinstance(id_, str):
-            id_ = id_.strip().replace(' ', '_')  # id should not have spaces
+            id_ = ''.join(id_.strip().replace(' ', '_').split())  # remove spaces and newlines
             if id_.startswith('>'):  # remove '>' if any
                 id_ = id_[1:]
             self._id = id_
@@ -455,7 +455,7 @@ class FastaSequence:
             raise TypeError('id_ must be str')
 
         if isinstance(description, str):
-            self._description = description
+            self._description = ' '.join(description.strip().split())  # remove extra spaces and newlines
         else:
             raise TypeError('description must be str')
 
@@ -731,7 +731,7 @@ class FastaSequence:
         str
             FASTA definition line properly formatted
         """
-        return '>' + self._id + ' ' + self._description
+        return '>%s %s' % (self._id, self._description) if self._description else '>' + self._id
 
     def formatted_sequence(self, max_characters_per_line=70):
         """
