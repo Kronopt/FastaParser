@@ -72,13 +72,17 @@ def letter_codes_unknown(unknown_characters):
 def actg_letter_code_list():
     return [LetterCode(letter_code) for letter_code in 'ACTG']
 
+@pytest.fixture()
+def actgnu_letter_code_counts():
+    return {'A': 1, 'C': 1, 'G': 1, 'T': 1, 'N': 1, 'U': 1}
+
 
 #######
 # Tests
 #######
 
 
-class Test__Init__:
+class Test__init__:
     def test_sequence_nucleotide_good(self, nucleotide_good):
         fasta_sequence, correct_sequence = nucleotide_good
         assert fasta_sequence.sequence == correct_sequence
@@ -278,11 +282,11 @@ class Test__Init__:
     def test_counts_letter_codes_unknown(self, letter_codes_unknown, unknown_characters):
         assert letter_codes_unknown[0]._counts == dict(zip(unknown_characters, [1]*len(unknown_characters)))
 
-    def test_gc_content(self, nucleotide_good):
-        assert nucleotide_good[0]._gc_content is None
+    def test_gc(self, nucleotide_good):
+        assert nucleotide_good[0]._gc is None
 
-    def test_at_gc_ratio(self, nucleotide_good):
-        assert nucleotide_good[0]._at_gc_ratio is None
+    def test_at(self, nucleotide_good):
+        assert nucleotide_good[0]._at is None
 
 
 class Test_from_fastasequence:
@@ -301,6 +305,14 @@ class Test_from_fastasequence:
             FastaSequence.from_fastasequence('ACTG')
         with pytest.raises(TypeError):
             FastaSequence.from_fastasequence(1)
+
+
+class Test_id_property:
+    def test_replace_spaces_with_underscores(self):
+        # TODO
+        pass
+
+    # other id tests already done in Test__Init__
 
 
 class Test_sequence_type_property:
@@ -419,18 +431,276 @@ class Test_complement:
         assert complement.inferred_type == fasta_sequence.inferred_type
 
 
+class Test_gc_content:
+    def test_sequence_letter_codes_gcs(self):
+        for letter_code in 'GCS':
+            # single letter code sequence
+            fasta_sequence = FastaSequence(letter_code, sequence_type='nucleotide')
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.gc_content() == 1
+            assert fasta_sequence._gc == 1
+            assert fasta_sequence.gc_content(True) == 100
+            assert fasta_sequence._gc == 1
+            # multiple letter code sequence (only one G/C/S)
+            fasta_sequence = FastaSequence(letter_code + 'ATUATUATU', sequence_type='nucleotide')
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.gc_content() == 0.1
+            assert fasta_sequence._gc == 1
+            assert fasta_sequence.gc_content(True) == 10
+            assert fasta_sequence._gc == 1
+
+    def test_sequence_letter_codes_not_gcs(self):
+        # single letter code sequence
+        for letter_code in 'ATU':
+            fasta_sequence = FastaSequence(letter_code, sequence_type='nucleotide')
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.gc_content() == 0
+            assert fasta_sequence._gc == 0
+            assert fasta_sequence.gc_content(True) == 0
+            assert fasta_sequence._gc == 0
+        # multiple letter code sequence
+        fasta_sequence = FastaSequence('ATUATUATU', sequence_type='nucleotide')
+        assert fasta_sequence._gc is None
+        assert fasta_sequence.gc_content() == 0
+        assert fasta_sequence._gc == 0
+        assert fasta_sequence.gc_content(True) == 0
+        assert fasta_sequence._gc == 0
+
+    # def test_sequence_type_nucleotide (already tested)
+
+    def test_sequence_type_aminoacid(self, aminoacid_good):
+        fasta_sequence = aminoacid_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.gc_content()
+
+    def test_sequence_type_none(self, sequence_type_none):
+        fasta_sequence = sequence_type_none[0]
+        with pytest.warns(UserWarning):
+            fasta_sequence.gc_content()
+
+    def test_gc_content_already_set(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        fasta_sequence._gc = 5  # would have been 2, by default
+        # like this it shows the usage of the _gc variable, therefore no new gc_content is computed
+        assert fasta_sequence.gc_content() == 5 / len(fasta_sequence.sequence)
+        assert fasta_sequence._gc == 5
+        # reset _gc
+        fasta_sequence._gc = None
+        assert fasta_sequence.gc_content() == 2 / len(fasta_sequence.sequence)
+        assert fasta_sequence._gc == 2
+
+    # def test_as_percentage_True (already tested)
+    # def test_as_percentage_False (already tested)
+
+    def test_as_percentage_not_bool(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.gc_content(1)
+        with pytest.raises(TypeError):
+            fasta_sequence.gc_content('')
+        with pytest.raises(TypeError):
+            fasta_sequence.gc_content([])
+
+
+class Test_at_gc_ratio:
+    def test_sequence_letter_codes_atw_gcs(self):
+        for letter_code in 'ATW':
+            # single letter code sequence
+            fasta_sequence = FastaSequence(letter_code, sequence_type='nucleotide')
+            assert fasta_sequence._at is None
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.at_gc_ratio() == 0
+            assert fasta_sequence._at == 1
+            assert fasta_sequence._gc == 0
+            # multiple letter code sequence (only one A/T/W)
+            fasta_sequence = FastaSequence(letter_code + 'UNUNUNUNU', sequence_type='nucleotide')
+            assert fasta_sequence._at is None
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.at_gc_ratio() == 0
+            assert fasta_sequence._at == 1
+            assert fasta_sequence._gc == 0
+        for letter_code in 'GCS':
+            # single letter code sequence
+            fasta_sequence = FastaSequence(letter_code, sequence_type='nucleotide')
+            assert fasta_sequence._at is None
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.at_gc_ratio() == 0
+            assert fasta_sequence._at == 0
+            assert fasta_sequence._gc == 1
+            # multiple letter code sequence (only one G/C/S)
+            fasta_sequence = FastaSequence(letter_code + 'UNUNUNUNU', sequence_type='nucleotide')
+            assert fasta_sequence._at is None
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.at_gc_ratio() == 0
+            assert fasta_sequence._at == 0
+            assert fasta_sequence._gc == 1
+        # proportion 1:1
+        fasta_sequence = FastaSequence('ATWGCS', sequence_type='nucleotide')
+        assert fasta_sequence._at is None
+        assert fasta_sequence._gc is None
+        assert fasta_sequence.at_gc_ratio() == 1
+        assert fasta_sequence._at == 3
+        assert fasta_sequence._gc == 3
+        # proportion 3:7
+        fasta_sequence = FastaSequence('ATWGCSGCSG', sequence_type='nucleotide')
+        assert fasta_sequence._at is None
+        assert fasta_sequence._gc is None
+        assert fasta_sequence.at_gc_ratio() == 3 / 7
+        assert fasta_sequence._at == 3
+        assert fasta_sequence._gc == 7
+        # proportion 7:3
+        fasta_sequence = FastaSequence('GCSATWATWA', sequence_type='nucleotide')
+        assert fasta_sequence._at is None
+        assert fasta_sequence._gc is None
+        assert fasta_sequence.at_gc_ratio() == 7 / 3
+        assert fasta_sequence._at == 7
+        assert fasta_sequence._gc == 3
+
+    def test_sequence_letter_codes_not_atw_gcs(self):
+        # single letter code sequence
+        for letter_code in 'UN':
+            fasta_sequence = FastaSequence(letter_code, sequence_type='nucleotide')
+            assert fasta_sequence._at is None
+            assert fasta_sequence._gc is None
+            assert fasta_sequence.at_gc_ratio() == 0
+            assert fasta_sequence._at == 0
+            assert fasta_sequence._gc == 0
+        # multiple letter code sequence
+        fasta_sequence = FastaSequence('UNUNUNUNUN', sequence_type='nucleotide')
+        assert fasta_sequence._at is None
+        assert fasta_sequence._gc is None
+        assert fasta_sequence.at_gc_ratio() == 0
+        assert fasta_sequence._at == 0
+        assert fasta_sequence._gc == 0
+
+    # def test_sequence_type_nucleotide (already tested)
+
+    def test_sequence_type_aminoacid(self, aminoacid_good):
+        fasta_sequence = aminoacid_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.at_gc_ratio()
+
+    def test_sequence_type_none(self, sequence_type_none):
+        fasta_sequence = sequence_type_none[0]
+        with pytest.warns(UserWarning):
+            fasta_sequence.at_gc_ratio()
+
+    def test_at_already_set(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        fasta_sequence._at = 9  # would have been 2, by default
+        # like this it shows the usage of the _at variable, therefore no new at is computed
+        assert fasta_sequence.at_gc_ratio() == 9 / 2
+        assert fasta_sequence._at == 9
+        assert fasta_sequence._gc == 2
+        # reset _at and _gc
+        fasta_sequence._at = None
+        fasta_sequence._gc = None
+        assert fasta_sequence.at_gc_ratio() == 1
+        assert fasta_sequence._at == 2
+        assert fasta_sequence._gc == 2
+
+    def test_gc_already_set(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        fasta_sequence._gc = 3  # would have been 2, by default
+        # like this it shows the usage of the _gc variable, therefore no new gc is computed
+        assert fasta_sequence.at_gc_ratio() == 2 / 3
+        assert fasta_sequence._at == 2
+        assert fasta_sequence._gc == 3
+        # reset _at and _gc
+        fasta_sequence._at = None
+        fasta_sequence._gc = None
+        assert fasta_sequence.at_gc_ratio() == 1
+        assert fasta_sequence._at == 2
+        assert fasta_sequence._gc == 2
+
+    def test_at_and_gc_already_set(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        fasta_sequence._at = 9  # would have been 2, by default
+        fasta_sequence._gc = 3  # would have been 2, by default
+        # like this it shows the usage of the _at and _gc variables, therefore no new at or gc is computed
+        assert fasta_sequence.at_gc_ratio() == 9 / 3
+        assert fasta_sequence._at == 9
+        assert fasta_sequence._gc == 3
+        # reset _at and _gc
+        fasta_sequence._at = None
+        fasta_sequence._gc = None
+        assert fasta_sequence.at_gc_ratio() == 1
+        assert fasta_sequence._at == 2
+        assert fasta_sequence._gc == 2
+
+
+class Test_count_letter_codes:
+    def test_letter_codes_None(self, nucleotide_good, actgnu_letter_code_counts):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        assert fasta_sequence.count_letter_codes() == fasta_sequence._counts
+        assert fasta_sequence.count_letter_codes() == actgnu_letter_code_counts
+
+    def test_letter_codes_iterable(self, nucleotide_good, actgnu_letter_code_counts):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        # empty iterables
+        assert fasta_sequence.count_letter_codes('') == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes('') == fasta_sequence._counts
+        assert fasta_sequence.count_letter_codes([]) == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes([]) == fasta_sequence._counts
+        assert fasta_sequence.count_letter_codes({}) == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes({}) == fasta_sequence._counts
+        assert fasta_sequence.count_letter_codes(()) == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes(()) == fasta_sequence._counts
+        # iterables
+        del actgnu_letter_code_counts['U']  # just to differ from the default
+        assert fasta_sequence.count_letter_codes('ACGTN') == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes(['A', 'C', 'G', 'T', 'N']) == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes(
+            {'A': 'blaablaaa', 'C': 2112, 'G': [], 'T': 'T', 'N': ()}) == actgnu_letter_code_counts
+        assert fasta_sequence.count_letter_codes(('A', 'C', 'G', 'T', 'N')) == actgnu_letter_code_counts
+
+    # def test_letter_codes_none (already tested)
+
+    def test_letter_code_not_iterable(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.count_letter_codes(1111)
+        with pytest.raises(TypeError):
+            fasta_sequence.count_letter_codes(2.333)
+        with pytest.raises(TypeError):
+            fasta_sequence.count_letter_codes(True)
+
+    # def test_letter_codes_in_sequence (already tested)
+
+    def test_letter_codes_not_in_sequence(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]  # ACGTNU
+        assert fasta_sequence.count_letter_codes('X') == {'X': 0}
+        assert fasta_sequence.count_letter_codes('XYZ') == {'X': 0, 'Y': 0, 'Z': 0}
+        assert fasta_sequence.count_letter_codes('ACXYZ') == {'A': 1, 'C': 1, 'X': 0, 'Y': 0, 'Z': 0}
+
+
+class Test_count_letter_codes_degenerate:
+    def test_sequence_type_nucleotide(self, nucleotide_good, nucleotide_degenerate):
+        fasta_sequence_good = nucleotide_good[0]
+        fasta_sequence_degenerate = nucleotide_degenerate[0]
+        assert fasta_sequence_good.count_letter_codes_degenerate() == {}
+        assert fasta_sequence_degenerate.count_letter_codes_degenerate() == {
+            'K': 1, 'S': 1, 'Y': 1, 'M': 1, 'W': 1, 'R': 1, 'B': 1, 'D': 1, 'H': 1, 'V': 1, '-': 1}
+
+    def test_sequence_type_aminoacid(self, aminoacid_good, aminoacid_degenerate):
+        fasta_sequence_good = aminoacid_good[0]
+        fasta_sequence_degenerate = aminoacid_degenerate[0]
+        assert fasta_sequence_good.count_letter_codes_degenerate() == {}
+        assert fasta_sequence_degenerate.count_letter_codes_degenerate() == {'-': 1}
+
+    def test_sequence_type_none(self, sequence_type_none):
+        fasta_sequence = sequence_type_none[0]
+        with pytest.raises(TypeError):
+            fasta_sequence.count_letter_codes_degenerate()
+
+
 # tested in Test__Init__:
-#   class Test_id_property
 #   class Test_description_property
 #   class Test_sequence_property
 #   class Test_inferred_type
 
 
 # TODO
-# class Test_gc_content
-# class Test_at_gc_ratio
-# class Test_count_letter_codes
-# class Test_count_letter_codes_degenerate
 # class Test_formatted_definition_line
 # class Test_formatted_sequence
 # class Test_formatted_fasta

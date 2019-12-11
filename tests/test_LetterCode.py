@@ -63,7 +63,7 @@ def letter_codes_unknown_aminoacid(unknown_characters):
 #######
 
 
-class Test__Init__:
+class Test__init__:
     def test_letter_code_good(self, nucleotide_good, aminoacid_good):
         # nucleotide
         assert nucleotide_good.letter_code == 'A'
