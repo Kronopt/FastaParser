@@ -355,11 +355,12 @@ class LetterCode:
         return self._letter_code
 
 
-# TODO way to disable warnings (?)
 # TODO Identify FASTA ID's (see linked sources)
 # TODO FASTAID class (?) to then return in the id property
 # TODO FASTQ parser
 # TODO per fasta sequence, show warning if there are characters not in the FASTA specification
+# TODO way to disable warnings (?)
+# TODO allow setting of id/description (?)
 class FastaSequence:
     """
     Represents one FASTA sequence.

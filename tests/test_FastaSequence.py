@@ -779,6 +779,115 @@ class Test_formatted_sequence:
             fasta_sequence.formatted_sequence(LetterCode)
 
 
+class Test_formatted_fasta:
+    def test_good(self):
+        fasta_sequence = FastaSequence('A'*150, id_='  id | 123 \n456', description='  this is a description\n 123 ')
+        assert fasta_sequence.formatted_fasta() == '>%s %s\n%s' % ('id_|_123_456',
+                                                                   'this is a description 123',
+                                                                   '%s\n%s\n%s' % ('A'*70, 'A'*70, 'A'*10))
+
+
+class Test_sequence_as_string:
+    def test_good(self, nucleotide_good, aminoacid_good, letter_codes_unknown, unknown_characters):
+        nucleotide_sequence = nucleotide_good[0]
+        aminoacid_sequence = aminoacid_good[0]
+        unknown_sequence = letter_codes_unknown[0]
+        assert nucleotide_sequence.sequence_as_string() == ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)
+        assert aminoacid_sequence.sequence_as_string() == ''.join(AMINOACID_LETTER_CODES_GOOD)
+        assert unknown_sequence.sequence_as_string() == ''.join(unknown_characters)
+
+
+class Test_reverse:
+    def test_good(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        sequence = ''.join(map(str, fasta_sequence.reverse()))
+        assert sequence == fasta_sequence.sequence_as_string()[::-1]
+
+    def test_is_iterable(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        try:
+            iter(fasta_sequence.reverse())
+        except TypeError:
+            pytest.fail('FastaSequence.reverse() is not iterable.')
+
+
+class Test__iter__:
+    def test__iter__(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        iterated_sequence = [letter_code for letter_code in fasta_sequence.__iter__()]
+        assert iterated_sequence == fasta_sequence._sequence
+        assert iterated_sequence == fasta_sequence.sequence
+        try:
+            iter(fasta_sequence._current_iterator)
+        except TypeError:
+            pytest.fail('When calling __iter__, FastaSequence._current_iterator is not iterable.')
+
+    def test_iterate(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        iterated_sequence = [letter_code for letter_code in fasta_sequence]
+        assert iterated_sequence == fasta_sequence._sequence
+        assert iterated_sequence == fasta_sequence.sequence
+        try:
+            iter(fasta_sequence._current_iterator)
+        except TypeError:
+            pytest.fail('When iterating, FastaSequence._current_iterator is not iterable.')
+
+    def test_is_iterable(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        try:
+            iter(fasta_sequence.__iter__())
+        except TypeError:
+            pytest.fail('FastaSequence.__iter__() is not iterable.')
+
+
+class Test__reversed__:
+    def test__reversed__(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        iterated_sequence = [letter_code for letter_code in fasta_sequence.__reversed__()]
+        assert iterated_sequence == fasta_sequence._sequence[::-1]
+        assert iterated_sequence == fasta_sequence.sequence[::-1]
+        try:
+            iter(fasta_sequence._current_iterator)
+        except TypeError:
+            pytest.fail('When calling __reversed__, FastaSequence._current_iterator is not iterable.')
+
+    def test_iterate(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        iterated_sequence = [letter_code for letter_code in reversed(fasta_sequence)]
+        assert iterated_sequence == fasta_sequence._sequence[::-1]
+        assert iterated_sequence == fasta_sequence.sequence[::-1]
+        try:
+            iter(fasta_sequence._current_iterator)
+        except TypeError:
+            pytest.fail('When iterating in reverse, FastaSequence._current_iterator is not iterable.')
+
+    def test_is_iterable(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        try:
+            iter(fasta_sequence.__reversed__())
+        except TypeError:
+            pytest.fail('FastaSequence.__reversed__() is not iterable.')
+
+
+class Test__next__:
+    def test_next_existing_iterator(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        iter(fasta_sequence)
+        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == LetterCode('A')
+        assert next(fasta_sequence) == fasta_sequence.sequence[1] == LetterCode('C')
+        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == LetterCode('G')
+
+    def test_next_non_existing_iterator(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == LetterCode('A')
+        assert next(fasta_sequence) == fasta_sequence.sequence[1] == LetterCode('C')
+        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == LetterCode('G')
+        try:
+            iter(fasta_sequence._current_iterator)
+        except TypeError:
+            pytest.fail('When calling __next__, FastaSequence._current_iterator is not iterable.')
+
+
 # tested in Test__Init__:
 #   class Test_id_property
 #   class Test_description_property
@@ -787,12 +896,6 @@ class Test_formatted_sequence:
 
 
 # TODO
-# class Test_formatted_fasta
-# class Test_sequence_as_string
-# class Test_reverse
-# class Test__iter__
-# class Test__reversed__
-# class Test__next__
 # class Test__getitem__
 # class Test__len__
 # class Test__repr__
