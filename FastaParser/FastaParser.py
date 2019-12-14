@@ -933,7 +933,9 @@ class FastaSequence:
             if len(new_sequence) == 0:
                 raise TypeError('Slice resulted in an empty sequence. FastaSequence must have a non-empty sequence')
 
-            new_description = '%s [SLICE OF ORIGINAL: %s]' % (self.description, item)
+            add_description = ('[SLICE OF ORIGINAL: %s]' % item if isinstance(item, slice)
+                               else '[INDEX OF ORIGINAL: %s]' % item)
+            new_description = '%s %s' % (self.description, add_description) if self.description else add_description
             return FastaSequence(new_sequence, self.id, new_description, self.sequence_type)
         else:
             raise TypeError('Indices must be integers or slices')
