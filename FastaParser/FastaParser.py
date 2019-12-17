@@ -915,7 +915,8 @@ class FastaSequence:
 
     def __getitem__(self, item):
         """
-        Slicing/indexing returns a new FastaSequence copy of self with the sliced sequence of LetterCode objects.
+        Indexing returns the LetterCode object at the given index.
+        Slicing returns a new FastaSequence copy of self with the sliced sequence of LetterCode objects.
         The description line is updated to reflect the slices made to the original sequence.
         Slices can't return an empty sequence.
 
@@ -925,17 +926,19 @@ class FastaSequence:
 
         Returns
         -------
-        FastaSequence
-            Copy of self with the sliced sequence of LetterCode objects
+        LetterCode, FastaSequence
+            LetterCode at given index
+            or
+            FastaSequence with a sliced sequence of LetterCode objects
         """
-        if isinstance(item, (int, slice)):
+        if isinstance(item, int):
+            return self._sequence[item]
+        elif isinstance(item, slice):
             new_sequence = self.sequence_as_string()[item]
             if len(new_sequence) == 0:
                 raise TypeError('Slice resulted in an empty sequence. FastaSequence must have a non-empty sequence')
-
-            add_description = ('[SLICE OF ORIGINAL: %s]' % item if isinstance(item, slice)
-                               else '[INDEX OF ORIGINAL: %s]' % item)
-            new_description = '%s %s' % (self.description, add_description) if self.description else add_description
+            slice_text = '[SLICE OF ORIGINAL: %s:%s:%s]' % (item.start, item.stop, item.step)
+            new_description = '%s %s' % (self.description, slice_text) if self.description else slice_text
             return FastaSequence(new_sequence, self.id, new_description, self.sequence_type)
         else:
             raise TypeError('Indices must be integers or slices')
