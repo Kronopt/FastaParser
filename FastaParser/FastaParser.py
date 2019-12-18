@@ -969,7 +969,7 @@ class FastaSequence:
         >id description
         sequence
         """
-        return ">%s %s\n%s" % (self._id, self._description, self.sequence_as_string())
+        return self.formatted_fasta()
 
 
 ###################
