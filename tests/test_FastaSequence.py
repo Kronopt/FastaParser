@@ -940,6 +940,39 @@ class Test__getitem__:
             FastaSequence('ACTG').__getitem__(LetterCode)
 
 
+class Test__eq__:
+    def test_other_fastasequence(self, nucleotide_good, aminoacid_good):
+        fasta_sequence_nucleotide = nucleotide_good[0]
+        fasta_sequence_aminoacid = aminoacid_good[0]
+        fasta_sequence_nucleotide_equal = FastaSequence('ACGTNU')
+        assert fasta_sequence_nucleotide == fasta_sequence_nucleotide
+        assert fasta_sequence_aminoacid == fasta_sequence_aminoacid
+        assert fasta_sequence_nucleotide == fasta_sequence_nucleotide_equal
+        assert fasta_sequence_nucleotide != fasta_sequence_aminoacid
+
+    def test_other_str(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence == 'ACGTNU'
+        assert fasta_sequence != 'UNTGCA'
+        assert fasta_sequence != 'ACGTN'
+        assert fasta_sequence != ''
+
+    def test_other_list(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence == [LetterCode(letter_code) for letter_code in 'ACGTNU']
+        assert fasta_sequence != [LetterCode(letter_code) for letter_code in 'UNTGCA']
+        assert fasta_sequence != [LetterCode(letter_code) for letter_code in 'ACGTN']
+        assert fasta_sequence != []
+
+    def test_other_wrong_type(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert fasta_sequence != 1
+        assert fasta_sequence != 0
+        assert fasta_sequence != {letter_code: LetterCode(letter_code) for letter_code in 'ACGTNU'}
+        assert fasta_sequence != {}
+        assert fasta_sequence != LetterCode('A')
+
+
 # tested in Test__Init__:
 #   class Test_id_property
 #   class Test_description_property
