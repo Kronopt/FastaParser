@@ -888,6 +888,58 @@ class Test__next__:
             pytest.fail('When calling __next__, FastaSequence._current_iterator is not iterable.')
 
 
+class Test__getitem__:
+    def test_get_element_at_first_position(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        fasta_sequence_0 = fasta_sequence[0]
+        assert fasta_sequence_0 == 'A' == fasta_sequence._sequence[0]
+
+    def test_get_element_at_last_position(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        fasta_sequence_last = fasta_sequence[-1]
+        assert fasta_sequence_last == 'U' == fasta_sequence._sequence[-1]
+
+    def test_get_slice_single(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+
+        fasta_sequence_0_sliced = fasta_sequence[:1]
+        assert fasta_sequence_0_sliced._sequence == ['A'] == fasta_sequence._sequence[:1]
+        assert fasta_sequence_0_sliced.description == '[SLICE OF ORIGINAL: None:1:None]'
+        fasta_sequence_last_sliced = fasta_sequence[-1:]
+        assert fasta_sequence_last_sliced._sequence == ['U'] == fasta_sequence._sequence[-1:]
+        assert fasta_sequence_last_sliced.description == '[SLICE OF ORIGINAL: -1:None:None]'
+
+        fasta_sequence_with_description_0_sliced = FastaSequence('ACTG', description='existing description')[:1]
+        assert fasta_sequence_with_description_0_sliced._sequence == ['A'] == \
+               fasta_sequence_with_description_0_sliced._sequence[:1]
+        assert fasta_sequence_with_description_0_sliced.description == ('existing description [SLICE OF ORIGINAL: '
+                                                                        'None:1:None]')
+        fasta_sequence_description_last_sliced = FastaSequence('ACTG', description='existing description')[-1:]
+        assert fasta_sequence_description_last_sliced._sequence == ['G'] == \
+               fasta_sequence_description_last_sliced._sequence[-1:]
+        assert fasta_sequence_description_last_sliced.description == ('existing description [SLICE OF ORIGINAL: '
+                                                                      '-1:None:None]')
+
+    def test_get_slice_multiple(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+
+        fasta_sequence_sliced = fasta_sequence[2:4]
+        assert fasta_sequence_sliced._sequence == ['G', 'T'] == fasta_sequence._sequence[2:4]
+        assert fasta_sequence_sliced.description == '[SLICE OF ORIGINAL: 2:4:None]'
+
+    def get_slice_empty(self):
+        with pytest.raises(TypeError):
+            FastaSequence('ACTG')[:0]
+
+    def get_item_wrong_type(self):
+        with pytest.raises(TypeError):
+            FastaSequence('ACTG').__getitem__('A')
+        with pytest.raises(TypeError):
+            FastaSequence('ACTG').__getitem__([])
+        with pytest.raises(TypeError):
+            FastaSequence('ACTG').__getitem__(LetterCode)
+
+
 # tested in Test__Init__:
 #   class Test_id_property
 #   class Test_description_property
@@ -896,7 +948,6 @@ class Test__next__:
 
 
 # TODO
-# class Test__getitem__
 # class Test__len__
 # class Test__repr__
 # class Test__str__
