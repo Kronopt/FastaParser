@@ -973,14 +973,28 @@ class Test__eq__:
         assert fasta_sequence != LetterCode('A')
 
 
+class Test__len__:
+    def test__len__(self, nucleotide_good, aminoacid_good):
+        fasta_sequence_nucleotide = nucleotide_good[0]
+        fasta_sequence_aminoacid = aminoacid_good[0]
+        assert len(fasta_sequence_nucleotide) == 6
+        assert len(fasta_sequence_aminoacid) == 25
+
+
+class Test__repr__:
+    def test__repr__(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        assert repr(fasta_sequence) == 'FastaSequence(\'ACGTNU\')'
+
+
+class Test__str__:
+    def test__str__(self):
+        fasta_sequence = FastaSequence('ACGTNU', id_='id', description='description')
+        assert str(fasta_sequence) == '>id description\nACGTNU'
+
+
 # tested in Test__Init__:
 #   class Test_id_property
 #   class Test_description_property
 #   class Test_sequence_property
 #   class Test_inferred_type
-
-
-# TODO
-# class Test__len__
-# class Test__repr__
-# class Test__str__
