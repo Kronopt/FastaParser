@@ -1049,6 +1049,8 @@ class Reader(ParseDefinitionLine):
         The FASTA file passed as parameter.
     sequences_type : 'nucleotide', 'aminoacid' or None
         Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). Can be None if not known.
+    infer_type: bool
+        True if Reader was set to infer the sequence type, False otherwise.
     parse_method: 'rich' or 'quick'
         Parse method used ('rich' or 'quick').
 
@@ -1119,6 +1121,10 @@ class Reader(ParseDefinitionLine):
     @property
     def sequences_type(self):
         return self._sequences_type
+
+    @property
+    def infer_type(self):
+        return self._infer_type
 
     @property
     def parse_method(self):
