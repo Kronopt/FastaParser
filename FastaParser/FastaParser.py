@@ -32,6 +32,7 @@ http://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html
 
 
 import warnings
+import os
 from collections import namedtuple
 
 
@@ -1220,7 +1221,7 @@ class Reader(ParseDefinitionLine):
         return next(self._current_iterator)
 
     def __repr__(self):
-        return 'FastaParser.Reader(%s)' % self._fasta_file.name
+        return '%s.Reader(%s)' % (self.__class__.__module__, os.path.abspath(self._fasta_file.name))
 
 
 class Writer(ParseDefinitionLine):
@@ -1330,4 +1331,4 @@ class Writer(ParseDefinitionLine):
                             'objects or a list of tuples (header : str, sequence : str)')
 
     def __repr__(self):
-        return 'FastaParser.Writer(%s)' % self._fasta_file.name
+        return '%s.Writer(%s)' % (self.__class__.__module__, os.path.abspath(self._fasta_file.name))
