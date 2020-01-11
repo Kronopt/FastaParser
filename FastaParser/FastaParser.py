@@ -993,7 +993,8 @@ class ParseDefinitionLine:
         When calling _parse_definition_line, if definition_line is of the wrong type.
     """
 
-    def _parse_definition_line(self, definition_line):
+    @staticmethod
+    def _parse_definition_line(definition_line):
         """
         Parses a FASTA definition line and returns an id and a description.
 
@@ -1018,9 +1019,11 @@ class ParseDefinitionLine:
 
             # both id and description can be empty
             if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
-                _id = '>'
+                _id = ''
                 _description = ''
             else:
+                if id_and_description[0].startswith('>'):
+                    id_and_description[0] = id_and_description[0][1:]
                 if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
                     _id = id_and_description[0]
                     _description = ''
