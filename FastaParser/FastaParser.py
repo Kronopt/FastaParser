@@ -1042,7 +1042,7 @@ class Reader(ParseDefinitionLine):
         'quick':
             Generates objects containing just the FASTA header and sequence attributes
             for each sequence in the FASTA file.
-            Parses the FASTA file faster but lacks some features.
+            Parses FASTA files faster but lacks some features.
         'rich':
             Returns FastaSequence objects (default).
             Slower, but feature rich.
@@ -1061,18 +1061,18 @@ class Reader(ParseDefinitionLine):
     Raises
     ------
     TypeError
-        When calling __init__, if fasta_file_object, sequences_type, infer_type or parse_method are of the wrong type.
-        When calling __init__, if fasta_file_object is not a file object or is closed.
+        When calling __init__, if fasta_file, sequences_type, infer_type or parse_method are of the wrong type.
+        When calling __init__, if fasta_file is not a file object or is closed.
     """
     _PARSE_METHODS = ('rich', 'quick')
 
-    def __init__(self, fasta_file_object, sequences_type=None, infer_type=False, parse_method='rich'):
+    def __init__(self, fasta_file, sequences_type=None, infer_type=False, parse_method='rich'):
         """
         Initializes file object (checks if fasta_file_object is an opened file object).
 
         Parameters
         ----------
-        fasta_file_object : file object
+        fasta_file : file object
             An opened file handle.
         sequences_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). None if unknown.
@@ -1089,19 +1089,20 @@ class Reader(ParseDefinitionLine):
         Raises
         ------
         TypeError
-            If fasta_file_object, sequences_type, infer_type or parse_method are of the wrong type.
-            If fasta_file_object is not a file object or is closed.
+            If fasta_file, sequences_type, infer_type or parse_method are of the wrong type.
+            If fasta_file is not a file object or is closed.
         """
         # for 'quick' parse method
         self._fasta_sequence = namedtuple('Fasta', ['header', 'sequence'])
 
-        if hasattr(fasta_file_object, "readline"):  # assume it's a file object
-            if fasta_file_object.closed and not fasta_file_object.readable():
-                raise TypeError('fasta_file_object must be opened for reading')
+        # assume it's a file object
+        if hasattr(fasta_file, 'readline') and hasattr(fasta_file, 'closed') and hasattr(fasta_file, 'readable'):
+            if not fasta_file.closed and fasta_file.readable():
+                self._fasta_file = fasta_file
             else:
-                self._fasta_file = fasta_file_object
+                raise TypeError('fasta_file must be opened for reading')
         else:
-            raise TypeError('fasta_file_object must be a file object')
+            raise TypeError('fasta_file must be a file object')
 
         if (isinstance(sequences_type, str) and sequences_type in LETTER_CODES) or sequences_type is None:
             self._sequences_type = sequences_type
@@ -1209,7 +1210,7 @@ class Reader(ParseDefinitionLine):
         Returns a new iterator of the file (from the beginning) every time __iter__ is called.
         """
         if self._fasta_file.closed and not self._fasta_file.readable():  # check if file is closed
-            raise TypeError('fasta_file_object must be opened for reading')
+            raise TypeError('fasta_file must be opened for reading')
 
         self._current_iterator = self._iter_fasta_file(self._fasta_file)
         return self._current_iterator
