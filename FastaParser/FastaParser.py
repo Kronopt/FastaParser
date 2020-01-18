@@ -1068,7 +1068,7 @@ class Reader(ParseDefinitionLine):
 
     def __init__(self, fasta_file, sequences_type=None, infer_type=False, parse_method='rich'):
         """
-        Initializes file object (checks if fasta_file_object is an opened file object).
+        Initializes file object (checks if fasta_file is an opened file object).
 
         Parameters
         ----------
@@ -1209,11 +1209,11 @@ class Reader(ParseDefinitionLine):
         Iterates over the FASTA file.
         Returns a new iterator of the file (from the beginning) every time __iter__ is called.
         """
-        if self._fasta_file.closed and not self._fasta_file.readable():  # check if file is closed
+        if not self._fasta_file.closed and self._fasta_file.readable():  # check if file is closed
+            self._current_iterator = self._iter_fasta_file(self._fasta_file)
+            return self._current_iterator
+        else:
             raise TypeError('fasta_file must be opened for reading')
-
-        self._current_iterator = self._iter_fasta_file(self._fasta_file)
-        return self._current_iterator
 
     def __next__(self):
         """
@@ -1252,32 +1252,33 @@ class Writer(ParseDefinitionLine):
     Raises
     ------
     TypeError
-        When calling __init__, if fasta_file_object is of the wrong type.
-        When calling __init__, if fasta_file_object is not a file object or is closed.
+        When calling __init__, if fasta_file is of the wrong type.
+        When calling __init__, if fasta_file is not a file object or is closed.
     """
 
-    def __init__(self, fasta_file_object):
+    def __init__(self, fasta_file):
         """
-        Initializes file object (checks if fasta_file_object is a file object opened for writing).
+        Initializes file object (checks if fasta_file is a file object opened for writing).
 
         Parameters
         ----------
-        fasta_file_object : file object
+        fasta_file : file object
             An opened file handle ready for writing.
 
         Raises
         ------
         TypeError
-            If fasta_file_object is of the wrong type.
-            If fasta_file_object is not a file object or is closed.
+            If fasta_file is of the wrong type.
+            If fasta_file is not a file object or is closed.
         """
-        if hasattr(fasta_file_object, "writelines"):  # assume it's a file object
-            if fasta_file_object.closed and not fasta_file_object.writable():
-                raise TypeError('fasta_file_object must be opened for writing')
+        # assume it's a file object
+        if hasattr(fasta_file, "writelines") and hasattr(fasta_file, 'closed') and hasattr(fasta_file, 'writable'):
+            if not fasta_file.closed and fasta_file.writable():
+                self._fasta_file = fasta_file
             else:
-                self._fasta_file = fasta_file_object
+                raise TypeError('fasta_file must be opened for writing')
         else:
-            raise TypeError('fasta_file_object must be a file object')
+            raise TypeError('fasta_file must be a file object')
 
     @property
     def fasta_file(self):
