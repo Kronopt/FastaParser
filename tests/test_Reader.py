@@ -15,15 +15,67 @@ from FastaParser import Reader
 ##########
 
 
+@pytest.fixture()
+def fasta_empty():
+    f = open('tests/fasta_empty.fasta', 'r')
+    yield f
+    f.close()
+
+
+@pytest.fixture()
+def fasta_nucleotide_single():
+    f = open('tests/fasta_nucleotide_single.fasta', 'r')
+    yield f
+    f.close()
+
+
+@pytest.fixture()
+def fasta_nucleotide_multiple():
+    f = open('tests/fasta_nucleotide_multiple.fasta', 'r')
+    yield f
+    f.close()
+
+
+@pytest.fixture()
+def fasta_aminoacid_single():
+    f = open('tests/fasta_aminoacid_single.fasta', 'r')
+    yield f
+    f.close()
+
+
+@pytest.fixture()
+def fasta_aminoacid_multiple():
+    f = open('tests/fasta_aminoacid_multiple.fasta', 'r')
+    yield f
+    f.close()
+
+
 #######
 # Tests
 #######
 
 
 class Test__init__:
-    # test_fasta_file_object_good
-    # test_fasta_file_object_closed
-    # test_fasta_file_object_not_a_file
+    def test_fasta_file_object_good(self, fasta_nucleotide_multiple):
+        fasta_reader = Reader(fasta_nucleotide_multiple)
+        assert fasta_reader.fasta_file is fasta_nucleotide_multiple
+        assert fasta_reader.sequences_type is None
+        assert fasta_reader.infer_type is False
+        assert fasta_reader.parse_method == 'rich'
+
+    def test_fasta_file_object_closed(self, fasta_nucleotide_multiple):
+        with open('tests/fasta_nucleotide_multiple.fasta', 'r'):
+            fasta_nucleotide_multiple.close()
+            with pytest.raises(TypeError):
+                Reader(fasta_nucleotide_multiple)
+
+    def test_fasta_file_object_not_a_file(self):
+        with pytest.raises(TypeError):
+            Reader('')
+        with pytest.raises(TypeError):
+            Reader([])
+        with pytest.raises(TypeError):
+            Reader(123)
 
     # test_sequences_type_nucleotide
     # test_sequences_type_aminoacid
