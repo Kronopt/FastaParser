@@ -64,10 +64,9 @@ class Test__init__:
         assert fasta_reader.parse_method == 'rich'
 
     def test_fasta_file_object_closed(self, fasta_nucleotide_multiple):
-        with open('tests/fasta_nucleotide_multiple.fasta', 'r'):
-            fasta_nucleotide_multiple.close()
-            with pytest.raises(TypeError):
-                Reader(fasta_nucleotide_multiple)
+        fasta_nucleotide_multiple.close()
+        with pytest.raises(TypeError):
+            Reader(fasta_nucleotide_multiple)
 
     def test_fasta_file_object_not_a_file(self):
         with pytest.raises(TypeError):
@@ -77,11 +76,35 @@ class Test__init__:
         with pytest.raises(TypeError):
             Reader(123)
 
-    # test_sequences_type_nucleotide
-    # test_sequences_type_aminoacid
-    # test_sequences_type_none
-    # test_sequences_type_wrong_type
-    # test_sequences_type_wrong_str
+    def test_sequences_type_nucleotide(self, fasta_nucleotide_multiple):
+        fasta_reader = Reader(fasta_nucleotide_multiple, sequences_type='nucleotide')
+        assert fasta_reader.fasta_file is fasta_nucleotide_multiple
+        assert fasta_reader.sequences_type == 'nucleotide'
+        assert fasta_reader.infer_type is False
+        assert fasta_reader.parse_method == 'rich'
+
+    def test_sequences_type_aminoacid(self, fasta_aminoacid_multiple):
+        fasta_reader = Reader(fasta_aminoacid_multiple, sequences_type='aminoacid')
+        assert fasta_reader.fasta_file is fasta_aminoacid_multiple
+        assert fasta_reader.sequences_type == 'aminoacid'
+        assert fasta_reader.infer_type is False
+        assert fasta_reader.parse_method == 'rich'
+
+    # test_sequences_type_non (already tested)
+
+    def test_sequences_type_wrong_type(self, fasta_empty):
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, sequences_type=[])
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, sequences_type=123)
+
+    def test_sequences_type_wrong_str(self, fasta_empty):
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, sequences_type='')
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, sequences_type=' ')
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, sequences_type='wrong_type')
 
     # test_infer_type_true
     # test_infer_type_false
