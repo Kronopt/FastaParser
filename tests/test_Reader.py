@@ -106,9 +106,22 @@ class Test__init__:
         with pytest.raises(TypeError):
             Reader(fasta_empty, sequences_type='wrong_type')
 
-    # test_infer_type_true
-    # test_infer_type_false
-    # test_infer_type_not_bool
+    def test_infer_type_true(self, fasta_empty):
+        fasta_reader = Reader(fasta_empty, infer_type=True)
+        assert fasta_reader.fasta_file is fasta_empty
+        assert fasta_reader.sequences_type is None
+        assert fasta_reader.infer_type is True
+        assert fasta_reader.parse_method == 'rich'
+
+    # test_infer_type_false (already tested)
+
+    def test_infer_type_not_bool(self, fasta_empty):
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, infer_type='')
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, infer_type=[])
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, infer_type=123)
 
     # test_parse_method_rich
     # test_parse_method_quick
