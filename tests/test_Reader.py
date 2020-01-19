@@ -123,11 +123,28 @@ class Test__init__:
         with pytest.raises(TypeError):
             Reader(fasta_empty, infer_type=123)
 
-    # test_parse_method_rich
-    # test_parse_method_quick
-    # test_parse_method_wrong_type
-    # test_parse_method_wrong_str
-    pass
+    # test_parse_method_rich (already tested)
+
+    def test_parse_method_quick(self, fasta_empty):
+        fasta_reader = Reader(fasta_empty, parse_method='quick')
+        assert fasta_reader.fasta_file is fasta_empty
+        assert fasta_reader.sequences_type is None
+        assert fasta_reader.infer_type is False
+        assert fasta_reader.parse_method == 'quick'
+
+    def test_parse_method_wrong_type(self, fasta_empty):
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, parse_method=[])
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, parse_method=123)
+
+    def test_parse_method_wrong_str(self, fasta_empty):
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, parse_method='')
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, parse_method=' ')
+        with pytest.raises(TypeError):
+            Reader(fasta_empty, parse_method='wrong_type')
 
 
 class Test__iter__:
