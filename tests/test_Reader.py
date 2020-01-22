@@ -6,6 +6,7 @@ Tests for FastaParser.Reader class
 """
 
 
+import os
 import pytest
 from FastaParser import Reader
 
@@ -383,7 +384,9 @@ class Test__next__:
 
 
 class Test__repr__:
-    pass
+    def test__repr__(self, fasta_empty):
+        fasta_reader = Reader(fasta_empty)
+        assert repr(fasta_reader) == 'FastaParser.FastaParser.Reader(%s)' % os.path.abspath(fasta_empty.name)
 
 
 # tested in Test__Init__:
