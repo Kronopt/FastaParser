@@ -373,14 +373,43 @@ class Test__iter__:
         fastas = []
         for fasta in fasta_reader:
             fastas.append(fasta)
-            assert fasta.sequence == fasta_empty_lines_in_sequence_contents[len(fastas) - 1][2]
-            assert fasta.header == '>' + ' '.join((fasta_empty_lines_in_sequence_contents[len(fastas) - 1][0],
-                                                   fasta_empty_lines_in_sequence_contents[len(fastas) - 1][1]))
+            assert fasta.sequence == fasta_empty_lines_in_sequence_contents[len(fastas)-1][2]
+            assert fasta.header == '>' + ' '.join((fasta_empty_lines_in_sequence_contents[len(fastas)-1][0],
+                                                   fasta_empty_lines_in_sequence_contents[len(fastas)-1][1]))
         assert len(fastas) == 2
 
 
 class Test__next__:
-    pass
+    def test_existing_current_iterator(self, fasta_nucleotide_multiple, fasta_nucleotide_multiple_contents):
+        fasta_reader = Reader(fasta_nucleotide_multiple, sequences_type='nucleotide')
+        iter(fasta_reader)
+        fasta = next(fasta_reader)
+        assert fasta.sequence_as_string() == fasta_nucleotide_multiple_contents[0][2]
+        assert fasta.id == fasta_nucleotide_multiple_contents[0][0]
+        assert fasta.description == fasta_nucleotide_multiple_contents[0][1]
+        assert fasta.sequence_type == 'nucleotide'
+        assert fasta.inferred_type is False
+        fasta = next(fasta_reader)
+        assert fasta.sequence_as_string() == fasta_nucleotide_multiple_contents[1][2]
+        assert fasta.id == fasta_nucleotide_multiple_contents[1][0]
+        assert fasta.description == fasta_nucleotide_multiple_contents[1][1]
+        assert fasta.sequence_type == 'nucleotide'
+        assert fasta.inferred_type is False
+
+    def test_no_current_iterator(self, fasta_nucleotide_multiple, fasta_nucleotide_multiple_contents):
+        fasta_reader = Reader(fasta_nucleotide_multiple, sequences_type='nucleotide')
+        fasta = next(fasta_reader)
+        assert fasta.sequence_as_string() == fasta_nucleotide_multiple_contents[0][2]
+        assert fasta.id == fasta_nucleotide_multiple_contents[0][0]
+        assert fasta.description == fasta_nucleotide_multiple_contents[0][1]
+        assert fasta.sequence_type == 'nucleotide'
+        assert fasta.inferred_type is False
+        fasta = next(fasta_reader)
+        assert fasta.sequence_as_string() == fasta_nucleotide_multiple_contents[1][2]
+        assert fasta.id == fasta_nucleotide_multiple_contents[1][0]
+        assert fasta.description == fasta_nucleotide_multiple_contents[1][1]
+        assert fasta.sequence_type == 'nucleotide'
+        assert fasta.inferred_type is False
 
 
 class Test__repr__:
