@@ -831,7 +831,7 @@ class FastaSequence:
 
     def _build_letter_code_sequence_and_counts(self, string_sequence):
         """
-        Iterate over the sequence and build a list of LetterCode objects while counting the number of letter codes.
+        Iterates over the sequence and builds a list of LetterCode objects while counting the number of letter codes.
 
         Parameters
         ----------
