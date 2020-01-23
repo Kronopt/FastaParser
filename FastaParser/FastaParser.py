@@ -38,7 +38,7 @@ from collections import namedtuple
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
-__version__ = '0.1'
+__version__ = '1.0'
 
 
 warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen

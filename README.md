@@ -1,5 +1,5 @@
-# PyFastaParser
-A simple python FASTA parser (WORK IN PROGRESS)
+# PyFastaParser (WORK IN PROGRESS)
+A simple python FASTA parser
 
 #### Install Dependencies
 * Python 3.7 (probably 2.7-3.7)
@@ -19,12 +19,21 @@ HSGLTH1 Human theta 1-globin gene
 ```
 
 #### Work in Progress
-* Asyncio for Reader/Writer
-* Context Manager (?)
-* Documentation
-* Examples
-* Read the whole fasta "specification" to provide more features
-* Tests
 * PyPi package
-* Conda package
-* Docker package (?)
+* Documentation
+    * Installation
+    * Usage
+    * Examples
+    * API specification
+    * Contributing
+    * Authors
+    * History
+* Conda package (?)
+
+#### Maybe
+* Identify FASTA ID's
+* FASTAID class, to then return in the id property of FastaSequence
+* FASTQ parser
+* Per fasta sequence, show warning if there are characters not in the FASTA specification
+* Way to disable warnings
+* Allow setting of id/description
