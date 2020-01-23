@@ -1063,6 +1063,7 @@ class Reader(ParseDefinitionLine):
     TypeError
         When calling __init__, if fasta_file, sequences_type, infer_type or parse_method are of the wrong type.
         When calling __init__, if fasta_file is not a file object or is closed.
+        When calling __iter__, if fasta_file is closed.
     """
     _PARSE_METHODS = ('rich', 'quick')
 
@@ -1254,6 +1255,8 @@ class Writer(ParseDefinitionLine):
     TypeError
         When calling __init__, if fasta_file is of the wrong type.
         When calling __init__, if fasta_file is not a file object or is closed.
+        When calling writefasta(), if fasta_sequence is of the wrong type.
+        When calling writefastas(), if fasta_sequences is not iterable.
     """
 
     def __init__(self, fasta_file):
@@ -1295,6 +1298,11 @@ class Writer(ParseDefinitionLine):
             header + sequence.
             header may contain or not the starting '>'. header can be an empty string.
             sequence must be a non empty string.
+
+        Raises
+        ------
+        TypeError
+            If fasta_sequence is of the wrong type.
         """
         # either use the FastaSequence object directly
         if isinstance(fasta_sequence, FastaSequence):
@@ -1313,7 +1321,7 @@ class Writer(ParseDefinitionLine):
             raise TypeError('fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)')
 
         # write fasta to file
-        self._fasta_file.write(fasta_sequence.formatted_fasta() + '\n')
+        self._fasta_file.write(fasta_sequence.formatted_fasta() + '\n\n')
 
     def writefastas(self, fasta_sequences):
         """
@@ -1322,18 +1330,24 @@ class Writer(ParseDefinitionLine):
 
         Parameters
         ----------
-        fasta_sequences : list of FastaSequence or list of (header : str, sequence : str)
+        fasta_sequences : iterable of FastaSequence or iterable of (header : str, sequence : str)
             FASTA sequences are built from the data contained in the provided FastaSequence objects or the tuples of
             header + sequence.
             headers may contain or not the starting '>'. headers can be empty strings.
             sequences must be non empty strings.
+
+        Raises
+        ------
+        TypeError
+            If fasta_sequences is not iterable.
         """
-        if isinstance(fasta_sequences, (tuple, list)):
-            for fasta in fasta_sequences:
-                self.writefasta(fasta)
-        else:
-            raise TypeError('fasta_sequences must be a list of FastaSequence '
-                            'objects or a list of tuples (header : str, sequence : str)')
+        try:
+            iter(fasta_sequences)
+        except TypeError:
+            raise TypeError('fasta_sequences must be an iterable of FastaSequence '
+                            'objects or an iterable of tuples (header : str, sequence : str)')
+        for fasta in fasta_sequences:
+            self.writefasta(fasta)
 
     def __repr__(self):
         return '%s.Writer(%s)' % (self.__class__.__module__, os.path.abspath(self._fasta_file.name))
