@@ -117,7 +117,7 @@ AMINOACID_LETTER_CODES_DEGENERATE = {
     '-': 'gap of indeterminate length'
 }
 
-# BOTH
+# BOTH NUCLEOTIDE AND AMINOACID
 LETTER_CODES = {
     'nucleotide': (NUCLEOTIDE_LETTER_CODES_GOOD, NUCLEOTIDE_LETTER_CODES_DEGENERATE),
     'aminoacid': (AMINOACID_LETTER_CODES_GOOD, AMINOACID_LETTER_CODES_DEGENERATE)
@@ -150,16 +150,16 @@ class LetterCode:
     ----------
     letter_code : str
         Upper case letter code.
-    sequence_type : str or None
+    letter_type : str or None
         'nucleotide' or 'aminoacid. None if there is no information about sequence type.
     description : str
         Description or nucleotide/aminoacid name of letter code (can be an empty string).
     degenerate : bool or None
         Indicates if a letter code is degenerate or not (can be None if letter code is
-        not defined in the FASTA specification or sequence_type is unknown).
+        not defined in the FASTA specification or letter_type is unknown).
     supported : bool
         Indicates if letter code is supported or not
-        (ie, if sequence_type is provided and letter code is defined in the FASTA specification).
+        (ie, if letter_type is provided and letter code is defined in the FASTA specification).
     in_fasta_spec : bool
         Indicates if Letter code is defined in the FASTA specification.
 
@@ -173,27 +173,27 @@ class LetterCode:
     Raises
     ------
     TypeError
-        When calling __init__, if letter_code or sequence_type are of the wrong type.
+        When calling __init__, if letter_code or letter_type are of the wrong type.
         When calling from_lettercode(), if lettercode is of the wrong type.
-        When setting sequence_type, if sequence_type_value is of the wrong type.
-        When calling complement(), if sequence_type is 'aminoacid'.
+        When setting letter_type, if letter_type_value is of the wrong type.
+        When calling complement(), if letter_type is 'aminoacid'.
     """
 
-    def __init__(self, letter_code, sequence_type=None):
+    def __init__(self, letter_code, letter_type=None):
         """
-        Initializes letter code given.
+        Initializes given letter code.
 
         Parameters
         ----------
         letter_code : str
             Letter code.
-        sequence_type : 'nucleotide', 'aminoacid' or None, optional
+        letter_type : 'nucleotide', 'aminoacid' or None, optional
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
 
         Raises
         ------
         TypeError
-            If letter_code or sequence_type are of the wrong type.
+            If letter_code or letter_type are of the wrong type.
         """
         if isinstance(letter_code, str) and len(letter_code) == 1:
             self._letter_code = letter_code.upper()
@@ -201,7 +201,7 @@ class LetterCode:
         else:
             raise TypeError('letter_code must be a single character str')
 
-        self._update_sequence_type(sequence_type)
+        self._update_letter_type(letter_type)
 
     @classmethod
     def from_lettercode(cls, lettercode):
@@ -224,7 +224,7 @@ class LetterCode:
             If lettercode is of the wrong type.
         """
         if isinstance(lettercode, LetterCode):
-            return cls(lettercode.letter_code, lettercode.sequence_type)
+            return cls(lettercode.letter_code, lettercode.letter_type)
         else:
             raise TypeError('lettercode must be a LetterCode')
 
@@ -233,34 +233,34 @@ class LetterCode:
         return self._letter_code
 
     @property
-    def sequence_type(self):
-        return self._sequence_type
+    def letter_type(self):
+        return self._letter_type
 
-    @sequence_type.setter
-    def sequence_type(self, sequence_type_value):
+    @letter_type.setter
+    def letter_type(self, letter_type_value):
         """
-        Sets sequence_type and updates all other relevant properties as needed.
+        Sets letter_type and updates all other relevant properties as needed.
 
         Parameters
         ----------
-        sequence_type_value : 'nucleotide', 'aminoacid' or None
+        letter_type_value : 'nucleotide', 'aminoacid' or None
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
 
         Raises
         ------
         TypeError
-            If sequence_type_value is of the wrong type.
+            If letter_type_value is of the wrong type.
         """
-        self._update_sequence_type(sequence_type_value)
+        self._update_letter_type(letter_type_value)
 
     @property
     def description(self):
         description = ''
-        if self._sequence_type in LETTER_CODES:
-            if self._letter_code in LETTER_CODES[self._sequence_type][0]:  # good
-                description = LETTER_CODES[self._sequence_type][0][self._letter_code]
-            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:  # degenerate
-                description = LETTER_CODES[self._sequence_type][1][self._letter_code]
+        if self._letter_type in LETTER_CODES:
+            if self._letter_code in LETTER_CODES[self._letter_type][0]:  # good
+                description = LETTER_CODES[self._letter_type][0][self._letter_code]
+            elif self._letter_code in LETTER_CODES[self._letter_type][1]:  # degenerate
+                description = LETTER_CODES[self._letter_type][1][self._letter_code]
         return description
 
     @property
@@ -280,8 +280,8 @@ class LetterCode:
         Complementary letter code (ideally, of a nucleotide).
 
         If letter_code is not a nucleotide letter code, the complementary will be letter_code.
-        In order not to impose the setting of sequence_type as 'nucleotide', this method will work for any letter code
-        (as long as sequence_type is not 'aminoacid'), which has the side effect of returning nonsensical results when
+        In order not to impose the setting of letter_type as 'nucleotide', this method will work for any letter code
+        (as long as letter_type is not 'aminoacid'), which has the side effect of returning nonsensical results when
         letter_code is not a nucleotide.
         Ex: For aminoacid letter codes that overlap with nucleotide letter codes, the output will be the complement of
         the nucleotide represented by the same letter code, which makes no sense.
@@ -294,48 +294,48 @@ class LetterCode:
         Raises
         ------
         TypeError
-            If self.sequence_type is 'aminoacid'.
+            If self.letter_type is 'aminoacid'.
         """
-        if self._sequence_type == 'aminoacid':
-            raise TypeError('Complement is not possible for aminoacids (sequence_type == \'aminoacid\')')
-        if self._sequence_type is None:
-            warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
+        if self._letter_type == 'aminoacid':
+            raise TypeError('Complement is not possible for aminoacids (letter_type == \'aminoacid\')')
+        if self._letter_type is None:
+            warnings.warn('letter_type is not explicitly \'nucleotide\'. '
                           'Therefore, the complementary letter code might not make sense.')
         return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(self._letter_code, self._letter_code),
-                          self._sequence_type)
+                          self._letter_type)
 
-    def _update_sequence_type(self, sequence_type):
+    def _update_letter_type(self, letter_type):
         """
-        Updates sequence_type and all other relevant properties as needed.
+        Updates letter_type and all other relevant properties as needed.
 
         Parameters
         ----------
-        sequence_type : 'nucleotide', 'aminoacid' or None
+        letter_type : 'nucleotide', 'aminoacid' or None
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
 
         Raises
         ------
         TypeError
-            If sequence_type is of the wrong type.
+            If letter_type is of the wrong type.
         """
-        if sequence_type in LETTER_CODES:
-            self._sequence_type = sequence_type
+        if letter_type in LETTER_CODES:
+            self._letter_type = letter_type
 
-            if self._letter_code in LETTER_CODES[self._sequence_type][0]:  # letter_codes_good
+            if self._letter_code in LETTER_CODES[self._letter_type][0]:  # letter_codes_good
                 self._degenerate = False
                 self._supported = True
-            elif self._letter_code in LETTER_CODES[self._sequence_type][1]:  # letter_codes_degenerate
+            elif self._letter_code in LETTER_CODES[self._letter_type][1]:  # letter_codes_degenerate
                 self._degenerate = True
                 self._supported = True
             else:  # _letter_code isn't defined in the FASTA specification
                 self._degenerate = None
                 self._supported = False
-        elif sequence_type is None:
-            self._sequence_type = sequence_type
+        elif letter_type is None:
+            self._letter_type = letter_type
             self._supported = False
             self._degenerate = None
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % ', '.join(LETTER_CODES))
+            raise TypeError('letter_type must be one of: %s or None' % ', '.join(LETTER_CODES))
 
     def __eq__(self, other):
         """
@@ -356,12 +356,6 @@ class LetterCode:
         return self._letter_code
 
 
-# TODO Identify FASTA ID's (see linked sources)
-# TODO FASTAID class (?) to then return in the id property
-# TODO FASTQ parser
-# TODO per fasta sequence, show warning if there are characters not in the FASTA specification
-# TODO way to disable warnings (?)
-# TODO allow setting of id/description (?)
 class FastaSequence:
     """
     Represents one FASTA sequence.
@@ -831,7 +825,7 @@ class FastaSequence:
         if isinstance(update_letter_code_objects, bool):
             if update_letter_code_objects:
                 for letter_code_object in self._sequence:  # update LetterCode objects
-                    letter_code_object.sequence_type = self._sequence_type
+                    letter_code_object.letter_type = self._sequence_type
         else:
             raise TypeError('update_letter_code_objects must be a bool')
 
