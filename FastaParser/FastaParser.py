@@ -36,11 +36,6 @@ import os
 from collections import namedtuple
 
 
-__author__ = 'Pedro HC David, https://github.com/Kronopt'
-__credits__ = ['Pedro HC David']
-__version__ = '1.0'
-
-
 warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
 
 # NUCLEOTIDE DICTIONARIES
@@ -225,15 +220,16 @@ class LetterCode:
         """
         if isinstance(lettercode, LetterCode):
             return cls(lettercode.letter_code, lettercode.letter_type)
-        else:
-            raise TypeError('lettercode must be a LetterCode')
+        raise TypeError('lettercode must be a LetterCode')
 
     @property
     def letter_code(self):
+        """return letter_code."""
         return self._letter_code
 
     @property
     def letter_type(self):
+        """return letter_type."""
         return self._letter_type
 
     @letter_type.setter
@@ -255,6 +251,7 @@ class LetterCode:
 
     @property
     def description(self):
+        """return description."""
         description = ''
         if self._letter_type in LETTER_CODES:
             if self._letter_code in LETTER_CODES[self._letter_type][0]:  # good
@@ -265,14 +262,17 @@ class LetterCode:
 
     @property
     def degenerate(self):
+        """return degenerate."""
         return self._degenerate
 
     @property
     def supported(self):
+        """return supported."""
         return self._supported
 
     @property
     def in_fasta_spec(self):
+        """return in_fasta_spec."""
         return self._in_fasta_spec
 
     def complement(self):
@@ -344,10 +344,9 @@ class LetterCode:
         """
         if isinstance(other, LetterCode):
             return self._letter_code == other.letter_code
-        elif isinstance(other, str):
+        if isinstance(other, str):
             return self._letter_code == other.upper()
-        else:
-            return False
+        return False
 
     def __repr__(self):
         return 'LetterCode(%r)' % self._letter_code
@@ -472,6 +471,7 @@ class FastaSequence:
         else:
             raise TypeError('sequence must be a non empty str')
 
+        self._current_iterator = None
         self._gc = None
         self._at = None
 
@@ -500,23 +500,26 @@ class FastaSequence:
                        fastasequence.id,
                        fastasequence.description,
                        fastasequence.sequence_type)
-        else:
-            raise TypeError('fastasequence must be a FastaSequence')
+        raise TypeError('fastasequence must be a FastaSequence')
 
     @property
     def id(self):
+        """return id."""
         return self._id
 
     @property
     def description(self):
+        """return description."""
         return self._description
 
     @property
     def sequence(self):
+        """return sequence."""
         return self._sequence
 
     @property
     def sequence_type(self):
+        """return sequence_type."""
         return self._sequence_type
 
     @sequence_type.setter
@@ -538,6 +541,7 @@ class FastaSequence:
 
     @property
     def inferred_type(self):
+        """return inferred_type."""
         return self._inferred_type
 
     def complement(self, reverse=False):
@@ -584,8 +588,7 @@ class FastaSequence:
             complement_description = '%s[%sCOMPLEMENT]' % (space, reversed_text)
             return FastaSequence(complement_sequence, self._id, self._description + complement_description,
                                  self._sequence_type)
-        else:
-            raise TypeError('reverse must be a bool')
+        raise TypeError('reverse must be a bool')
 
     def gc_content(self, as_percentage=False):
         """
@@ -615,7 +618,7 @@ class FastaSequence:
         if self._sequence_type == 'aminoacid':
             raise TypeError('GC content is not meant to be calculated for aminoacid sequences '
                             '(sequence_type == \'aminoacid\')')
-        elif self._sequence_type is None:
+        if self._sequence_type is None:
             warnings.warn('sequence_type is not explicitly \'nucleotide\'. '
                           'Therefore, the calculated GC content might not make sense.')
         if isinstance(as_percentage, bool):
@@ -627,8 +630,7 @@ class FastaSequence:
                 self._gc = gc
             gc_content = self._gc / len(self._sequence)
             return gc_content * 100 if as_percentage else gc_content
-        else:
-            raise TypeError('as_percentage must be a bool')
+        raise TypeError('as_percentage must be a bool')
 
     def at_gc_ratio(self):
         """
@@ -693,8 +695,7 @@ class FastaSequence:
         """
         if letter_codes is None or not letter_codes:
             return self._counts
-        else:
-            return {letter: self._counts.get(letter, 0) for letter in iter(letter_codes)}
+        return {letter: self._counts.get(letter, 0) for letter in iter(letter_codes)}
 
     def count_letter_codes_degenerate(self):
         """
@@ -714,9 +715,8 @@ class FastaSequence:
         if self._sequence_type in LETTER_CODES:
             return {letter: counts for letter, counts in self._counts.items()
                     if letter in LETTER_CODES[self._sequence_type][1]}
-        else:
-            raise TypeError('To count degenerate letter codes the sequence_type must be '
-                            'explicitly \'%s\'' % ('\' or \''.join(LETTER_CODES),))
+        raise TypeError('To count degenerate letter codes the sequence_type must be '
+                        'explicitly \'%s\'' % ('\' or \''.join(LETTER_CODES),))
 
     def formatted_definition_line(self):
         """
@@ -762,9 +762,7 @@ class FastaSequence:
                 final_sequence += ''.join(map(str, temp_sequence)) + '\n'
                 current_character_count += max_characters_per_line
             return final_sequence[:-1]  # remove last '\n'
-
-        else:
-            raise TypeError('max_characters_per_line must be an int')
+        raise TypeError('max_characters_per_line must be an int')
 
     def formatted_fasta(self):
         """
@@ -904,7 +902,7 @@ class FastaSequence:
         Returns the next letter code from the current iterator (most recent iterator).
         If no iterator still exists, calls __iter__ to create it.
         """
-        if not hasattr(self, '_current_iterator'):
+        if self._current_iterator is None:
             self.__iter__()
         return next(self._current_iterator)
 
@@ -928,15 +926,14 @@ class FastaSequence:
         """
         if isinstance(item, int):
             return self._sequence[item]
-        elif isinstance(item, slice):
+        if isinstance(item, slice):
             new_sequence = self.sequence_as_string()[item]
             if len(new_sequence) == 0:
                 raise TypeError('Slice resulted in an empty sequence. FastaSequence must have a non-empty sequence')
             slice_text = '[SLICE OF ORIGINAL: %s:%s:%s]' % (item.start, item.stop, item.step)
             new_description = '%s %s' % (self.description, slice_text) if self.description else slice_text
             return FastaSequence(new_sequence, self.id, new_description, self.sequence_type)
-        else:
-            raise TypeError('Indices must be integers or slices')
+        raise TypeError('Indices must be integers or slices')
 
     def __eq__(self, other):
         """
@@ -946,12 +943,11 @@ class FastaSequence:
         """
         if isinstance(other, FastaSequence):
             return self._sequence == other.sequence
-        elif isinstance(other, str):
+        if isinstance(other, str):
             return self.sequence_as_string() == other
-        elif isinstance(other, list):
+        if isinstance(other, list):
             return self._sequence == other
-        else:
-            return False
+        return False
 
     def __len__(self):
         return len(self._sequence)
@@ -1114,20 +1110,26 @@ class Reader(ParseDefinitionLine):
         else:
             raise TypeError('parse_method must be one of: %s' % ', '.join(self._PARSE_METHODS))
 
+        self._current_iterator = None
+
     @property
     def fasta_file(self):
+        """return fasta_file."""
         return self._fasta_file
 
     @property
     def sequences_type(self):
+        """return sequences_type."""
         return self._sequences_type
 
     @property
     def infer_type(self):
+        """return infer_type."""
         return self._infer_type
 
     @property
     def parse_method(self):
+        """return parse_method."""
         return self._parse_method
 
     def _generate_fasta_sequence_object(self, sequence, definition_line):
@@ -1207,15 +1209,14 @@ class Reader(ParseDefinitionLine):
         if not self._fasta_file.closed and self._fasta_file.readable():  # check if file is closed
             self._current_iterator = self._iter_fasta_file(self._fasta_file)
             return self._current_iterator
-        else:
-            raise TypeError('fasta_file must be opened for reading')
+        raise TypeError('fasta_file must be opened for reading')
 
     def __next__(self):
         """
         Returns the next FASTA sequence from the current iterator (most recent iterator).
         If no iterator still exists, calls __iter__ to create it.
         """
-        if not hasattr(self, '_current_iterator'):
+        if self._current_iterator is None:
             self.__iter__()
         return next(self._current_iterator)
 
@@ -1279,6 +1280,7 @@ class Writer(ParseDefinitionLine):
 
     @property
     def fasta_file(self):
+        """return fasta_file."""
         return self._fasta_file
 
     def writefasta(self, fasta_sequence):

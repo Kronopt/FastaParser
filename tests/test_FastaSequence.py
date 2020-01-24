@@ -306,6 +306,9 @@ class Test__init__:
     def test_at(self, nucleotide_good):
         assert nucleotide_good[0]._at is None
 
+    def test_current_iterator(self, nucleotide_good):
+        assert nucleotide_good[0]._current_iterator is None
+
 
 class Test_from_fastasequence:
     def test_fastasequence_good(self, nucleotide_good):

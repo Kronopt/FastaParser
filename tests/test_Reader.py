@@ -180,6 +180,10 @@ class Test__init__:
         with pytest.raises(TypeError):
             Reader(fasta_empty, parse_method='wrong_type')
 
+    def test_current_iterator(self, fasta_empty):
+        fasta_reader = Reader(fasta_empty)
+        assert fasta_reader._current_iterator is None
+
 
 class Test__iter__:
     def test_closed_file(self, fasta_empty):
@@ -190,9 +194,9 @@ class Test__iter__:
 
     def test_current_iterator(self, fasta_empty):
         fasta_reader = Reader(fasta_empty)
-        assert not hasattr(fasta_reader, '_current_iterator')
-        fasta_reader.__iter__()
-        assert hasattr(fasta_reader, '_current_iterator')
+        assert fasta_reader._current_iterator is None
+        iterator = fasta_reader.__iter__()
+        assert fasta_reader._current_iterator == iterator
         try:  # test if is iterable
             iter(fasta_reader._current_iterator)
         except TypeError:
