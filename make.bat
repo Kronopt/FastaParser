@@ -16,7 +16,7 @@ python -m pip install -r requirements-dev.txt
 goto:eof
 
 :test
-python -m pytest
+python -m pytest tests/
 goto:eof
 
 :lint

@@ -10,7 +10,7 @@ install-dependencies:
 	python -m pip install -r requirements-dev.txt
 
 test:
-	python -m pytest
+	python -m pytest tests/
 
 lint:
 	python -m pylint fastaparser
