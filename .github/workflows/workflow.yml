@@ -24,17 +24,16 @@ jobs:
         pip install -r requirements-dev.txt
 
     - name: Lint (pylint)
-      run: python -m pylint FastaParser
+      run: python -m pylint fastaparser
 
     - name: Test (pytest)
       run: make test
 
     #- name: Coverage (coverage)
     #  run: |
-    #    coverage run --source FastaParser -m pytest
+    #    coverage run --source fastaparser -m pytest
     #    coverage xml
     #    bash <(curl -s https://codecov.io/bash)  # do I need to do this?
 
 # TODO make install-dependencies-dev
-# TODO make lint
 # TODO make coverage
