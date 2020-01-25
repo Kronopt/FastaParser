@@ -1,5 +1,5 @@
-# PyFastaParser (WORK IN PROGRESS)
-A simple python FASTA parser
+# FastaParser (WORK IN PROGRESS)
+A python FASTA parser
 
 #### Install Dependencies
 * Python 3.8 (probably 2.7-3.8)
