@@ -751,7 +751,7 @@ class Test_formatted_definition_line:
 class Test_formatted_sequence:
     def test_good(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert fasta_sequence.formatted_sequence() == 'ACGTNU'
+        assert fasta_sequence.formatted_sequence() == ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)
         fasta_sequence_71A = FastaSequence('A'*71)
         assert fasta_sequence_71A.formatted_sequence() == 'A'*70 + '\nA'
 
@@ -763,14 +763,14 @@ class Test_formatted_sequence:
         assert fasta_sequence.formatted_sequence(5) == '%s\n%s' % ('A'*5, 'A'*5)
 
     def test_max_characters_per_line_zero_or_less(self, nucleotide_good):
-        correct_format = 'A\nC\nG\nT\nN\nU'
+        correct_format = '\n'.join(NUCLEOTIDE_LETTER_CODES_GOOD)
         fasta_sequence = nucleotide_good[0]
         assert fasta_sequence.formatted_sequence(0) == correct_format
         assert fasta_sequence.formatted_sequence(-1) == correct_format
 
     def test_max_characters_per_line_9999999(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert fasta_sequence.formatted_sequence(9999999) == 'ACGTNU'
+        assert fasta_sequence.formatted_sequence(9999999) == ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)
 
     def test_max_characters_per_line_not_int(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
@@ -876,15 +876,15 @@ class Test__next__:
     def test_next_existing_iterator(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
         iter(fasta_sequence)
-        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == LetterCode('A')
-        assert next(fasta_sequence) == fasta_sequence.sequence[1] == LetterCode('C')
-        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == LetterCode('G')
+        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == nucleotide_good[1][0]
+        assert next(fasta_sequence) == fasta_sequence.sequence[1] == nucleotide_good[1][1]
+        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == nucleotide_good[1][2]
 
     def test_next_non_existing_iterator(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == LetterCode('A')
-        assert next(fasta_sequence) == fasta_sequence.sequence[1] == LetterCode('C')
-        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == LetterCode('G')
+        assert fasta_sequence.__next__() == fasta_sequence.sequence[0] == nucleotide_good[1][0]
+        assert next(fasta_sequence) == fasta_sequence.sequence[1] == nucleotide_good[1][1]
+        assert next(fasta_sequence._current_iterator) == fasta_sequence.sequence[2] == nucleotide_good[1][2]
         try:
             iter(fasta_sequence._current_iterator)
         except TypeError:
@@ -895,21 +895,21 @@ class Test__getitem__:
     def test_get_element_at_first_position(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
         fasta_sequence_0 = fasta_sequence[0]
-        assert fasta_sequence_0 == 'A' == fasta_sequence._sequence[0]
+        assert fasta_sequence_0 == nucleotide_good[1][0] == fasta_sequence._sequence[0]
 
     def test_get_element_at_last_position(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
         fasta_sequence_last = fasta_sequence[-1]
-        assert fasta_sequence_last == 'U' == fasta_sequence._sequence[-1]
+        assert fasta_sequence_last == nucleotide_good[1][-1] == fasta_sequence._sequence[-1]
 
     def test_get_slice_single(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
 
         fasta_sequence_0_sliced = fasta_sequence[:1]
-        assert fasta_sequence_0_sliced._sequence == ['A'] == fasta_sequence._sequence[:1]
+        assert fasta_sequence_0_sliced._sequence == [nucleotide_good[1][0]] == fasta_sequence._sequence[:1]
         assert fasta_sequence_0_sliced.description == '[SLICE OF ORIGINAL: None:1:None]'
         fasta_sequence_last_sliced = fasta_sequence[-1:]
-        assert fasta_sequence_last_sliced._sequence == ['U'] == fasta_sequence._sequence[-1:]
+        assert fasta_sequence_last_sliced._sequence == [nucleotide_good[1][-1]] == fasta_sequence._sequence[-1:]
         assert fasta_sequence_last_sliced.description == '[SLICE OF ORIGINAL: -1:None:None]'
 
         fasta_sequence_with_description_0_sliced = FastaSequence('ACTG', description='existing description')[:1]
@@ -927,7 +927,7 @@ class Test__getitem__:
         fasta_sequence = nucleotide_good[0]
 
         fasta_sequence_sliced = fasta_sequence[2:4]
-        assert fasta_sequence_sliced._sequence == ['G', 'T'] == fasta_sequence._sequence[2:4]
+        assert fasta_sequence_sliced._sequence == nucleotide_good[1][2:4] == fasta_sequence._sequence[2:4]
         assert fasta_sequence_sliced.description == '[SLICE OF ORIGINAL: 2:4:None]'
 
     def get_slice_empty(self):
@@ -947,31 +947,33 @@ class Test__eq__:
     def test_other_fastasequence(self, nucleotide_good, aminoacid_good):
         fasta_sequence_nucleotide = nucleotide_good[0]
         fasta_sequence_aminoacid = aminoacid_good[0]
-        fasta_sequence_nucleotide_equal = FastaSequence('ACGTNU')
-        assert fasta_sequence_nucleotide == fasta_sequence_nucleotide
-        assert fasta_sequence_aminoacid == fasta_sequence_aminoacid
+        fasta_sequence_nucleotide_equal = FastaSequence(''.join(NUCLEOTIDE_LETTER_CODES_GOOD))
         assert fasta_sequence_nucleotide == fasta_sequence_nucleotide_equal
         assert fasta_sequence_nucleotide != fasta_sequence_aminoacid
 
     def test_other_str(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert fasta_sequence == 'ACGTNU'
-        assert fasta_sequence != 'UNTGCA'
-        assert fasta_sequence != 'ACGTN'
+        assert fasta_sequence == ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)
+        assert fasta_sequence != ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)[::-1]
+        assert fasta_sequence != ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)[:-1]
         assert fasta_sequence != ''
 
     def test_other_list(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert fasta_sequence == [LetterCode(letter_code) for letter_code in 'ACGTNU']
-        assert fasta_sequence != [LetterCode(letter_code) for letter_code in 'UNTGCA']
-        assert fasta_sequence != [LetterCode(letter_code) for letter_code in 'ACGTN']
+        assert fasta_sequence == [LetterCode(letter_code) for letter_code in
+                                  ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)]
+        assert fasta_sequence != [LetterCode(letter_code) for letter_code in
+                                  ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)[::-1]]
+        assert fasta_sequence != [LetterCode(letter_code) for letter_code in
+                                  ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)[:-1]]
         assert fasta_sequence != []
 
     def test_other_wrong_type(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
         assert fasta_sequence != 1
         assert fasta_sequence != 0
-        assert fasta_sequence != {letter_code: LetterCode(letter_code) for letter_code in 'ACGTNU'}
+        assert fasta_sequence != {letter_code: LetterCode(letter_code) for letter_code in
+                                  ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)}
         assert fasta_sequence != {}
         assert fasta_sequence != LetterCode('A')
 
@@ -987,7 +989,7 @@ class Test__len__:
 class Test__repr__:
     def test__repr__(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
-        assert repr(fasta_sequence) == 'FastaSequence(\'ACGTNU\')'
+        assert repr(fasta_sequence) == 'FastaSequence(\'%s\')' % ''.join(NUCLEOTIDE_LETTER_CODES_GOOD)
 
 
 class Test__str__:
