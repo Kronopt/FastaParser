@@ -2,12 +2,12 @@
 # coding: utf-8
 
 """
-Tests for FastaParser.LetterCode class
+Tests for fastaparser.LetterCode class
 """
 
 
 import pytest
-from FastaParser import LetterCode
+from fastaparser import LetterCode
 
 
 ##########

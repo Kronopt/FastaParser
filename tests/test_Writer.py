@@ -2,14 +2,14 @@
 # coding: utf-8
 
 """
-Tests for FastaParser.Writer class
+Tests for fastaparser.Writer class
 """
 
 
 import hashlib
 import os
 import pytest
-from FastaParser import Reader, Writer
+from fastaparser import Reader, Writer
 
 
 ##########
@@ -126,7 +126,7 @@ class Test_writefastas:
 class Test__repr__:
     def test__repr__(self, fasta_temporary_file):
         fasta_writer = Writer(fasta_temporary_file)
-        assert repr(fasta_writer) == 'FastaParser.FastaParser.Writer(%s)' % os.path.abspath(fasta_temporary_file.name)
+        assert repr(fasta_writer) == 'fastaparser.Writer(%s)' % os.path.abspath(fasta_temporary_file.name)
 
 
 # tested in Test__Init__:

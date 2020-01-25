@@ -2,13 +2,13 @@
 # coding: utf-8
 
 """
-Tests for FastaParser.Reader class
+Tests for fastaparser.Reader class
 """
 
 
 import os
 import pytest
-from FastaParser import Reader
+from fastaparser import Reader
 from .conftest import fasta_contents
 
 
@@ -375,7 +375,7 @@ class Test__next__:
 class Test__repr__:
     def test__repr__(self, fasta_empty):
         fasta_reader = Reader(fasta_empty)
-        assert repr(fasta_reader) == 'FastaParser.FastaParser.Reader(%s)' % os.path.abspath(fasta_empty.name)
+        assert repr(fasta_reader) == 'fastaparser.Reader(%s)' % os.path.abspath(fasta_empty.name)
 
 
 # tested in Test__Init__:

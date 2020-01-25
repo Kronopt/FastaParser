@@ -2,12 +2,12 @@
 # coding: utf-8
 
 """
-Tests for FastaParser.ParseDefinitionLine class
+Tests for fastaparser.ParseDefinitionLine class
 """
 
 
 import pytest
-from FastaParser import ParseDefinitionLine
+from fastaparser import ParseDefinitionLine
 
 
 ##########

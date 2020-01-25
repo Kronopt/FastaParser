@@ -8,16 +8,16 @@ Parses FASTA files with the Reader class (generates FastaSequence objects or pla
 Writes FASTA files with the Writer class (takes FastaSequence objects or headers + sequences as strings)
 
 ex:
-    > import FastaParser
+    > import fastaparser
     > with open('fasta_file.fasta') as fasta_file:
-    >   reader = FastaParser.Reader(fasta_file)
+    >   reader = fastaparser.Reader(fasta_file)
     >   [seq.id for seq in reader]
     ['HSBGPG', 'HSGLTH1']
 
 ex:
-    > import FastaParser
+    > import fastaparser
     > with open('fasta_file.fasta', 'w') as fasta_file:
-    >   writer = FastaParser.Writer(fasta_file)
+    >   writer = fastaparser.Writer(fasta_file)
     >   seqs = [('HSBGPG example sequence', 'TTCCAGGTGTGCCAATCCAGTCCATG'),
     >   ...     ('HSGLTH1 example sequence 2', 'GTACCTGACCTAACCGTGTGGACCTT')]
     > writer.writefastas(seqs)
@@ -35,4 +35,9 @@ __credits__ = ['Pedro HC David']
 __version__ = '1.0'
 
 
-from .FastaParser import *
+from .constants import *
+from .fastasequence import FastaSequence
+from .lettercode import LetterCode
+from .parsedefinitionline import ParseDefinitionLine
+from .reader import Reader
+from .writer import Writer

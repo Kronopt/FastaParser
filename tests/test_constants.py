@@ -7,7 +7,7 @@ Tests for FastaParser constants
 
 
 import pytest
-import FastaParser
+import fastaparser
 
 
 ##########
@@ -125,23 +125,23 @@ def aminoacid_letter_codes_all(aminoacid_letter_codes_good, aminoacid_letter_cod
 
 
 def test_NUCLEOTIDE_LETTER_CODES_GOOD(nucleotide_letter_codes_good):
-    assert FastaParser.NUCLEOTIDE_LETTER_CODES_GOOD == nucleotide_letter_codes_good
+    assert fastaparser.NUCLEOTIDE_LETTER_CODES_GOOD == nucleotide_letter_codes_good
 
 
 def test_NUCLEOTIDE_LETTER_CODES_DEGENERATE(nucleotide_letter_codes_degenerate):
-    assert FastaParser.NUCLEOTIDE_LETTER_CODES_DEGENERATE == nucleotide_letter_codes_degenerate
+    assert fastaparser.NUCLEOTIDE_LETTER_CODES_DEGENERATE == nucleotide_letter_codes_degenerate
 
 
 def test_NUCLEOTIDE_LETTER_CODES_COMPLEMENT(nucleotide_letter_codes_complement):
-    assert FastaParser.NUCLEOTIDE_LETTER_CODES_COMPLEMENT == nucleotide_letter_codes_complement
+    assert fastaparser.NUCLEOTIDE_LETTER_CODES_COMPLEMENT == nucleotide_letter_codes_complement
 
 
 def test_AMINOACID_LETTER_CODES_GOOD(aminoacid_letter_codes_good):
-    assert FastaParser.AMINOACID_LETTER_CODES_GOOD == aminoacid_letter_codes_good
+    assert fastaparser.AMINOACID_LETTER_CODES_GOOD == aminoacid_letter_codes_good
 
 
 def test_AMINOACID_LETTER_CODES_DEGENERATE(aminoacid_letter_codes_degenerate):
-    assert FastaParser.AMINOACID_LETTER_CODES_DEGENERATE == aminoacid_letter_codes_degenerate
+    assert fastaparser.AMINOACID_LETTER_CODES_DEGENERATE == aminoacid_letter_codes_degenerate
 
 
 def test_LETTER_CODES(nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate,
@@ -150,7 +150,7 @@ def test_LETTER_CODES(nucleotide_letter_codes_good, nucleotide_letter_codes_dege
         'nucleotide': (nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate),
         'aminoacid': (aminoacid_letter_codes_good, aminoacid_letter_codes_degenerate)
     }
-    assert FastaParser.LETTER_CODES == letter_codes
+    assert fastaparser.LETTER_CODES == letter_codes
 
 
 def test_LETTER_CODES_ALL(nucleotide_letter_codes_good, nucleotide_letter_codes_degenerate,
@@ -161,17 +161,17 @@ def test_LETTER_CODES_ALL(nucleotide_letter_codes_good, nucleotide_letter_codes_
         list(aminoacid_letter_codes_good) +
         list(aminoacid_letter_codes_degenerate)
     )
-    assert FastaParser.LETTER_CODES_ALL == letter_codes_all
+    assert fastaparser.LETTER_CODES_ALL == letter_codes_all
 
 
 def test_NUCLEOTIDE_LETTER_CODES_ALL(nucleotide_letter_codes_all):
-    assert FastaParser.NUCLEOTIDE_LETTER_CODES_ALL == nucleotide_letter_codes_all
+    assert fastaparser.NUCLEOTIDE_LETTER_CODES_ALL == nucleotide_letter_codes_all
 
 
 def test_AMINOACID_LETTER_CODES_ALL(aminoacid_letter_codes_all):
-    assert FastaParser.AMINOACID_LETTER_CODES_ALL == aminoacid_letter_codes_all
+    assert fastaparser.AMINOACID_LETTER_CODES_ALL == aminoacid_letter_codes_all
 
 
 def test_AMINOACIDS_NOT_IN_NUCLEOTIDES(nucleotide_letter_codes_all, aminoacid_letter_codes_all):
     aminoacids_not_in_nucleotides = aminoacid_letter_codes_all - nucleotide_letter_codes_all
-    assert FastaParser.AMINOACIDS_NOT_IN_NUCLEOTIDES == aminoacids_not_in_nucleotides
+    assert fastaparser.AMINOACIDS_NOT_IN_NUCLEOTIDES == aminoacids_not_in_nucleotides

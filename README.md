@@ -8,9 +8,9 @@ A simple python FASTA parser
 * Download this repo
 
 ```Python
->>> import FastaParser
+>>> import fastaparser
 >>> with open("fasta_file.fasta") as fasta_file:
-...     parser = FastaParser.Reader(fasta_file)
+...     parser = fastaparser.Reader(fasta_file)
 ...     for seq in parser:
 ...         print(seq.id, seq.description)
 

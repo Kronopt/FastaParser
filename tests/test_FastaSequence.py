@@ -2,12 +2,12 @@
 # coding: utf-8
 
 """
-Tests for FastaParser.FastaSequence class
+Tests for fastaparser.FastaSequence class
 """
 
 
 import pytest
-from FastaParser import FastaSequence, LetterCode, \
+from fastaparser import FastaSequence, LetterCode, \
     NUCLEOTIDE_LETTER_CODES_GOOD, AMINOACID_LETTER_CODES_GOOD, \
     NUCLEOTIDE_LETTER_CODES_DEGENERATE, AMINOACID_LETTER_CODES_DEGENERATE, \
     NUCLEOTIDE_LETTER_CODES_COMPLEMENT, AMINOACIDS_NOT_IN_NUCLEOTIDES
