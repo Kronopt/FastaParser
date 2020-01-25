@@ -35,5 +35,4 @@ jobs:
     #    coverage xml
     #    bash <(curl -s https://codecov.io/bash)  # do I need to do this?
 
-# TODO make install-dependencies-dev
 # TODO make coverage
