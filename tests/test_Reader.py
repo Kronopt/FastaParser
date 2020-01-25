@@ -9,7 +9,7 @@ Tests for fastaparser.Reader class.
 import os
 import pytest
 from fastaparser import Reader
-from .conftest import fasta_contents
+from conftest import fasta_contents
 
 
 ##########
