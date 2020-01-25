@@ -13,7 +13,7 @@ test:
 	python -m pytest
 
 lint:
-	python -m pylint FastaParser
+	python -m pylint fastaparser
 
 clean-tests:
 	rm -rf .pytest_cache/

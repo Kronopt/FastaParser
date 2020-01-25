@@ -20,7 +20,7 @@ python -m pytest
 goto:eof
 
 :lint
-python -m pylint FastaParser
+python -m pylint fastaparser
 goto:eof
 
 :clean-tests
