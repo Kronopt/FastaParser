@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-Tests for fastaparser.Writer class
+Tests for fastaparser.Writer class.
 """
 
 

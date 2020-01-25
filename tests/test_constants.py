@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-Tests for FastaParser constants
+Tests for FastaParser constants.
 """
 
 

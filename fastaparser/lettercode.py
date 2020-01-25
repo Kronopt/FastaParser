@@ -1,7 +1,9 @@
 #!python
 # coding: utf-8
 
-"""LetterCode - Represents a single nucleotide or aminoacid letter code."""
+"""
+LetterCode - Represents a single nucleotide or aminoacid letter code.
+"""
 
 import warnings
 from .constants import LETTER_CODES, LETTER_CODES_ALL, NUCLEOTIDE_LETTER_CODES_COMPLEMENT

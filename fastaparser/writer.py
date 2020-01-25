@@ -1,7 +1,9 @@
 #!python
 # coding: utf-8
 
-"""Writer - FASTA writer."""
+"""
+Writer - FASTA writer.
+"""
 
 import os
 from .fastasequence import FastaSequence

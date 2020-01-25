@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-Tests for fastaparser.ParseDefinitionLine class
+Tests for fastaparser.ParseDefinitionLine class.
 """
 
 

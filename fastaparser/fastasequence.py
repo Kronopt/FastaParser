@@ -1,7 +1,9 @@
 #!python
 # coding: utf-8
 
-"""FastaSequence - Represents a single DNA/RNA/aminoacid FASTA sequence."""
+"""
+FastaSequence - Represents a single DNA/RNA/aminoacid FASTA sequence.
+"""
 
 import warnings
 from .constants import LETTER_CODES, AMINOACIDS_NOT_IN_NUCLEOTIDES

@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-Pytest configuration
+Pytest configuration.
 """
 
 

@@ -1,7 +1,9 @@
 #!python
 # coding: utf-8
 
-"""Reader - FASTA parser/reader."""
+"""
+Reader - FASTA parser/reader.
+"""
 
 import os
 from collections import namedtuple

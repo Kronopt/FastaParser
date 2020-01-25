@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-Tests for fastaparser.FastaSequence class
+Tests for fastaparser.FastaSequence class.
 """
 
 

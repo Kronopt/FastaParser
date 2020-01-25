@@ -1,7 +1,9 @@
 #!python
 # coding: utf-8
 
-"""ParseDefinitionLine - Class intended to be extended by the Reader and Writer classes."""
+"""
+ParseDefinitionLine - Class intended to be extended by the Reader and Writer classes.
+"""
 
 
 class ParseDefinitionLine:
