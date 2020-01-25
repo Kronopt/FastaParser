@@ -98,4 +98,4 @@ disable=print-statement,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
-        relative-beyond-top-level
+
