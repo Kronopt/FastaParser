@@ -1,9 +1,13 @@
-.PHONY: help test clean-tests
+.PHONY: help install-dependencies test clean-tests
 
 help:
-	@echo "test               runs tests"
-	@echo "lint               run linter"
-	@echo "clean-tests        removes temp test files and folders"
+    @echo "install-dependencies     installs dependencies (includes development dependencies)"
+    @echo "test                     runs tests"
+    @echo "lint                     runs linter"
+    @echo "clean-tests        removes temp test files and folders"
+
+install-dependencies:
+    python -m pip install -r requirements-dev.txt
 
 test:
 	python -m pytest
