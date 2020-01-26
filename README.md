@@ -29,6 +29,7 @@ HSGLTH1 Human theta 1-globin gene
     * Authors
     * History
 * Conda package (?)
+* README
 
 #### Maybe
 * Identify FASTA ID's
