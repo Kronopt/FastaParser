@@ -2,7 +2,7 @@
 A python FASTA parser
 
 #### Install Dependencies
-* Python 3.8 (probably 2.7-3.8)
+* Python 3.5-3.8
 
 #### How to run
 * Download this repo
