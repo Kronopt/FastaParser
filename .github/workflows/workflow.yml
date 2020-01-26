@@ -33,8 +33,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Install dependencies
       run: |
@@ -45,6 +43,8 @@ jobs:
       run: make lint
 
     - name: Coverage (coverage)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
         make coverage
         python -m coverage xml
