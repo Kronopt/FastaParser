@@ -44,7 +44,7 @@ jobs:
 
     - name: Coverage (coverage)
       env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}  # defined in repository
       run: |
         make coverage
         python -m coverage xml
