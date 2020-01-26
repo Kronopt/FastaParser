@@ -18,11 +18,11 @@ lint:
 	python -m pylint fastaparser
 
 coverage:
-    python -m coverage run --source fastaparser -m pytest tests/ -q
-    python -m coverage report -m
+	python -m coverage run --source fastaparser -m pytest tests/ -q
+	python -m coverage report -m
 
 clean-tests:
 	rm -rf .pytest_cache/
 
 clean-coverage:
-    python -m coverage erase
+	python -m coverage erase
