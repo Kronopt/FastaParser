@@ -289,17 +289,20 @@ class Test_complement:
 class Test__eq__:
     def test_lettercode(self, nucleotide_good):
         assert nucleotide_good == LetterCode('A')
-        assert nucleotide_good != LetterCode('C')
+        assert nucleotide_good.__eq__(LetterCode('A'))
+        assert not nucleotide_good == LetterCode('C')
 
     def test_str(self, nucleotide_good):
         assert nucleotide_good == 'A'
+        assert nucleotide_good.__eq__('A')
         assert nucleotide_good == 'a'
-        assert nucleotide_good != 'C'
-        assert nucleotide_good != ''
+        assert not nucleotide_good == 'C'
+        assert not nucleotide_good == ''
 
-    def test_not_str_or_lettercode(self):
-        assert nucleotide_good != 1
-        assert nucleotide_good != []
+    def test_not_str_or_lettercode(self, nucleotide_good):
+        assert not nucleotide_good == 1
+        assert not nucleotide_good == []
+        assert not nucleotide_good.__eq__({})
 
 
 class Test__repr__:

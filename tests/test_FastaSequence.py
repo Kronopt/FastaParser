@@ -814,6 +814,18 @@ class Test_reverse:
             pytest.fail('FastaSequence.reverse() is not iterable.')
 
 
+class Test_update_sequence_type:
+    def test_update_sequence_type_update_letter_code_objects_not_bool(self, nucleotide_good):
+        fasta_sequence = nucleotide_good[0]
+        with pytest.raises(TypeError):
+            fasta_sequence._update_sequence_type('aminoacid', update_letter_code_objects=' ')
+        with pytest.raises(TypeError):
+            fasta_sequence._update_sequence_type('aminoacid', update_letter_code_objects=[])
+
+    # def test_update_sequence_type_good (already tested)
+    # def test_update_sequence_type_wrong_type (already tested)
+
+
 class Test__iter__:
     def test__iter__(self, nucleotide_good):
         fasta_sequence = nucleotide_good[0]
@@ -930,11 +942,11 @@ class Test__getitem__:
         assert fasta_sequence_sliced._sequence == nucleotide_good[1][2:4] == fasta_sequence._sequence[2:4]
         assert fasta_sequence_sliced.description == '[SLICE OF ORIGINAL: 2:4:None]'
 
-    def get_slice_empty(self):
+    def test_get_slice_empty(self):
         with pytest.raises(TypeError):
             FastaSequence('ACTG')[:0]
 
-    def get_item_wrong_type(self):
+    def test_get_item_wrong_type(self):
         with pytest.raises(TypeError):
             FastaSequence('ACTG').__getitem__('A')
         with pytest.raises(TypeError):
