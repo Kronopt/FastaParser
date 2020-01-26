@@ -25,4 +25,4 @@ clean-tests:
 	rm -rf .pytest_cache/
 
 clean-coverage:
-    rm -f .coverage
+    python -m coverage erase

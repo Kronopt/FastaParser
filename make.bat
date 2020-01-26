@@ -35,5 +35,5 @@ rmdir /s /q .pytest_cache
 goto:eof
 
 :clean-coverage
-del /q .coverage
+python -m coverage erase
 goto:eof
