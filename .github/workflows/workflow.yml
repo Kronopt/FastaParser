@@ -42,10 +42,8 @@ jobs:
     - name: Lint (pylint)
       run: make lint
 
-    #- name: Coverage (coverage)
-    #  run: |
-    #    coverage run --source fastaparser -m pytest
-    #    coverage xml
-    #    bash <(curl -s https://codecov.io/bash)  # do I need to do this?
-
-    # TODO make coverage
+    - name: Coverage (coverage)
+      run: |
+        make coverage
+        python -m coverage xml
+        bash <(curl -s https://codecov.io/bash)
