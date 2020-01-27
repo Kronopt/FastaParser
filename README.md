@@ -1,11 +1,5 @@
-# FastaParser (WORK IN PROGRESS)
+# FastaParser
 A python FASTA parser
-
-#### Install Dependencies
-* Python 3.5-3.8
-
-#### How to run
-* Download this repo
 
 ```Python
 >>> import fastaparser
@@ -20,11 +14,12 @@ HSGLTH1 Human theta 1-globin gene
 
 #### Work in Progress
 * PyPi package
-* Documentation
+* Documentation (readthedocs)
+    * Home
     * Installation
     * Usage
     * Examples
-    * API specification
+    * API Specification
     * Contributing
     * Authors
     * History
