@@ -11,6 +11,7 @@ echo lint                   runs linter
 echo coverage               runs test coverage
 echo build                  builds python package (sdist)
 echo build-test             tests build for errors and uploads to test.pypi.org
+echo release                builds and uploads python package to pypi.org
 echo.
 echo clean                  runs all cleaning functions
 echo clean-pyc              removes python file artifacts
@@ -45,6 +46,11 @@ goto:eof
 :build-test
 twine check dist/*
 twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+goto:eof
+
+:release
+call:build
+twine upload dist/*
 goto:eof
 
 :clean
