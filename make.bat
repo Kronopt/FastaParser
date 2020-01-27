@@ -10,6 +10,7 @@ echo test                   runs tests
 echo lint                   runs linter
 echo coverage               runs test coverage
 echo build                  builds python package (sdist)
+echo build-test             tests build for errors and uploads to test.pypi.org
 echo.
 echo clean                  runs all cleaning functions
 echo clean-pyc              removes python file artifacts
@@ -39,6 +40,11 @@ goto:eof
 call:clean-pyc
 call:clean-build
 python setup.py sdist bdist_wheel
+goto:eof
+
+:build-test
+twine check dist/*
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 goto:eof
 
 :clean

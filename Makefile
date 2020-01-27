@@ -1,4 +1,4 @@
-.PHONY: help install-dependencies test lint coverage build clean clean-pyc clean-tests clean-coverage clean-build
+.PHONY: help install-dependencies test lint coverage build build-test clean clean-pyc clean-tests clean-coverage clean-build
 
 help:
 	@echo ""
@@ -7,6 +7,7 @@ help:
 	@echo "lint                     runs linter"
 	@echo "coverage                 runs test coverage"
 	@echo "build                    builds python package (sdist)"
+	@echo "build-test               tests build for errors and uploads to test.pypi.org"
 	@echo ""
 	@echo "clean                    runs all cleaning functions"
 	@echo "clean-pyc                removes python file artifacts"
@@ -29,6 +30,10 @@ coverage:
 
 build: clean-pyc clean-build
 	python setup.py sdist bdist_wheel
+
+build-test:
+	twine check dist/*
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 clean: clean-pyc clean-tests clean-coverage clean-build
 
