@@ -33,6 +33,7 @@ http://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
 __version__ = '1.0'
+__license__ = 'GPLv3'
 
 
 from .constants import *
