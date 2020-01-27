@@ -15,7 +15,7 @@ $ pip install fastaparser
 ```
 
 ## Usage
-Generate python objets from FASTA files:
+Generate python objects from FASTA files:
 ```Python
 >>> import fastaparser
 >>> with open("fasta_file.fasta") as fasta_file:
