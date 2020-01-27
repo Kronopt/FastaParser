@@ -1,0 +1,12 @@
+# MkDocs configuration file
+
+site_name: FastaParser
+nav:
+    - Home: 'home.md'
+    - Installation: 'installation.md'
+    - Usage: 'usage.md'
+    - Examples: 'examples.md'
+    - API Specification: 'api.md'
+    - Contributing: 'contributing.md'
+    - Authors: 'authors.md'
+    - History: 'history.md'
