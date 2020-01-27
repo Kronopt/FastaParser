@@ -15,7 +15,10 @@ $ pip install fastaparser
 ```
 
 ## Usage
+
+### Read FASTA files
 Generate python objects from FASTA files:
+
 ```Python
 >>> import fastaparser
 >>> with open("fasta_file.fasta") as fasta_file:
@@ -52,6 +55,27 @@ Sequence: MAVMAPRTLLLLLSGALALTQTWAGSHSMRYFFTSVSRPGRGEPRFIAVGYVDDTQFVRFDSDAASQRM.
 
 Header: >sp|P15822|ZEP1_HUMAN Zinc finger protein 40 OS=Homo sapiens OX=9606 GN...
 Sequence: MPRTKQIHPRNLRDKIEEAQKELNGAEVSKKEILQAGVKGTSESLKGVKRKKIVAENHLKKIPKSPLRN...
+```
+
+### Write FASTA files
+Create FASTA files from FastaSequence objects:
+```Python
+>>> import fastaparser
+>>> with open("fasta_file.fasta", 'w') as fasta_file:
+        writer = fastaparser.Writer(fasta_file)
+        fasta_sequence = fastaparser.FastaSequence(
+            sequence='ACTGCTGCTAGCTAGC',
+            id='id123',
+            description='test sequence'
+        )
+        writer.writefasta(fasta_sequence)
+```
+or single header and sequence strings:
+```Python
+>>> import fastaparser
+>>> with open("fasta_file.fasta", 'w') as fasta_file:
+        writer = fastaparser.Writer(fasta_file)
+        writer.writefasta(('id123 test sequence', 'ACTGCTGCTAGCTAGC'))
 ```
 
 ## Documentation
