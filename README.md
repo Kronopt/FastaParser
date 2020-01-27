@@ -5,7 +5,6 @@
 [![downloads](https://img.shields.io/pypi/dm/fastaparser "pypi downloads")](https://pypi.org/project/fastaparser)
 [![build status](https://github.com/Kronopt/FastaParser/workflows/CI/badge.svg "build status")](https://github.com/Kronopt/FastaParser/actions?query=workflow%3ACI)
 [![coverage](https://codecov.io/gh/Kronopt/FastaParser/branch/master/graph/badge.svg "code coverage")](https://codecov.io/gh/Kronopt/FastaParser)
-[![known vulnerabilities](https://snyk.io/test/github/Kronopt/FastaParser/badge.svg?targetFile=requirements-dev.txt "known vulnerabilities")](https://snyk.io/test/github/Kronopt/FastaParser?targetFile=requirements-dev.txt)
 [![license](https://img.shields.io/pypi/l/fastaparser "license")](https://github.com/Kronopt/fastaparser/blob/master/LICENSE)
 
 A python FASTA parser
