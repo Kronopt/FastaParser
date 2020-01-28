@@ -7,7 +7,7 @@
 [![coverage](https://codecov.io/gh/Kronopt/FastaParser/branch/master/graph/badge.svg "code coverage")](https://codecov.io/gh/Kronopt/FastaParser)
 [![license](https://img.shields.io/pypi/l/fastaparser "license")](https://github.com/Kronopt/fastaparser/blob/master/LICENSE)
 
-A python FASTA parser
+A Python FASTA file Parser and Writer
 
 ## Installation
 ```sh
