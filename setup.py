@@ -15,9 +15,7 @@ except ImportError:
 
 with open('README.md', encoding='utf-8') as readme:
     DESCRIPTION = readme.read()
-    readme.seek(0)
-    next(readme)
-    DESCRIPTION_SHORT = next(readme).rstrip()  # 2nd line of README.md is the short description
+DESCRIPTION_SHORT = 'A Python FASTA file Parser and Writer'
 
 setup(
     name='fastaparser',
