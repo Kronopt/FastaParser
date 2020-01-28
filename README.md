@@ -1,17 +1,29 @@
 # FastaParser
 
-[![pypi](https://img.shields.io/pypi/v/fastaparser "pypi package")](https://pypi.org/project/fastaparser)
 [![python versions](https://img.shields.io/pypi/pyversions/fastaparser "supported python versions")](https://pypi.org/project/fastaparser)
-[![downloads](https://img.shields.io/pypi/dm/fastaparser "pypi downloads")](https://pypi.org/project/fastaparser)
 [![build status](https://github.com/Kronopt/FastaParser/workflows/CI/badge.svg "build status")](https://github.com/Kronopt/FastaParser/actions?query=workflow%3ACI)
 [![coverage](https://codecov.io/gh/Kronopt/FastaParser/branch/master/graph/badge.svg "code coverage")](https://codecov.io/gh/Kronopt/FastaParser)
 [![license](https://img.shields.io/pypi/l/fastaparser "license")](https://github.com/Kronopt/fastaparser/blob/master/LICENSE)
 
+[![pypi](https://img.shields.io/pypi/v/fastaparser "pypi package")](https://pypi.org/project/fastaparser)
+[![pypi downloads](https://img.shields.io/pypi/dm/fastaparser "pypi downloads")](https://pypi.org/project/fastaparser)
+
+[![anaconda](https://anaconda.org/kronopt/fastaparser/badges/version.svg "conda package")](https://anaconda.org/Kronopt/fastaparser)
+[![anaconda downloads](https://img.shields.io/conda/dn/Kronopt/fastaparser "anaconda downloads")](https://anaconda.org/Kronopt/fastaparser)
+
 A Python FASTA file Parser and Writer
 
 ## Installation
+
+With `pip`:
 ```sh
 $ pip install fastaparser
+```
+
+or `conda`:
+
+```sh
+$ conda install -c kronopt fastaparser
 ```
 
 ## Usage
@@ -79,7 +91,7 @@ or single header and sequence strings:
 ```
 
 ## Documentation
-Documentation for FastaParser is available here: [fastaparser.rtfd.io](https://fastaparser.readthedocs.io/en/latest/)
+Documentation for FastaParser is available here: [https://fastaparser.readthedocs.io/en/latest](https://fastaparser.readthedocs.io/en/latest/)
 
 ## To do
 * Documentation (readthedocs)
@@ -91,7 +103,6 @@ Documentation for FastaParser is available here: [fastaparser.rtfd.io](https://f
     * Contributing
     * Authors
     * History
-* Conda package (?)
 
 #### Maybe
 * Identify FASTA ID's
