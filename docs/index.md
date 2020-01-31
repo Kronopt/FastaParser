@@ -1,4 +1,4 @@
-### FastaParser
+# FastaParser
 
 [![python versions](https://img.shields.io/pypi/pyversions/fastaparser "supported python versions")](https://pypi.org/project/fastaparser)
 [![build status](https://github.com/Kronopt/FastaParser/workflows/CI/badge.svg "build status")](https://github.com/Kronopt/FastaParser/actions?query=workflow%3ACI)
