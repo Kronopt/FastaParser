@@ -15,7 +15,9 @@ A Python FASTA file Parser and Writer
 
 ## Installation
 
-With `pip`:
+At the command line,
+
+with `pip`:
 ```sh
 $ pip install fastaparser
 ```
@@ -95,14 +97,10 @@ Documentation for FastaParser is available here: [https://fastaparser.readthedoc
 
 ## To do
 * Documentation (readthedocs)
-    * Home
-    * Installation
     * Usage
     * Examples
     * API Specification
     * Contributing
-    * Authors
-    * History
 
 #### Maybe
 * Identify FASTA ID's
