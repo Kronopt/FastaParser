@@ -1,6 +1,7 @@
 pytest==5.*         # tests
 pylint==2.*         # style
 coverage==5.*       # coverage
+mkdocs==1.*         # docs
 twine               # pypi tools
 setuptools          # packaging
 wheel               # packaging

@@ -1,4 +1,4 @@
-.PHONY: help install-dependencies test lint coverage build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton conda-config-upload conda-build conda-clean-build
+.PHONY: help install-dependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton conda-config-upload conda-build conda-clean-build
 
 help:
 	@echo ""
@@ -6,6 +6,7 @@ help:
 	@echo "test                         runs tests"
 	@echo "lint                         runs linter"
 	@echo "coverage                     runs test coverage"
+	@echo "docs-test                    tests docs for build errors and serves them locally"
 	@echo "build                        builds python package (sdist)"
 	@echo "build-test                   tests build for errors and uploads to test.pypi.org"
 	@echo "release                      builds and uploads python package to pypi.org"
@@ -35,6 +36,9 @@ lint:
 coverage:
 	python -m coverage run --source fastaparser -m pytest tests/ -q
 	python -m coverage report -m
+
+docs-test:
+	mkdocs serve -s -f .mkdocs.yml
 
 build: clean-pyc clean-build
 	python setup.py sdist bdist_wheel
