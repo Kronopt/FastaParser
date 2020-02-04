@@ -16,20 +16,20 @@ class Reader(ParseDefinitionLine):
     """
     Parser/Reader for the given FASTA file.
     Iterates over the FASTA file using one of two parsing mechanisms:
+        'rich':
+            Returns FastaSequence objects (default).
+            Slower, but feature rich.
         'quick':
             Generates objects containing just the FASTA header and sequence attributes
             for each sequence in the FASTA file.
             Parses FASTA files faster but lacks some features.
-        'rich':
-            Returns FastaSequence objects (default).
-            Slower, but feature rich.
 
     Attributes
     ----------
     fasta_file : file object
         The FASTA file passed as parameter.
     sequences_type : 'nucleotide', 'aminoacid' or None
-        Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). Can be None if not known.
+        Indicates the type of sequences to expect ('nucleotide' or 'aminoacid'). Can be None if not known.
     infer_type: bool
         True if Reader was set to infer the sequence type, False otherwise.
     parse_method: 'rich' or 'quick'
@@ -39,7 +39,7 @@ class Reader(ParseDefinitionLine):
     ------
     TypeError
         When calling __init__, if fasta_file, sequences_type, infer_type or parse_method are of the wrong type.
-        When calling __init__, if fasta_file is not a file object or is closed.
+        When calling __init__, if fasta_file is not a file object, is closed or is not readable.
         When calling __iter__, if fasta_file is closed.
     """
     _PARSE_METHODS = ('rich', 'quick')
@@ -53,7 +53,7 @@ class Reader(ParseDefinitionLine):
         fasta_file : file object
             An opened file handle.
         sequences_type : 'nucleotide', 'aminoacid' or None, optional
-            Indicates the type of sequences to expect ('aminoacid' or 'nucleotide'). None if unknown.
+            Indicates the type of sequences to expect ('nucleotide' or 'aminoacid'). None if unknown.
         infer_type : bool, optional
             Indicates if Reader should try to infer aminoacid sequence type for each sequence.
             Can only identify aminoacid sequences.
@@ -68,7 +68,7 @@ class Reader(ParseDefinitionLine):
         ------
         TypeError
             If fasta_file, sequences_type, infer_type or parse_method are of the wrong type.
-            If fasta_file is not a file object or is closed.
+            If fasta_file is not a file object, is closed or is not readable.
         """
         # for 'quick' parse method
         self._fasta_sequence = namedtuple('Fasta', ['header', 'sequence'])
