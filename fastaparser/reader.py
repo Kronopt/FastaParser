@@ -51,7 +51,7 @@ class Reader(ParseDefinitionLine):
         Parameters
         ----------
         fasta_file : file object
-            An opened file handle.
+            An opened file handle for reading.
         sequences_type : 'nucleotide', 'aminoacid' or None, optional
             Indicates the type of sequences to expect ('nucleotide' or 'aminoacid'). None if unknown.
         infer_type : bool, optional
