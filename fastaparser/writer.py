@@ -13,6 +13,7 @@ from .parsedefinitionline import ParseDefinitionLine
 class Writer(ParseDefinitionLine):
     """
     Writer for the given FASTA file.
+    Writes FastaSequence objects or tuples of (header, sequence) to the given file.
 
     Attributes
     ----------
@@ -35,7 +36,7 @@ class Writer(ParseDefinitionLine):
     ------
     TypeError
         When calling __init__, if fasta_file is of the wrong type.
-        When calling __init__, if fasta_file is not a file object or is closed.
+        When calling __init__, if fasta_file is not a file object, is closed or is not writable.
         When calling writefasta(), if fasta_sequence is of the wrong type.
         When calling writefastas(), if fasta_sequences is not iterable.
     """
@@ -53,7 +54,7 @@ class Writer(ParseDefinitionLine):
         ------
         TypeError
             If fasta_file is of the wrong type.
-            If fasta_file is not a file object or is closed.
+            If fasta_file is not a file object, is closed or is not writable.
         """
         # assume it's a file object
         if hasattr(fasta_file, "writelines") and hasattr(fasta_file, 'closed') and hasattr(fasta_file, 'writable'):
@@ -72,6 +73,7 @@ class Writer(ParseDefinitionLine):
     def writefasta(self, fasta_sequence):
         """
         Writes a single FASTA sequence to the provided file.
+        Open file with mode 'a' to append sequences to an existing FASTA file.
 
         Parameters
         ----------
@@ -109,6 +111,7 @@ class Writer(ParseDefinitionLine):
         """
         Writes multiple FASTA sequences to the provided file.
         Simply calls writefasta() for each object in fasta_sequences.
+        Open the file with mode 'a' if you want to append multiple sequences to an existing FASTA file.
 
         Parameters
         ----------
