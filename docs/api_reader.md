@@ -3,9 +3,9 @@ Parser/Reader for a given FASTA file.
 Iterates over the FASTA file using one of two parsing mechanisms:
 
 * **rich**:
-Returns `FastaSequence` objects (default). Slower, but feature rich.
+Returns [`FastaSequence`](api_fastasequence.md) objects (default). Slower, but feature rich.
 * **quick**:
-Generates objects containing just the FASTA header and sequence attributes
+Generates objects containing just the FASTA `header` and `sequence` attributes
 for each sequence in the FASTA file.
 Parses FASTA files faster but lacks some features.
 
@@ -20,7 +20,7 @@ fastaparser.Reader(fasta_file, sequences_type=None, infer_type=False, parse_meth
 | fasta_file | file object | | An opened file handle (for reading). **Must be provided** |
 | sequences_type | 'nucleotide', 'aminoacid' or None | None | Indicates the type of sequences to expect. `None` if unknown. **Optional** |
 | infer_type | bool | False | Indicates if `Reader` should try to infer aminoacid sequence type for each sequence. Can only identify aminoacid sequences. **Optional** |
-| parse_method | 'rich' or 'quick' | 'rich' | Parse method to use. `'quick'` parsing method just parses the header and the sequence into individual properties, so it's much faster and less memory intensive. If selected, `sequences_type` and `infer_type` parameters are ignored. `'rich'` implements more functionality (`FastaSequence`), but is slower. **Optional** |
+| parse_method | 'rich' or 'quick' | 'rich' | Parse method to use. `'quick'` parsing method just parses the header and the sequence into individual properties, so it's much faster and less memory intensive. If selected, `sequences_type` and `infer_type` parameters are ignored. `'rich'` implements more functionality ([`FastaSequence`](api_fastasequence.md)), but is slower. **Optional** |
 
 #### Raises
 **TypeError**

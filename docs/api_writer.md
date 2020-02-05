@@ -1,6 +1,6 @@
 # fastaparser.Writer
 Writer for the given FASTA file.
-Writes `FastaSequence` objects or tuples of (`header`, `sequence`) to the given file.
+Writes [`FastaSequence`](api_fastasequence.md) objects or tuples of (`header`, `sequence`) to the given file.
 
 ## Parameters
 The Writer class can be instantiated with the following parameter
@@ -37,7 +37,7 @@ Writer.writefasta(fasta_sequence)
 
 | Parameter | Type / Value | Default | Description |
 |:---:|:---:|:---:|---|
-| fasta_sequence | FastaSequence or (header: str, sequence: str) | | A FASTA sequence is built from the data contained in the provided `FastaSequence` object or the tuple of (`header`, `sequence`). `header` may contain or not the starting `'>'`. `header` can be an empty string. `sequence` must be a non empty string. **Must be provided** |
+| fasta_sequence | [FastaSequence](api_fastasequence.md) or (header: str, sequence: str) | | A FASTA sequence is built from the data contained in the provided [`FastaSequence`](api_fastasequence.md) object or the tuple of (`header`, `sequence`). `header` may contain or not the starting `'>'`. `header` can be an empty string. `sequence` must be a non empty string. **Must be provided** |
 
 #### Raises
 **TypeError**
@@ -55,7 +55,7 @@ Writer.writefastas(fasta_sequences)
 
 | Parameter | Type / Value | Default | Description |
 |:---:|:---:|:---:|---|
-| fasta_sequence | iterable of FastaSequence or iterable of (header: str, sequence: str) | | FASTA sequences are built from the data contained in the provided `FastaSequence` objects or the tuples of (`header`, `sequence`). `header`s may contain or not the starting `'>'`. `header`s can be empty strings. `sequence`s must be non empty strings. **Must be provided** |
+| fasta_sequence | iterable of [FastaSequence](api_fastasequence.md) or iterable of (header: str, sequence: str) | | FASTA sequences are built from the data contained in the provided [`FastaSequence`](api_fastasequence.md) objects or the tuples of (`header`, `sequence`). `header`s may contain or not the starting `'>'`. `header`s can be empty strings. `sequence`s must be non empty strings. **Must be provided** |
 
 #### Raises
 **TypeError**

@@ -27,7 +27,7 @@ Instances of the FastaSequence class have the following attributes
 |:---:|:---:|:---:|---|
 | id | str | No | ID portion of the definition line (header). Can be empty |
 | description | str | No | Description portion of the definition line (header). Can be empty |
-| sequence | list(LetterCode) | No | Sequence |
+| sequence | list([LetterCode](api_lettercode.md)) | No | Sequence |
 | sequence_type | 'nucleotide', 'aminoacid' or None | Yes | Indicates the sequence type. Can be `None` if not known |
 | inferred_type | bool | No | `True` if `FastaSequence` inferred the sequence type, `False` otherwise.
 
@@ -38,10 +38,10 @@ Instances of the FastaSequence class have the following methods
 Returns a new `FastaSequence` object containing the complementary sequence (ideally, of a nucleotide sequence).
 Description is updated to mention the changes relative to the original sequence.
 
-Non-nucleotide `LetterCodes` don't have a complement and, therefore, stay the same.
+Non-nucleotide letter codes don't have a complement and, therefore, stay the same.
 In order not to impose the setting of `sequence_type` as `'nucleotide'`, this method will work for any sequence and
-`LetterCode` (as long as `sequence_type` is not `'aminoacid'`), which has the side effect of returning nonsensical
-results when `LetterCodes` are not nucleotides.
+[`LetterCode`](api_lettercode.md) (as long as `sequence_type` is not `'aminoacid'`), which has the side effect of returning nonsensical
+results when letter codes are not nucleotides.
 
 Ex: For aminoacid letter codes that overlap with nucleotide letter codes, the output will be the complement of
 the nucleotide represented by the same letter code, which makes no sense.
@@ -57,7 +57,7 @@ FastaSequence.complement(reverse=False)
 #### Returns
 **FastaSequence**
 
-Complement of the current nucleotide `FastaSequence`. Non-nucleotide `LetterCodes` will stay the same.
+Complement of the current nucleotide `FastaSequence`. Non-nucleotide [`LetterCode`](api_lettercode.md) will stay the same.
 
 #### Raises
 **TypeError**
@@ -200,7 +200,7 @@ FastaSequence.formatted_fasta()
 FASTA properly formatted.
 
 ### sequence_as_string
-Returns the sequence as string. Converts the list of `LetterCode` objects to a single string.
+Returns the sequence as string. Converts the list of [`LetterCode`](api_lettercode.md) objects to a single string.
 
 ```Python
 FastaSequence.sequence_as_string()
