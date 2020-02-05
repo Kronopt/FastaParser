@@ -100,7 +100,6 @@ Documentation for FastaParser is available here: [https://fastaparser.readthedoc
 * Documentation (readthedocs)
     * Usage
     * Examples
-    * API Specification
     * Contributing
 
 #### Maybe
