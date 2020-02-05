@@ -21,7 +21,7 @@ class LetterCode:
     letter_code : str
         Upper case letter code.
     letter_type : str or None
-        'nucleotide' or 'aminoacid. None if there is no information about sequence type.
+        'nucleotide' or 'aminoacid'. None if there is no information about sequence type.
     description : str
         Description or nucleotide/aminoacid name of letter code (can be an empty string).
     degenerate : bool or None
@@ -58,7 +58,7 @@ class LetterCode:
         letter_code : str
             Letter code.
         letter_type : 'nucleotide', 'aminoacid' or None, optional
-            'nucleotide' or 'aminoacid' type sequence, None if there is no information.
+            'nucleotide' or 'aminoacid' type letter code, None if there is no information.
 
         Raises
         ------

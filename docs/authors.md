@@ -1,3 +1,3 @@
 # Author and Maintainer
 
-[Kronopt](https://github.com/Kronopt)
+## [Kronopt](https://github.com/Kronopt)

@@ -6,7 +6,12 @@ nav:
     - Installation: 'installation.md'
     - Usage: 'usage.md'
     - Examples: 'examples.md'
-    - API Specification: 'api.md'
+    - API Specification:
+        - 'fastaparser.Reader': 'api_reader.md'
+        - 'fastaparser.Writer': 'api_writer.md'
+        - 'fastaparser.FastaSequence': 'api_fastasequence.md'
+        - 'fastaparser.LetterCode': 'api_lettercode.md'
+        - 'constants': 'api_constants.md'
     - Contributing: 'contributing.md'
     - Authors: 'authors.md'
     - History: 'history.md'

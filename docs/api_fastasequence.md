@@ -1,127 +1,3 @@
-# fastaparser.Reader
-Parser/Reader for a given FASTA file.
-Iterates over the FASTA file using one of two parsing mechanisms:
-
-* **rich**:
-Returns `FastaSequence` objects (default). Slower, but feature rich.
-* **quick**:
-Generates objects containing just the FASTA header and sequence attributes
-for each sequence in the FASTA file.
-Parses FASTA files faster but lacks some features.
-
-## Parameters
-The Reader class can be instantiated with the following parameters
-```Python
-fastaparser.Reader(fasta_file, sequences_type=None, infer_type=False, parse_method='rich')
-```
-
-| Parameter | Type / Value | Default | Description|
-|---|---|---|---|
-| fasta_file | file object | | An opened file handle (for reading). **Must be provided** |
-| sequences_type | 'nucleotide', 'aminoacid' or None | None | Indicates the type of sequences to expect. `None` if unknown. **Optional** |
-| infer_type | bool | False | Indicates if `Reader` should try to infer aminoacid sequence type for each sequence. Can only identify aminoacid sequences. **Optional** |
-| parse_method | 'rich' or 'quick' | 'rich' | Parse method to use. `'quick'` parsing method just parses the header and the sequence into individual properties, so it's much faster and less memory intensive. If selected, `sequences_type` and `infer_type` parameters are ignored. `'rich'` implements more functionality (`FastaSequence`), but is slower. **Optional** |
-
-### Raises
-Errors that can occur when instantiating a Reader class
-
-**TypeError**
-
-* If `fasta_file`, `sequences_type`, `infer_type` or `parse_method` are of the wrong type.
-* If `fasta_file` is not a file object, is closed or is not readable.
-
-## Attributes
-Instances of the Reader class have the following attributes
-
-| Attribute | Type / Value | Editable | Description |
-|---|---|---|---|
-| fasta_file | file object | No | The FASTA file passed as parameter |
-| sequences_type | 'nucleotide', 'aminoacid' or None | No | Indicates the type of sequences to expect. Can be `None` if not known |
-| infer_type | bool | No | `True` if `Reader` was set to infer the sequence type, `False` otherwise |
-| parse_method | 'rich' or 'quick' | No | Parse method used |
-
-## Special Methods
-* \_\_iter__
-* \_\_next__
-* \_\_repr__
-
-
-
-# fastaparser.Writer
-Writer for the given FASTA file.
-Writes `FastaSequence` objects or tuples of (`header`, `sequence`) to the given file.
-
-## Parameters
-The Writer class can be instantiated with the following parameter
-```Python
-fastaparser.Writer(fasta_file)
-```
-
-| Parameter | Type / Value | Default | Description|
-|---|---|---|---|
-| fasta_file | file object | | An opened file handle (for writing). **Must be provided** |
-
-### Raises
-Errors that can occur when instantiating a Writer class
-
-**TypeError**
-
-* If `fasta_file` is of the wrong type.
-* If `fasta_file` is not a file object, is closed or is not writable.
-
-## Attributes
-Instances of the Writer class have the following attribute
-
-| Attribute | Type / Value | Editable | Description |
-|---|---|---|---|
-| fasta_file | file object | No | The FASTA file passed as parameter |
-
-## Methods
-Instances of the Writer class have the following methods
-
-### writefasta
-Writes a single FASTA sequence to the provided file. Open the file with mode `'a'` if you want to append sequences to an existing FASTA file.
-
-```Python
-Writer.writefasta(fasta_sequence)
-```
-
-| Parameter | Type / Value | Default | Description |
-|---|---|---|---|
-| fasta_sequence | FastaSequence or (header: str, sequence: str) | | A FASTA sequence is built from the data contained in the provided `FastaSequence` object or the tuple of (`header`, `sequence`). `header` may contain or not the starting `'>'`. `header` can be an empty string. `sequence` must be a non empty string. **Must be provided** |
-
-#### Raises
-Errors that can occur when calling Writer.writefasta
-
-**TypeError**
-
-* If `fasta_sequence` is of the wrong type.
-
-### writefastas
-Writes multiple FASTA sequences to the provided file.
-Simply calls Writer.writefasta for each object in `fasta_sequences`.
-Open the file with mode `'a'` if you want to append multiple sequences to an existing FASTA file.
-
-```Python
-Writer.writefastas(fasta_sequences)
-```
-
-| Parameter | Type / Value | Default | Description |
-|---|---|---|---|
-| fasta_sequence | iterable of FastaSequence or iterable of (header: str, sequence: str) | | FASTA sequences are built from the data contained in the provided `FastaSequence` objects or the tuples of (`header`, `sequence`). `header`s may contain or not the starting `'>'`. `header`s can be empty strings. `sequence`s must be non empty strings. **Must be provided** |
-
-#### Raises
-Errors that can occur when calling Writer.writefastas
-
-**TypeError**
-
-* If `fasta_sequences` is not iterable.
-
-## Special Methods
-* \_\_repr__
-
-
-
 # fastaparser.FastaSequence
 Represents one single FASTA sequence.
 
@@ -132,16 +8,14 @@ fastaparser.FastaSequence(sequence, id_='', description='', sequence_type=None, 
 ```
 
 | Parameter | Type / Value | Default | Description|
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | sequence | str | | String of characters representing a DNA, RNA or aminoacid sequence. Cannot be empty. **Must be provided** |
 | id_ | str | '' | ID portion of the definition line (header). '>' and newlines will be removed, if any. Spaces will be converted to '_'. Can be an empty string. **Optional** |
 | description | str | '' | Description portion of the definition line (header). Newlines will be removed, if any. Can be an empty string. **Optional** |
 | sequence_type | 'nucleotide', 'aminoacid' or None | None | Indicates the sequence type. If not defined. **Optional** |
 | infer_type | bool | False | Indicates if `FastaSequence` should try to infer aminoacid sequence type. If `True`, `FastaSequence` will analyse the whole sequence and, in the worst case scenario, can only identify aminoacid sequences. **Optional** |
 
-### Raises
-Errors that can occur when instantiating a FastaSequence class
-
+#### Raises
 **TypeError**
 
 * If `sequence`, `id_`, `description`, `sequence_type` or `infer_type` are of the wrong type.
@@ -150,7 +24,7 @@ Errors that can occur when instantiating a FastaSequence class
 Instances of the FastaSequence class have the following attributes
 
 | Attribute | Type / Value | Editable | Description |
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | id | str | No | ID portion of the definition line (header). Can be empty |
 | description | str | No | Description portion of the definition line (header). Can be empty |
 | sequence | list(LetterCode) | No | Sequence |
@@ -177,7 +51,7 @@ FastaSequence.complement(reverse=False)
 ```
 
 | Parameter | Type / Value | Default | Description |
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | reverse | bool | False | If sequence should be reversed. **Optional** |
 
 #### Returns
@@ -186,8 +60,6 @@ FastaSequence.complement(reverse=False)
 Complement of the current nucleotide `FastaSequence`. Non-nucleotide `LetterCodes` will stay the same.
 
 #### Raises
-Errors that can occur when calling FastaSequence.complement
-
 **TypeError**
 
 * If `sequence_type` is `'aminoacid'`.
@@ -206,7 +78,7 @@ FastaSequence.gc_content(as_percentage=False)
 ```
 
 | Parameter | Type / Value | Default | Description |
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | as_percentage | bool | False | Indicates whether the computed value should be returned as a percentage instead of the default ratio. **Optional** |
 
 #### Returns
@@ -215,8 +87,6 @@ FastaSequence.gc_content(as_percentage=False)
 GC content of sequence.
 
 #### Raises
-Errors that can occur when calling FastaSequence.gc_content
-
 **TypeError**
 
 * If `sequence_type` is `'aminoacid'`.
@@ -240,8 +110,6 @@ FastaSequence.at_gc_ratio()
 AT/GC ratio of sequence.
 
 #### Raises
-Errors that can occur when calling FastaSequence.at_gc_ratio
-
 **TypeError**
 
 * If `sequence_type` is `'aminoacid'`.
@@ -256,7 +124,7 @@ FastaSequence.count_letter_codes(letter_codes=None)
 ```
 
 | Parameter | Type / Value | Default | Description |
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | letter_codes | iterable or None | None | Iterable of all letter codes to count. **Optional** |
 
 #### Returns
@@ -265,8 +133,6 @@ FastaSequence.count_letter_codes(letter_codes=None)
 Counts for every letter code in `letter_codes` or all letter codes in the sequence if `letter_codes` is not specified.
 
 #### Raises
-Errors that can occur when calling FastaSequence.count_letter_codes
-
 **TypeError**
 
 * If `letter_codes` is neither an `iterable` or `None`.
@@ -284,8 +150,6 @@ FastaSequence.count_letter_codes_degenerate()
 Counts for every degenerate letter code in the sequence.
 
 #### Raises
-Errors that can occur when calling FastaSequence.count_letter_codes_degenerate
-
 **TypeError**
 
 * If `sequence_type` is not explicitly defined.
@@ -310,7 +174,7 @@ FastaSequence.formatted_sequence(max_characters_per_line=70)
 ```
 
 | Parameter | Type / Value | Default | Description |
-|---|---|---|---|
+|:---:|:---:|:---:|---|
 | max_characters_per_line | int | 70 | Maximum number of characters per line. This value should not go above 80, as per the FASTA specification. A very low value is also not recommended. **Optional** |
 
 #### Returns
@@ -319,8 +183,6 @@ FastaSequence.formatted_sequence(max_characters_per_line=70)
 Returns a FASTA sequence properly formatted.
 
 #### Raises
-Errors that can occur when calling FastaSequence.formatted_sequence
-
 **TypeError**
 
 * If `max_characters_per_line` is not an `int`.
@@ -373,8 +235,8 @@ FastaSequence.from_fastasequence(fastasequence)
 ```
 
 | Parameter | Type / Value | Default | Description |
-|---|---|---|---|
-| fastasequence | FastaSequence | | FastaSequence object. **Must be provided** |
+|:---:|:---:|:---:|---|
+| fastasequence | FastaSequence | | `FastaSequence` object. **Must be provided** |
 
 #### Returns
 **FastaSequence**
@@ -382,8 +244,6 @@ FastaSequence.from_fastasequence(fastasequence)
 Copy of `fastasequence` (`FastaSequence` object).
 
 #### Raises
-Errors that can occur when calling FastaSequence.from_fastasequence
-
 **TypeError**
 
 * If `fastasequence` is not a `FastaSequence`.
@@ -397,4 +257,3 @@ Errors that can occur when calling FastaSequence.from_fastasequence
 * \_\_len__
 * \_\_repr__
 * \_\_str__
-
