@@ -146,7 +146,7 @@ class FastaSequence:
         Returns
         -------
         FastaSequence
-            Copy of fastasequence FastaSequence object
+            Copy of fastasequence FastaSequence object.
 
         Raises
         ------
@@ -265,7 +265,7 @@ class FastaSequence:
         Returns
         -------
         float
-            GC content of sequence
+            GC content of sequence.
 
         Raises
         ------
@@ -302,7 +302,7 @@ class FastaSequence:
         Returns
         -------
         float
-            AT/GC ratio of sequence
+            AT/GC ratio of sequence.
 
         Raises
         ------
@@ -344,7 +344,7 @@ class FastaSequence:
         -------
         dict
             Counts for every letter code in letter_codes or all letter codes in the sequence
-            if letter_codes is not specified
+            if letter_codes is not specified.
 
         Raises
         ------
@@ -363,7 +363,7 @@ class FastaSequence:
         Returns
         -------
         dict
-            Counts for every degenerate letter code in the sequence
+            Counts for every degenerate letter code in the sequence.
 
         Raises
         ------
@@ -383,7 +383,7 @@ class FastaSequence:
         Returns
         -------
         str
-            FASTA definition line properly formatted
+            FASTA definition line properly formatted.
         """
         return '>%s %s' % (self._id, self._description) if self._description else '>' + self._id
 
@@ -402,7 +402,7 @@ class FastaSequence:
         Returns
         -------
         str
-            FASTA sequence properly formatted
+            FASTA sequence properly formatted.
 
         Raises
         ------
@@ -429,7 +429,7 @@ class FastaSequence:
         Returns
         -------
         str
-            FASTA properly formatted
+            FASTA properly formatted.
         """
         return self.formatted_definition_line() + '\n' + self.formatted_sequence()
 
@@ -441,7 +441,7 @@ class FastaSequence:
         Returns
         -------
         str
-            Sequence as string
+            Sequence as string.
         """
         return ''.join(map(str, self._sequence))
 
@@ -453,7 +453,7 @@ class FastaSequence:
         Returns
         -------
         iterator
-            Iterator over the reversed sequence
+            Iterator over the reversed sequence.
         """
         return self.__reversed__()
 
@@ -466,7 +466,7 @@ class FastaSequence:
         sequence_type : 'nucleotide', 'aminoacid' or None
             'nucleotide' or 'aminoacid' type sequence, None if there is no information.
         update_letter_code_objects : bool
-            Should LetterCode objects be updated with sequence_type or not
+            Should LetterCode objects be updated with sequence_type or not.
 
         Raises
         ------
@@ -524,7 +524,7 @@ class FastaSequence:
         Returns
         -------
         'aminoacid' or existing value (can be None)
-            Inferred type 'aminoacid', existing value otherwise
+            Inferred type 'aminoacid', existing value otherwise.
         """
         for letter_code in string_sequence:
             if letter_code in AMINOACIDS_NOT_IN_NUCLEOTIDES:
@@ -578,9 +578,9 @@ class FastaSequence:
         Returns
         -------
         LetterCode, FastaSequence
-            LetterCode at given index
+            LetterCode at given index.
             or
-            FastaSequence with a sliced sequence of LetterCode objects
+            FastaSequence with a sliced sequence of LetterCode objects.
         """
         if isinstance(item, int):
             return self._sequence[item]

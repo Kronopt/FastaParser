@@ -12,7 +12,3 @@
 [![anaconda downloads](https://img.shields.io/conda/dn/Kronopt/fastaparser "anaconda downloads")](https://anaconda.org/Kronopt/fastaparser)
 
 A Python FASTA file Parser and Writer
-
-
-
-(Documentation in development)
