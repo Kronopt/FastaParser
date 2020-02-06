@@ -24,7 +24,6 @@ $ pip install fastaparser
 ```
 
 or `conda`:
-
 ```sh
 $ conda install -c kronopt fastaparser
 ```
@@ -44,7 +43,9 @@ Generate python objects from FASTA files:
             print('Description:', seq.description)
             print('Sequence:', seq.sequence_as_string())
             print()
-
+```
+output:
+```
 ID: sp|P04439|HLAA_HUMAN
 Description: HLA class I histocompatibility antigen, A alpha chain OS=Homo sapi...
 Sequence: MAVMAPRTLLLLLSGALALTQTWAGSHSMRYFFTSVSRPGRGEPRFIAVGYVDDTQFVRFDSDAASQRM...
@@ -64,7 +65,9 @@ or just parse FASTA headers and sequences, which is much faster but less feature
             print('Header:', seq.header)
             print('Sequence:', seq.sequence)
             print()
-
+```
+output:
+```
 Header: >sp|P04439|HLAA_HUMAN HLA class I histocompatibility antigen, A alpha c...
 Sequence: MAVMAPRTLLLLLSGALALTQTWAGSHSMRYFFTSVSRPGRGEPRFIAVGYVDDTQFVRFDSDAASQRM...
 
@@ -98,7 +101,6 @@ Documentation for FastaParser is available here: [https://fastaparser.readthedoc
 
 ## To do
 * Documentation (readthedocs)
-    * Usage
     * Examples
     * Contributing
 

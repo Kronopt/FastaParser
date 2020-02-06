@@ -4,14 +4,16 @@ site_name: FastaParser
 nav:
     - Home: 'index.md'
     - Installation: 'installation.md'
-    - Usage: 'usage.md'
+    - Usage:
+        - 'usage.md'
+        - 'usage_representing_fasta.md'
     - Examples: 'examples.md'
     - API Specification:
-        - 'fastaparser.Reader': 'api_reader.md'
-        - 'fastaparser.Writer': 'api_writer.md'
-        - 'fastaparser.FastaSequence': 'api_fastasequence.md'
-        - 'fastaparser.LetterCode': 'api_lettercode.md'
-        - 'constants': 'api_constants.md'
+        - 'api_reader.md'
+        - 'api_writer.md'
+        - 'api_fastasequence.md'
+        - 'api_lettercode.md'
+        - 'api_constants.md'
     - Contributing: 'contributing.md'
     - Authors: 'authors.md'
     - History: 'history.md'
