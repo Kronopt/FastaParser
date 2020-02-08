@@ -18,15 +18,15 @@ assignees: ''
 Describe the bug as precisely as possible.
 
 **Steps to Reproduce**
-List the steps that lead to the bug.
+List the steps that lead to the bug. Include code snippets.
 1. ...
 2. ...
 
 **Expected behavior**
 Describe what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Error Traceback**
+If applicable, show the full error traceback.
 
 **Additional context**
 Add any other context about the problem.
