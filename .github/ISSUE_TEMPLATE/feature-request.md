@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest a new feature for FastaParser
-title: ''
+title: "[Feature]"
 labels: enhancement
 assignees: ''
 
