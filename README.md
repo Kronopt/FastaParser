@@ -100,14 +100,9 @@ or single header and sequence strings:
 Documentation for FastaParser is available here: [https://fastaparser.readthedocs.io/en/latest](https://fastaparser.readthedocs.io/en/latest/)
 
 ## To do
-* Documentation (readthedocs)
-    * Examples
-    * Contributing
-
-#### Maybe
 * Identify FASTA ID's
 * FASTAID class, to then return in the id property of FastaSequence
-* FASTQ parser
 * Per fasta sequence, show warning if there are characters not in the FASTA specification
 * Way to disable warnings
 * Allow setting of id/description
+* FASTQ parser
