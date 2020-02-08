@@ -14,7 +14,9 @@ nav:
         - 'api_fastasequence.md'
         - 'api_lettercode.md'
         - 'api_constants.md'
-    - Contributing: 'contributing.md'
+    - Contributing:
+        - 'contributing.md'
+        - 'contributing_dev_env.md'
     - Authors: 'authors.md'
     - History: 'history.md'
 theme: readthedocs
