@@ -13,9 +13,9 @@ try:
 except ImportError:
     from distutils.core import setup
 
-with open('README.md', encoding='utf-8') as readme:
-    DESCRIPTION = readme.read()
-DESCRIPTION_SHORT = 'A Python FASTA file Parser and Writer'
+with open('README.md', encoding='utf-8') as readme, open('docs/history.md', encoding='utf-8') as history:
+    DESCRIPTION = readme.read() + '\n#' + history.read()
+DESCRIPTION_SHORT = 'A Python FASTA file Parser and Writer.'
 
 setup(
     name='fastaparser',
@@ -31,7 +31,7 @@ setup(
     package_dir={'fastaparser': 'fastaparser'},
     keywords='fasta parser',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',

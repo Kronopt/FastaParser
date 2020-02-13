@@ -12,4 +12,9 @@
 [![anaconda](https://anaconda.org/kronopt/fastaparser/badges/version.svg "conda package")](https://anaconda.org/Kronopt/fastaparser)
 [![anaconda downloads](https://img.shields.io/conda/dn/Kronopt/fastaparser "anaconda downloads")](https://anaconda.org/Kronopt/fastaparser)
 
-A Python FASTA file Parser and Writer
+A Python FASTA file Parser and Writer.
+
+The FASTA file format is a standard text-based format for representing nucleotide and aminoacid sequences
+(usual file extensions include: .fasta, .fna, .ffn, .faa and .frn).
+FastaParser is able to parse such files and extract the biological sequences within into Python objects.
+It can also handle and manipulate such sequences as well as write sequences to new or existing FASTA files.
