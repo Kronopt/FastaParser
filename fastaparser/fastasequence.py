@@ -374,7 +374,7 @@ class FastaSequence:
             return {letter: counts for letter, counts in self._counts.items()
                     if letter in LETTER_CODES[self._sequence_type][1]}
         raise TypeError('To count degenerate letter codes the sequence_type must be '
-                        'explicitly \'%s\'' % ('\' or \''.join(LETTER_CODES),))
+                        'explicitly \'%s\'' % '\' or \''.join(LETTER_CODES))
 
     def formatted_definition_line(self):
         """
@@ -477,7 +477,7 @@ class FastaSequence:
             self._sequence_type = sequence_type
             self._inferred_type = False
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
+            raise TypeError('sequence_type must be one of: \'%s\' or None' % '\', \''.join(LETTER_CODES))
         if isinstance(update_letter_code_objects, bool):
             if update_letter_code_objects:
                 for letter_code_object in self._sequence:  # update LetterCode objects
