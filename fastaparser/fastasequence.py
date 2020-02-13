@@ -61,7 +61,12 @@ class FastaSequence:
     TypeError
         When calling __init__, if sequence, id_, description, sequence_type or infer_type are of the wrong type.
         When calling from_fastasequence(), if fastasequence is of the wrong type.
+        When setting id, if id_value is not str.
+        When deleting id, if id_value is not str.
+        When setting description, if description_value is not str.
+        When deleting description, if description_value is not str.
         When setting sequence_type, if sequence_type_value is of the wrong type.
+        When deleting sequence_type, if sequence_type_value is of the wrong type.
         When calling complement(), if sequence_type is 'aminoacid' or reverse is not bool.
         When calling gc_content(), if sequence_type is 'aminoacid' or as_percentage is not bool.
         When calling at_gc_ratio(), if sequence_type is 'aminoacid'.
@@ -99,19 +104,8 @@ class FastaSequence:
         TypeError
             If sequence, id_, description, sequence_type or infer_type are of the wrong type.
         """
-        if isinstance(id_, str):
-            id_ = ''.join(id_.strip().replace(' ', '_').split())  # remove spaces and newlines
-            if id_.startswith('>'):  # remove '>' if any
-                id_ = id_[1:]
-            self._id = id_
-        else:
-            raise TypeError('id_ must be str')
-
-        if isinstance(description, str):
-            self._description = ' '.join(description.strip().split())  # remove extra spaces and newlines
-        else:
-            raise TypeError('description must be str')
-
+        self._update_id(id_)
+        self._update_description(description)
         self._update_sequence_type(sequence_type, update_letter_code_objects=False)
 
         if isinstance(sequence, str) and len(sequence) > 0:
@@ -165,10 +159,72 @@ class FastaSequence:
         """return id."""
         return self._id
 
+    @id.setter
+    def id(self, id_value):
+        """
+        Sets id.
+        '>' and newlines will be removed, if any. Spaces will be converted to '_'.
+        Can be an empty string.
+
+        Parameters
+        ----------
+        id_value : str
+            ID portion of the definition line (header).
+
+        Raises
+        ------
+        TypeError
+            If id_value is not str.
+        """
+        self._update_id(id_value)
+
+    @id.deleter
+    def id(self):
+        """
+        Sets id to the default value ('').
+
+        Raises
+        ------
+        TypeError
+            If id_value is not str.
+        """
+        self._update_id('')
+
     @property
     def description(self):
         """return description."""
         return self._description
+
+    @description.setter
+    def description(self, description_value):
+        """
+        Sets description.
+        Newlines will be removed, if any.
+        Can be an empty string.
+
+        Parameters
+        ----------
+        description_value : str
+            Description portion of the definition line (header).
+
+        Raises
+        ------
+        TypeError
+            If description_value is not str.
+        """
+        self._update_description(description_value)
+
+    @description.deleter
+    def description(self):
+        """
+        Sets description to the default value ('').
+
+        Raises
+        ------
+        TypeError
+            If description_value is not str.
+        """
+        self._update_description('')
 
     @property
     def sequence(self):
@@ -196,6 +252,18 @@ class FastaSequence:
             If sequence_type_value is of the wrong type.
         """
         self._update_sequence_type(sequence_type_value)
+
+    @sequence_type.deleter
+    def sequence_type(self):
+        """
+        Sets sequence_type to the default value (None) and updates all other relevant properties as needed.
+
+        Raises
+        ------
+        TypeError
+            If sequence_type_value is of the wrong type.
+        """
+        self._update_sequence_type(None)
 
     @property
     def inferred_type(self):
@@ -456,6 +524,51 @@ class FastaSequence:
             Iterator over the reversed sequence.
         """
         return self.__reversed__()
+
+    def _update_id(self, id_):
+        """
+        Updates ID portion of the definition line (header).
+        '>' and newlines will be removed, if any. Spaces will be converted to '_'.
+        Can be an empty string.
+
+        Parameters
+        ----------
+        id_ : str
+            ID portion of the definition line (header).
+
+        Raises
+        ------
+        TypeError
+            If id_ is not str.
+        """
+        if isinstance(id_, str):
+            id_ = ''.join(id_.strip().replace(' ', '_').split())  # remove spaces and newlines
+            if id_.startswith('>'):  # remove '>' if any
+                id_ = id_[1:]
+            self._id = id_
+        else:
+            raise TypeError('id_ must be str')
+
+    def _update_description(self, description):
+        """
+        Updates description portion of the definition line (header).
+        Newlines will be removed, if any.
+        Can be an empty string.
+
+        Parameters
+        ----------
+        description : str
+            Description portion of the definition line (header).
+
+        Raises
+        ------
+        TypeError
+            If description is not str.
+        """
+        if isinstance(description, str):
+            self._description = ' '.join(description.strip().split())  # remove extra spaces and newlines
+        else:
+            raise TypeError('description must be str')
 
     def _update_sequence_type(self, sequence_type, update_letter_code_objects=True):
         """
