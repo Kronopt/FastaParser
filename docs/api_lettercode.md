@@ -29,6 +29,12 @@ Instances of the LetterCode class have the following attributes
 | supported | bool | No | Indicates if letter code is supported or not (ie, if `letter_type` is provided and letter code is defined in the FASTA specification). |
 | in_fasta_spec | bool | No | Indicates if letter code is defined in the FASTA specification. |
 
+Editable attributes can be set by standard variable assignment and deleted/reset with the del keyword:
+```Python
+lettercode_object.letter_type = 'nucleotide'
+del lettercode_object.letter_type
+```
+
 ## Methods
 Instances of the LetterCode class have the following method
 

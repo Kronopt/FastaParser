@@ -12,7 +12,8 @@ assignees: ''
 - Python version: 
 - Python interpreter: [Cpython (default), Jython, PyPy, etc]
 - Python packages installed: 
-- Install method: [pip, conda, other]
+- FastaParser install method: [pip, conda, other]
+- FastaParser version: 
 
 **Describe the bug**
 Describe the bug as precisely as possible.

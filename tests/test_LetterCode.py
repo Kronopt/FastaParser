@@ -240,6 +240,15 @@ class Test_letter_type_property:
 
     # def test_get_wrong_type (already tested in Test__Init__)
 
+    def test_delete(self, aminoacid_good):
+        del aminoacid_good.letter_type
+        assert aminoacid_good.letter_code == 'H'
+        assert aminoacid_good.letter_type is None
+        assert aminoacid_good.description == ''
+        assert aminoacid_good.degenerate is None
+        assert aminoacid_good.supported is False
+        assert aminoacid_good.in_fasta_spec is True
+
 
 class Test_complement:
     def test_letter_type_aminoacid(self, aminoacid_good):
