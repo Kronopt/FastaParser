@@ -124,6 +124,13 @@ class LetterCode:
         """
         self._update_letter_type(letter_type_value)
 
+    @letter_type.deleter
+    def letter_type(self):
+        """
+        Sets letter_type to the default value (None) and updates all other relevant properties as needed.
+        """
+        self._update_letter_type(None)
+
     @property
     def description(self):
         """return description."""

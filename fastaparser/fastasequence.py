@@ -179,11 +179,6 @@ class FastaSequence:
     def id(self):
         """
         Sets id to the default value ('').
-
-        Raises
-        ------
-        TypeError
-            If id_value is not str.
         """
         self._update_id('')
 
@@ -215,11 +210,6 @@ class FastaSequence:
     def description(self):
         """
         Sets description to the default value ('').
-
-        Raises
-        ------
-        TypeError
-            If description_value is not str.
         """
         self._update_description('')
 
@@ -254,11 +244,6 @@ class FastaSequence:
     def sequence_type(self):
         """
         Sets sequence_type to the default value (None) and updates all other relevant properties as needed.
-
-        Raises
-        ------
-        TypeError
-            If sequence_type_value is of the wrong type.
         """
         self._update_sequence_type(None)
 
