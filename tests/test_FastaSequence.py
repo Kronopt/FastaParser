@@ -328,6 +328,105 @@ class Test_from_fastasequence:
             FastaSequence.from_fastasequence(1)
 
 
+class Test_id_property:
+    def test_set_good(self, actg_letter_code_list):
+        id_ = 'correct_id|some_other_id'
+        # include '>'
+        fasta_sequence = FastaSequence('ACTG')
+        fasta_sequence.id = '>' + id_
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == id_
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+        # exclude '>'
+        fasta_sequence = FastaSequence('ACTG')
+        fasta_sequence.id = id_
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == id_
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+    # def test_get_good(already tested in Test__Init__)
+
+    def test_set_with_spaces_and_newlines(self, actg_letter_code_list):
+        id_ = '   correct id|some other id\n more id\r'
+        fasta_sequence = FastaSequence('ACTG')
+        fasta_sequence.id = id_
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == 'correct_id|some_other_id_more_id'
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+    # def test_get_with_spaces_and_newlines(already tested in Test__Init__)
+
+    def test_set_not_str(self):
+        with pytest.raises(TypeError):
+            fasta_sequence = FastaSequence('ACTG')
+            fasta_sequence.id = 1
+        with pytest.raises(TypeError):
+            fasta_sequence = FastaSequence('ACTG')
+            fasta_sequence.id = []
+
+    # def test_get_not_str(already tested in Test__Init__)
+
+    def test_delete(self, actg_letter_code_list):
+        fasta_sequence = FastaSequence('ACTG', id_='test_id')
+        del fasta_sequence.id
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+
+class Test_description_property:
+    def test_set_good(self, actg_letter_code_list):
+        description = 'some correct description with numbers 1234567890#'
+        fasta_sequence = FastaSequence('ACTG')
+        fasta_sequence.description = description
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == description
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+    # def test_get_good(already tested in Test__Init__)
+
+    def test_set_with_newlines(self, actg_letter_code_list):
+        description = '   some correct description \nwith numbers \r1234567890#'
+        fasta_sequence = FastaSequence('ACTG')
+        fasta_sequence.description = description
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == 'some correct description with numbers 1234567890#'
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+    # def test_get_with_newlines(already tested in Test__Init__)
+
+    def test_set_not_str(self):
+        with pytest.raises(TypeError):
+            fasta_sequence = FastaSequence('ACTG')
+            fasta_sequence.description = 1
+        with pytest.raises(TypeError):
+            fasta_sequence = FastaSequence('ACTG')
+            fasta_sequence.description = []
+
+    # def test_get_not_str(already tested in Test__Init__)
+
+    def test_delete(self, actg_letter_code_list):
+        fasta_sequence = FastaSequence('ACTG', description='test_description')
+        del fasta_sequence.description
+        assert fasta_sequence.sequence == actg_letter_code_list
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
+
+
 class Test_sequence_type_property:
     def test_set_nucleotide(self, aminoacid_good):
         fasta_sequence, correct_sequence = aminoacid_good
@@ -379,6 +478,15 @@ class Test_sequence_type_property:
             fasta_sequence.sequence_type = []
 
     # def test_get_wrong_type (already tested in Test__Init__)
+
+    def test_delete(self, aminoacid_good):
+        fasta_sequence, correct_sequence = aminoacid_good
+        del fasta_sequence.sequence_type
+        assert fasta_sequence.sequence == correct_sequence
+        assert fasta_sequence.id == ''
+        assert fasta_sequence.description == ''
+        assert fasta_sequence.sequence_type is None
+        assert fasta_sequence.inferred_type is False
 
 
 class Test_complement:

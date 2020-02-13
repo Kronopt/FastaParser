@@ -62,11 +62,8 @@ class FastaSequence:
         When calling __init__, if sequence, id_, description, sequence_type or infer_type are of the wrong type.
         When calling from_fastasequence(), if fastasequence is of the wrong type.
         When setting id, if id_value is not str.
-        When deleting id, if id_value is not str.
         When setting description, if description_value is not str.
-        When deleting description, if description_value is not str.
         When setting sequence_type, if sequence_type_value is of the wrong type.
-        When deleting sequence_type, if sequence_type_value is of the wrong type.
         When calling complement(), if sequence_type is 'aminoacid' or reverse is not bool.
         When calling gc_content(), if sequence_type is 'aminoacid' or as_percentage is not bool.
         When calling at_gc_ratio(), if sequence_type is 'aminoacid'.
