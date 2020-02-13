@@ -25,11 +25,17 @@ Instances of the FastaSequence class have the following attributes
 
 | Attribute | Type / Value | Editable | Description |
 |:---:|:---:|:---:|---|
-| id | str | No | ID portion of the definition line (header). Can be empty |
-| description | str | No | Description portion of the definition line (header). Can be empty |
+| id | str | Yes | ID portion of the definition line (header). Can be empty |
+| description | str | Yes | Description portion of the definition line (header). Can be empty |
 | sequence | list([LetterCode](api_lettercode.md)) | No | Sequence |
 | sequence_type | 'nucleotide', 'aminoacid' or None | Yes | Indicates the sequence type. Can be `None` if not known |
 | inferred_type | bool | No | `True` if `FastaSequence` inferred the sequence type, `False` otherwise.
+
+Editable attributes can be set by standard variable assignment and deleted/reset with the del keyword:
+```Python
+fastasequence_object.id = 'new_id'
+del fastasequence_object.description
+```
 
 ## Methods
 Instances of the FastaSequence class have the following methods
