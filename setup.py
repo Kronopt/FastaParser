@@ -29,7 +29,7 @@ setup(
     project_urls={'Documentation': 'https://fastaparser.readthedocs.io/en/latest/'},
     packages=['fastaparser'],
     package_dir={'fastaparser': 'fastaparser'},
-    keywords='fasta parser',
+    keywords='fasta parser fasta-parser fasta-writer',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
