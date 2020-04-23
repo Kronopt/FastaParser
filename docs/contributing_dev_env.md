@@ -21,7 +21,7 @@ $ mkdir venv
 $ virtualenv venv/FastaParser
 ```
 
-to activate the enviroment:
+to activate the environment:
 ```sh
 $ cd venv/FastaParser/bin
 $ source activate
