@@ -1,8 +1,9 @@
 *.pyc
 .coverage
 
-# Pycharm files
+# IDE files
 .idea/
+.vscode/
 
 # VirtualEnv
 venv/
