@@ -10,9 +10,6 @@
 [![pypi](https://img.shields.io/pypi/v/fastaparser "pypi package")](https://pypi.org/project/fastaparser)
 [![pypi downloads](https://img.shields.io/pypi/dm/fastaparser "pypi downloads")](https://pypi.org/project/fastaparser)
 
-[![anaconda](https://anaconda.org/kronopt/fastaparser/badges/version.svg "conda package")](https://anaconda.org/Kronopt/fastaparser)
-[![anaconda downloads](https://img.shields.io/conda/dn/Kronopt/fastaparser "anaconda downloads")](https://anaconda.org/Kronopt/fastaparser)
-
 A Python FASTA file Parser and Writer.
 
 The FASTA file format is a standard text-based format for representing nucleotide and aminoacid sequences
@@ -22,16 +19,9 @@ It can also handle and manipulate such sequences as well as write sequences to n
 
 ## Installation
 
-At the command line,
-
-with `pip`:
+With `pip`:
 ```sh
 $ pip install fastaparser
-```
-
-or `conda`:
-```sh
-$ conda install -c kronopt fastaparser
 ```
 
 ## Usage

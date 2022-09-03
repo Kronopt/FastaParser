@@ -1,14 +1,6 @@
 # Installation
 
-At the command line,
-
-with `pip`:
+Using `pip`:
 ```sh
 $ pip install fastaparser
-```
-
-or `conda`:
-
-```sh
-$ conda install -c kronopt fastaparser
 ```

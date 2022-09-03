@@ -1,4 +1,4 @@
-.PHONY: help install-dependencies install-testingdependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton cconda-build-and-upload conda-clean-build
+.PHONY: help install-dependencies install-testing-dependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build
 
 help:
 	@echo ""
@@ -17,12 +17,6 @@ help:
 	@echo "clean-tests                  removes temp test files and folders"
 	@echo "clean-coverage               removes coverage files"
 	@echo "clean-build                  removes packaging artifacts"
-	@echo ""
-	@echo "conda-install-dependencies   installs conda build dependencies"
-	@echo "conda-skeleton               creates skeleton conda package recipe"
-	@echo "conda-build-and-upload       builds conda package and uploads to anaconda cloud"
-	@echo ""
-	@echo "conda-clean-build            removes conda build artifacts"
 
 install-dependencies:
 	python -m pip install -r requirements-dev.txt
@@ -72,17 +66,3 @@ clean-build:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf fastaparser.egg-info/
-
-conda-install-dependencies:
-	conda install conda-build anaconda-client
-
-conda-skeleton:
-	conda skeleton pypi fastaparser --output-dir .conda
-
-conda-build-and-upload:
-	conda config --set anaconda_upload yes
-	conda build .conda --strict-verify --output-folder .build_conda
-
-conda-clean-build:
-	conda build purge
-	rm -rf .build_conda/
