@@ -1,8 +1,8 @@
-pytest==7.*         # tests
-pylint==2.*         # style
+pytest~=6.0         # tests
+pylint~=2.0         # style
 black               # style
-coverage==6.*       # coverage
-mkdocs==1.*         # docs
+coverage~=6.0       # coverage
+mkdocs~=1.0         # docs
 twine               # pypi tools
 setuptools          # packaging
 wheel               # packaging
