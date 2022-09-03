@@ -96,6 +96,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags')
       uses: MichaelsJP/conda-package-publish-action@v1.1.0
       with:
-        subDir: '.conda'
+        subDir: '.conda/fastaparser'
         AnacondaToken: ${{ secrets.CONDA_TOKEN }}
         platforms: 'all'
