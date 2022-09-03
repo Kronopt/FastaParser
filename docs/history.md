@@ -1,5 +1,8 @@
 # History
 
+### 1.1.1 (03-09-2022)
+* Added support for Python 3.9 and 3.10
+
 ### 1.1 (13-02-2020)
 * Added property setters for:
     * FastaSequence.id

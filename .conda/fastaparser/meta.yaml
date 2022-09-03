@@ -1,15 +1,14 @@
 # conda package recipe
 
 {% set name = "fastaparser" %}
-{% set version = "1.1" %}
+{% set version = "1.1.1" %}
 
 package:
   name: "{{ name|lower }}"
   version: "{{ version }}"
 
 source:
-  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 35a40504351db7460681aea671a21d5005c2921cfe0c9c42cc259a0f08aee0a5
+  path: ".."
 
 build:
   number: 0
