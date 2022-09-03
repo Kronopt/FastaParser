@@ -30,10 +30,10 @@ https://ncbi.github.io/cxx-toolkit/pages/ch_demo#ch_demo.id1_fetch.html_ref_fast
 http://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html
 """
 
-__author__ = 'Pedro HC David, https://github.com/Kronopt'
-__credits__ = ['Pedro HC David']
-__version__ = '1.1'
-__license__ = 'GPLv3'
+__author__ = "Pedro HC David, https://github.com/Kronopt"
+__credits__ = ["Pedro HC David"]
+__version__ = "1.1"
+__license__ = "GPLv3"
 
 
 from .constants import *

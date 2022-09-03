@@ -42,9 +42,12 @@ class Reader(ParseDefinitionLine):
         When calling __init__, if fasta_file is not a file object, is closed or is not readable.
         When calling __iter__, if fasta_file is closed.
     """
-    _PARSE_METHODS = ('rich', 'quick')
 
-    def __init__(self, fasta_file, sequences_type=None, infer_type=False, parse_method='rich'):
+    _PARSE_METHODS = ("rich", "quick")
+
+    def __init__(
+        self, fasta_file, sequences_type=None, infer_type=False, parse_method="rich"
+    ):
         """
         Initializes file object (checks if fasta_file is an opened file object).
 
@@ -71,31 +74,39 @@ class Reader(ParseDefinitionLine):
             If fasta_file is not a file object, is closed or is not readable.
         """
         # for 'quick' parse method
-        self._fasta_sequence = namedtuple('Fasta', ['header', 'sequence'])
+        self._fasta_sequence = namedtuple("Fasta", ["header", "sequence"])
 
         # assume it's a file object
-        if hasattr(fasta_file, 'readline') and hasattr(fasta_file, 'closed') and hasattr(fasta_file, 'readable'):
+        if (
+            hasattr(fasta_file, "readline")
+            and hasattr(fasta_file, "closed")
+            and hasattr(fasta_file, "readable")
+        ):
             if not fasta_file.closed and fasta_file.readable():
                 self._fasta_file = fasta_file
             else:
-                raise TypeError('fasta_file must be opened for reading')
+                raise TypeError("fasta_file must be opened for reading")
         else:
-            raise TypeError('fasta_file must be a file object')
+            raise TypeError("fasta_file must be a file object")
 
-        if (isinstance(sequences_type, str) and sequences_type in LETTER_CODES) or sequences_type is None:
+        if (
+            isinstance(sequences_type, str) and sequences_type in LETTER_CODES
+        ) or sequences_type is None:
             self._sequences_type = sequences_type
         else:
-            raise TypeError('sequence_type must be one of: %s or None' % LETTER_CODES)
+            raise TypeError("sequence_type must be one of: %s or None" % LETTER_CODES)
 
         if isinstance(infer_type, bool):
             self._infer_type = infer_type
         else:
-            raise TypeError('infer_type must be bool')
+            raise TypeError("infer_type must be bool")
 
         if isinstance(parse_method, str) and parse_method in self._PARSE_METHODS:
             self._parse_method = parse_method
         else:
-            raise TypeError('parse_method must be one of: %s' % ', '.join(self._PARSE_METHODS))
+            raise TypeError(
+                "parse_method must be one of: %s" % ", ".join(self._PARSE_METHODS)
+            )
 
         self._current_iterator = None
 
@@ -135,9 +146,11 @@ class Reader(ParseDefinitionLine):
         -------
         FastaSequence or namedtuple('Fasta', ['header', 'sequence'])
         """
-        if self._parse_method == 'rich':
+        if self._parse_method == "rich":
             id_, description = self._parse_definition_line(definition_line)
-            fasta_sequence = FastaSequence(sequence, id_, description, self._sequences_type, self._infer_type)
+            fasta_sequence = FastaSequence(
+                sequence, id_, description, self._sequences_type, self._infer_type
+            )
         else:  # 'quick'
             fasta_sequence = self._fasta_sequence(definition_line, sequence)
         return fasta_sequence
@@ -153,8 +166,8 @@ class Reader(ParseDefinitionLine):
         """
         fasta_file.seek(0)  # restart cursor position (just in case)
 
-        definition_line = ''
-        sequence = ''
+        definition_line = ""
+        sequence = ""
 
         parsing_fasta_sequence = False
         for line in fasta_file:
@@ -163,7 +176,7 @@ class Reader(ParseDefinitionLine):
             # searching for '>' character at the start of a line
             # following lines contain the sequence, so parsing_fasta_sequence becomes True
             if not parsing_fasta_sequence:
-                if line.startswith('>'):
+                if line.startswith(">"):
                     definition_line = line
                     parsing_fasta_sequence = True
 
@@ -172,20 +185,26 @@ class Reader(ParseDefinitionLine):
                 # builds sequence string until a '>' is found.
                 # also ignores empty lines, which is not specified in the FASTA specification,
                 # but is forgiven to badly constructed FASTA files
-                if len(line) > 0 and line[0] != '>':
+                if len(line) > 0 and line[0] != ">":
                     sequence += line
-                elif len(line) > 0 and line[0] == '>':
-                    fasta_sequence = self._generate_fasta_sequence_object(sequence, definition_line)
+                elif len(line) > 0 and line[0] == ">":
+                    fasta_sequence = self._generate_fasta_sequence_object(
+                        sequence, definition_line
+                    )
                     yield fasta_sequence
 
                     # restart variables
                     definition_line = line
-                    sequence = ''
+                    sequence = ""
                     parsing_fasta_sequence = True
 
         # end of file, therefore yield last FASTA sequence
-        if len(sequence) > 0:  # a FASTA sequence was actually parsed and were not just blank lines
-            fasta_sequence = self._generate_fasta_sequence_object(sequence, definition_line)
+        if (
+            len(sequence) > 0
+        ):  # a FASTA sequence was actually parsed and were not just blank lines
+            fasta_sequence = self._generate_fasta_sequence_object(
+                sequence, definition_line
+            )
             yield fasta_sequence
 
     def __iter__(self):
@@ -193,10 +212,12 @@ class Reader(ParseDefinitionLine):
         Iterates over the FASTA file.
         Returns a new iterator of the file (from the beginning) every time __iter__ is called.
         """
-        if not self._fasta_file.closed and self._fasta_file.readable():  # check if file is closed
+        if (
+            not self._fasta_file.closed and self._fasta_file.readable()
+        ):  # check if file is closed
             self._current_iterator = self._iter_fasta_file(self._fasta_file)
             return self._current_iterator
-        raise TypeError('fasta_file must be opened for reading')
+        raise TypeError("fasta_file must be opened for reading")
 
     def __next__(self):
         """
@@ -208,4 +229,4 @@ class Reader(ParseDefinitionLine):
         return next(self._current_iterator)
 
     def __repr__(self):
-        return 'fastaparser.Reader(%s)' % os.path.abspath(self._fasta_file.name)
+        return "fastaparser.Reader(%s)" % os.path.abspath(self._fasta_file.name)

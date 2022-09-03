@@ -42,22 +42,30 @@ class ParseDefinitionLine:
         TypeError
             If definition_line is of the wrong type.
         """
-        if isinstance(definition_line, str):  # '>id|more_id description ...' with or without the '>' at the start
-            id_and_description = definition_line.split(maxsplit=1)  # first space separates id from description
+        if isinstance(
+            definition_line, str
+        ):  # '>id|more_id description ...' with or without the '>' at the start
+            id_and_description = definition_line.split(
+                maxsplit=1
+            )  # first space separates id from description
 
             # both id and description can be empty
-            if len(id_and_description) == 0 or (len(id_and_description) == 1 and id_and_description[0] == '>'):
-                _id = ''
-                _description = ''
+            if len(id_and_description) == 0 or (
+                len(id_and_description) == 1 and id_and_description[0] == ">"
+            ):
+                _id = ""
+                _description = ""
             else:
-                if id_and_description[0].startswith('>'):
+                if id_and_description[0].startswith(">"):
                     id_and_description[0] = id_and_description[0][1:]
-                if len(id_and_description) == 1:  # description can be empty (assumes only id present if len == 1)
+                if (
+                    len(id_and_description) == 1
+                ):  # description can be empty (assumes only id present if len == 1)
                     _id = id_and_description[0]
-                    _description = ''
+                    _description = ""
                 else:
                     _id, _description = id_and_description
         else:
-            raise TypeError('definition_line must be str')
+            raise TypeError("definition_line must be str")
 
         return _id, _description

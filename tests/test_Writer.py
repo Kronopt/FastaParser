@@ -34,7 +34,7 @@ def compare_2_files(file_read, file_written):
 
 @pytest.fixture()
 def fasta_temporary_file():
-    f = open('tests/FASTA_TEMPORARY_FILE_FOR_WRITING.fasta', 'w')
+    f = open("tests/FASTA_TEMPORARY_FILE_FOR_WRITING.fasta", "w")
     yield f
     f.close()
     os.remove(f.name)
@@ -57,7 +57,7 @@ class Test__init__:
 
     def test_fasta_file_object_not_a_file(self):
         with pytest.raises(TypeError):
-            Writer('')
+            Writer("")
         with pytest.raises(TypeError):
             Writer([])
         with pytest.raises(TypeError):
@@ -65,10 +65,14 @@ class Test__init__:
 
 
 class Test_writefasta:
-    def test_fasta_sequence_fastasequence_object(self, fasta_nucleotide_single, fasta_temporary_file):
+    def test_fasta_sequence_fastasequence_object(
+        self, fasta_nucleotide_single, fasta_temporary_file
+    ):
         fasta_reader = Reader(fasta_nucleotide_single)
         fasta_writer = Writer(fasta_temporary_file)
-        fasta_writer.writefasta(next(fasta_reader))  # only a single FASTA sequence in fasta_nucleotide_single
+        fasta_writer.writefasta(
+            next(fasta_reader)
+        )  # only a single FASTA sequence in fasta_nucleotide_single
         # at this point the 2 files should be equal
         compare_2_files(fasta_nucleotide_single, fasta_temporary_file)
 
@@ -76,14 +80,16 @@ class Test_writefasta:
         fasta_reader = Reader(fasta_nucleotide_single)
         fasta_writer = Writer(fasta_temporary_file)
         fasta = next(fasta_reader)
-        fasta_writer.writefasta((fasta.formatted_definition_line(), fasta.formatted_sequence()))
+        fasta_writer.writefasta(
+            (fasta.formatted_definition_line(), fasta.formatted_sequence())
+        )
         # at this point the 2 files should be equal
         compare_2_files(fasta_nucleotide_single, fasta_temporary_file)
 
     def test_fasta_sequence_wrong_type(self, fasta_temporary_file):
         with pytest.raises(TypeError):
             fasta_writer = Writer(fasta_temporary_file)
-            fasta_writer.writefasta('')
+            fasta_writer.writefasta("")
         with pytest.raises(TypeError):
             fasta_writer = Writer(fasta_temporary_file)
             fasta_writer.writefasta(123)
@@ -96,17 +102,24 @@ class Test_writefasta:
 
 
 class Test_writefastas:
-    def test_fasta_sequence_fastasequence_objects(self, fasta_nucleotide_multiple, fasta_temporary_file):
+    def test_fasta_sequence_fastasequence_objects(
+        self, fasta_nucleotide_multiple, fasta_temporary_file
+    ):
         fasta_reader = Reader(fasta_nucleotide_multiple)
         fasta_writer = Writer(fasta_temporary_file)
         fasta_writer.writefastas(fasta_reader)
         # at this point the 2 files should be equal
         compare_2_files(fasta_nucleotide_multiple, fasta_temporary_file)
 
-    def test_fasta_sequence_tuples(self, fasta_nucleotide_multiple, fasta_temporary_file):
+    def test_fasta_sequence_tuples(
+        self, fasta_nucleotide_multiple, fasta_temporary_file
+    ):
         fasta_reader = Reader(fasta_nucleotide_multiple)
         fasta_writer = Writer(fasta_temporary_file)
-        fastas = [(fasta.formatted_definition_line(), fasta.formatted_sequence()) for fasta in fasta_reader]
+        fastas = [
+            (fasta.formatted_definition_line(), fasta.formatted_sequence())
+            for fasta in fasta_reader
+        ]
         fasta_writer.writefastas(fastas)
         # at this point the 2 files should be equal
         compare_2_files(fasta_nucleotide_multiple, fasta_temporary_file)
@@ -126,7 +139,9 @@ class Test_writefastas:
 class Test__repr__:
     def test__repr__(self, fasta_temporary_file):
         fasta_writer = Writer(fasta_temporary_file)
-        assert repr(fasta_writer) == 'fastaparser.Writer(%s)' % os.path.abspath(fasta_temporary_file.name)
+        assert repr(fasta_writer) == "fastaparser.Writer(%s)" % os.path.abspath(
+            fasta_temporary_file.name
+        )
 
 
 # tested in Test__Init__:

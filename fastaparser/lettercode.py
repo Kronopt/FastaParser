@@ -6,10 +6,16 @@ LetterCode - Represents a single nucleotide or aminoacid letter code.
 """
 
 import warnings
-from .constants import LETTER_CODES, LETTER_CODES_ALL, NUCLEOTIDE_LETTER_CODES_COMPLEMENT
+from .constants import (
+    LETTER_CODES,
+    LETTER_CODES_ALL,
+    NUCLEOTIDE_LETTER_CODES_COMPLEMENT,
+)
 
 
-warnings.simplefilter("always")  # show warnings everytime instead of only the first time they happen
+warnings.simplefilter(
+    "always"
+)  # show warnings everytime instead of only the first time they happen
 
 
 class LetterCode:
@@ -69,7 +75,7 @@ class LetterCode:
             self._letter_code = letter_code.upper()
             self._in_fasta_spec = self._letter_code in LETTER_CODES_ALL
         else:
-            raise TypeError('letter_code must be a single character str')
+            raise TypeError("letter_code must be a single character str")
 
         self._update_letter_type(letter_type)
 
@@ -95,7 +101,7 @@ class LetterCode:
         """
         if isinstance(lettercode, LetterCode):
             return cls(lettercode.letter_code, lettercode.letter_type)
-        raise TypeError('lettercode must be a LetterCode')
+        raise TypeError("lettercode must be a LetterCode")
 
     @property
     def letter_code(self):
@@ -134,7 +140,7 @@ class LetterCode:
     @property
     def description(self):
         """return description."""
-        description = ''
+        description = ""
         if self._letter_type in LETTER_CODES:
             if self._letter_code in LETTER_CODES[self._letter_type][0]:  # good
                 description = LETTER_CODES[self._letter_type][0][self._letter_code]
@@ -178,13 +184,21 @@ class LetterCode:
         TypeError
             If self.letter_type is 'aminoacid'.
         """
-        if self._letter_type == 'aminoacid':
-            raise TypeError('Complement is not possible for aminoacids (letter_type == \'aminoacid\')')
+        if self._letter_type == "aminoacid":
+            raise TypeError(
+                "Complement is not possible for aminoacids (letter_type == 'aminoacid')"
+            )
         if self._letter_type is None:
-            warnings.warn('letter_type is not explicitly \'nucleotide\'. '
-                          'Therefore, the complementary letter code might not make sense.')
-        return LetterCode(NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(self._letter_code, self._letter_code),
-                          self._letter_type)
+            warnings.warn(
+                "letter_type is not explicitly 'nucleotide'. "
+                "Therefore, the complementary letter code might not make sense."
+            )
+        return LetterCode(
+            NUCLEOTIDE_LETTER_CODES_COMPLEMENT.get(
+                self._letter_code, self._letter_code
+            ),
+            self._letter_type,
+        )
 
     def _update_letter_type(self, letter_type):
         """
@@ -203,10 +217,14 @@ class LetterCode:
         if letter_type in LETTER_CODES:
             self._letter_type = letter_type
 
-            if self._letter_code in LETTER_CODES[self._letter_type][0]:  # letter_codes_good
+            if (
+                self._letter_code in LETTER_CODES[self._letter_type][0]
+            ):  # letter_codes_good
                 self._degenerate = False
                 self._supported = True
-            elif self._letter_code in LETTER_CODES[self._letter_type][1]:  # letter_codes_degenerate
+            elif (
+                self._letter_code in LETTER_CODES[self._letter_type][1]
+            ):  # letter_codes_degenerate
                 self._degenerate = True
                 self._supported = True
             else:  # _letter_code isn't defined in the FASTA specification
@@ -217,7 +235,9 @@ class LetterCode:
             self._supported = False
             self._degenerate = None
         else:
-            raise TypeError('letter_type must be one of: %s or None' % ', '.join(LETTER_CODES))
+            raise TypeError(
+                "letter_type must be one of: %s or None" % ", ".join(LETTER_CODES)
+            )
 
     def __eq__(self, other):
         """
@@ -231,7 +251,7 @@ class LetterCode:
         return False
 
     def __repr__(self):
-        return 'LetterCode(%r)' % self._letter_code
+        return "LetterCode(%r)" % self._letter_code
 
     def __str__(self):
         return self._letter_code

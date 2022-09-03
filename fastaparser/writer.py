@@ -57,13 +57,17 @@ class Writer(ParseDefinitionLine):
             If fasta_file is not a file object, is closed or is not writable.
         """
         # assume it's a file object
-        if hasattr(fasta_file, "writelines") and hasattr(fasta_file, 'closed') and hasattr(fasta_file, 'writable'):
+        if (
+            hasattr(fasta_file, "writelines")
+            and hasattr(fasta_file, "closed")
+            and hasattr(fasta_file, "writable")
+        ):
             if not fasta_file.closed and fasta_file.writable():
                 self._fasta_file = fasta_file
             else:
-                raise TypeError('fasta_file must be opened for writing')
+                raise TypeError("fasta_file must be opened for writing")
         else:
-            raise TypeError('fasta_file must be a file object')
+            raise TypeError("fasta_file must be a file object")
 
     @property
     def fasta_file(self):
@@ -93,19 +97,25 @@ class Writer(ParseDefinitionLine):
             pass
 
         # or create one with the provided header and sequence
-        elif (isinstance(fasta_sequence, (tuple, list))
-              and len(fasta_sequence) == 2
-              and isinstance(fasta_sequence[0], str)
-              and isinstance(fasta_sequence[1], str)):
+        elif (
+            isinstance(fasta_sequence, (tuple, list))
+            and len(fasta_sequence) == 2
+            and isinstance(fasta_sequence[0], str)
+            and isinstance(fasta_sequence[1], str)
+        ):
             id_, description = self._parse_definition_line(fasta_sequence[0])
-            sequence = ''.join(fasta_sequence[1].split('\n'))  # remove '\n's from sequence
+            sequence = "".join(
+                fasta_sequence[1].split("\n")
+            )  # remove '\n's from sequence
             fasta_sequence = FastaSequence(sequence, id_, description)
 
         else:
-            raise TypeError('fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)')
+            raise TypeError(
+                "fasta_sequence must be a FastaSequence object or a tuple (header : str, sequence : str)"
+            )
 
         # write fasta to file
-        self._fasta_file.write(fasta_sequence.formatted_fasta() + '\n\n')
+        self._fasta_file.write(fasta_sequence.formatted_fasta() + "\n\n")
 
     def writefastas(self, fasta_sequences):
         """
@@ -128,11 +138,14 @@ class Writer(ParseDefinitionLine):
         """
         try:
             iter(fasta_sequences)
-        except TypeError:
-            raise TypeError('fasta_sequences must be an iterable of FastaSequence '
-                            'objects or an iterable of tuples (header : str, sequence : str)')
+        except TypeError as exc:
+            raise TypeError(
+                "fasta_sequences must be an iterable of FastaSequence "
+                "objects or an iterable of tuples (header : str, sequence : str)"
+            ) from exc
+
         for fasta in fasta_sequences:
             self.writefasta(fasta)
 
     def __repr__(self):
-        return 'fastaparser.Writer(%s)' % os.path.abspath(self._fasta_file.name)
+        return "fastaparser.Writer(%s)" % os.path.abspath(self._fasta_file.name)

@@ -32,6 +32,7 @@ test:
 
 lint:
 	python -m pylint fastaparser setup.py
+	python -m black --check .
 
 coverage:
 	python -m coverage run --source fastaparser -m pytest tests/ -q
