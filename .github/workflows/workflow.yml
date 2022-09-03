@@ -98,4 +98,4 @@ jobs:
       with:
         subDir: '.conda/fastaparser'
         AnacondaToken: ${{ secrets.CONDA_TOKEN }}
-        platforms: 'all'
+        platforms: 'win-64,linux-aarch64,osx-64'
