@@ -1,8 +1,9 @@
-.PHONY: help install-dependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton conda-config-upload conda-build conda-clean-build
+.PHONY: help install-dependencies install-testingdependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton conda-config-upload conda-build conda-clean-build
 
 help:
 	@echo ""
 	@echo "install-dependencies         installs dependencies (includes development dependencies)"
+	@echo "install-testing-dependencies installs dependencies for testing"
 	@echo "test                         runs tests"
 	@echo "lint                         runs linter"
 	@echo "coverage                     runs test coverage"
@@ -26,6 +27,9 @@ help:
 
 install-dependencies:
 	python -m pip install -r requirements-dev.txt
+
+install-testing-dependencies:
+	python -m pip install -r requirements-testing.txt
 
 test:
 	python -m pytest tests/ -vv

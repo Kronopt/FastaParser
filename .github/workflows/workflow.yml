@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        make install-dependencies
+        make install-testing-dependencies
 
     - name: Test
       run: make test
