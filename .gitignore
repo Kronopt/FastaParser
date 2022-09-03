@@ -8,3 +8,9 @@
 
 # VirtualEnv
 venv/
+
+# build
+.build*
+build/
+dist/
+fastaparser.egg-info/

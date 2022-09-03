@@ -1,4 +1,4 @@
-.PHONY: help install-dependencies install-testingdependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton conda-config-upload conda-build conda-clean-build
+.PHONY: help install-dependencies install-testingdependencies test lint coverage docs-test build build-test release clean clean-pyc clean-tests clean-coverage clean-build conda-install-dependencies conda-skeleton cconda-build-and-upload conda-clean-build
 
 help:
 	@echo ""
@@ -20,8 +20,7 @@ help:
 	@echo ""
 	@echo "conda-install-dependencies   installs conda build dependencies"
 	@echo "conda-skeleton               creates skeleton conda package recipe"
-	@echo "conda-config-upload          configures conda to upload to anaconda cloud"
-	@echo "conda-build                  builds conda package"
+	@echo "conda-build-and-upload       builds conda package and uploads to anaconda cloud"
 	@echo ""
 	@echo "conda-clean-build            removes conda build artifacts"
 
@@ -80,11 +79,10 @@ conda-install-dependencies:
 conda-skeleton:
 	conda skeleton pypi fastaparser --output-dir .conda
 
-conda-config-upload:
+conda-build-and-upload:
 	conda config --set anaconda_upload yes
-
-conda-build:
-	conda build .conda --strict-verify
+	conda build .conda --strict-verify --output-folder .build_conda
 
 conda-clean-build:
 	conda build purge
+	rm -rf .build_conda/
