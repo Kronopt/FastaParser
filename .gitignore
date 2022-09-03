@@ -1,5 +1,6 @@
 *.pyc
 .coverage
+.pytest*
 
 # IDE files
 .idea/
